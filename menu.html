@@ -44,6 +44,13 @@ body{
 .customer{
     font-size:13px;
     color:#666;
+    margin-top:5px;
+}
+
+.customer-phone{
+    font-size:12px;
+    color:#999;
+    margin-top:3px;
 }
 
 .section-title{
@@ -195,7 +202,157 @@ body{
     cursor:pointer;
 }
 
+.checkout{
+    margin-top:20px;
+    padding-top:20px;
+    border-top:1px solid #eee;
+}
+
+.form-group{
+    margin-top:14px;
+}
+
+.form-label{
+    display:block;
+    font-weight:bold;
+    margin-bottom:7px;
+    font-size:14px;
+}
+
+.input,
+.select,
+.textarea{
+    width:100%;
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:13px;
+    font-size:15px;
+    background:#fff;
+    outline:none;
+}
+
+.textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+.payment-options{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+}
+
+.payment-option{
+    border:1px solid #ddd;
+    border-radius:12px;
+    padding:12px 7px;
+    text-align:center;
+    cursor:pointer;
+    background:#fff;
+    font-size:14px;
+}
+
+.payment-option.active{
+    background:#222;
+    color:#fff;
+    border-color:#222;
+}
+
+.tip-options{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:7px;
+}
+
+.tip-option{
+    border:1px solid #ddd;
+    background:#fff;
+    border-radius:10px;
+    padding:10px 4px;
+    cursor:pointer;
+    text-align:center;
+    font-size:13px;
+}
+
+.tip-option.active{
+    background:#222;
+    color:#fff;
+}
+
+.promo-row{
+    display:flex;
+    gap:8px;
+}
+
+.promo-row .input{
+    flex:1;
+}
+
+.promo-btn{
+    border:0;
+    background:#222;
+    color:#fff;
+    border-radius:12px;
+    padding:0 15px;
+    cursor:pointer;
+    white-space:nowrap;
+}
+
+.promo-message{
+    font-size:13px;
+    margin-top:7px;
+}
+
+.confirm-btn{
+    width:100%;
+    border:0;
+    background:#222;
+    color:#fff;
+    padding:16px;
+    border-radius:14px;
+    font-size:18px;
+    font-weight:bold;
+    margin-top:20px;
+    cursor:pointer;
+}
+
+.confirm-btn:disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+.order-success{
+    display:none;
+    background:#fff;
+    border-radius:22px;
+    padding:25px;
+    margin-top:20px;
+    text-align:center;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.success-icon{
+    font-size:55px;
+}
+
+.order-number{
+    font-size:22px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.error-box{
+    background:#fff0f0;
+    color:#b00020;
+    padding:12px;
+    border-radius:12px;
+    margin-top:12px;
+    display:none;
+    font-size:14px;
+}
+
 @media(max-width:500px){
+
     .products{
         grid-template-columns:1fr 1fr;
     }
@@ -203,6 +360,15 @@ body{
     .product-image{
         height:120px;
     }
+
+    .payment-options{
+        grid-template-columns:1fr 1fr 1fr;
+    }
+
+    .tip-options{
+        grid-template-columns:repeat(5,1fr);
+    }
+
 }
 </style>
 </head>
@@ -215,7 +381,10 @@ body{
 
 <div>
 <div class="logo">🥛 ألبان فلاحي</div>
+
 <div id="customerName" class="customer"></div>
+
+<div id="customerPhone" class="customer-phone"></div>
 </div>
 
 <button class="logout" onclick="logout()">
@@ -246,7 +415,224 @@ body{
 
 <div id="summary"></div>
 
+
+<!-- CHECKOUT -->
+
+<div id="checkout" class="checkout" style="display:none">
+
+<div class="section-title" style="margin-top:0">
+📦 بيانات التوصيل
 </div>
+
+
+<div class="form-group">
+
+<label class="form-label">
+الفرع
+</label>
+
+<select id="branch" class="select">
+<option value="">جاري تحميل الفروع...</option>
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label class="form-label">
+العنوان بالتفصيل
+</label>
+
+<textarea
+id="address"
+class="textarea"
+placeholder="اكتب العنوان بالتفصيل: المنطقة، الشارع، رقم العقار، الدور، الشقة..."
+></textarea>
+
+</div>
+
+
+<div class="form-group">
+
+<label class="form-label">
+طريقة الدفع
+</label>
+
+<div class="payment-options">
+
+<div
+class="payment-option active"
+data-payment="cash"
+onclick="selectPayment('cash',this)"
+>
+💵 كاش
+</div>
+
+<div
+class="payment-option"
+data-payment="card"
+onclick="selectPayment('card',this)"
+>
+💳 Visa
+</div>
+
+<div
+class="payment-option"
+data-payment="wallet"
+onclick="selectPayment('wallet',this)"
+>
+📱 محفظة
+</div>
+
+</div>
+
+</div>
+
+
+<div class="form-group">
+
+<label class="form-label">
+🎁 كود الخصم
+</label>
+
+<div class="promo-row">
+
+<input
+id="promoCode"
+class="input"
+placeholder="اكتب كود الخصم"
+/>
+
+<button
+class="promo-btn"
+onclick="checkPromo()"
+>
+تطبيق
+</button>
+
+</div>
+
+<div
+id="promoMessage"
+class="promo-message"
+></div>
+
+</div>
+
+
+<div class="form-group">
+
+<label class="form-label">
+❤️ بقشيش للكابتن
+</label>
+
+<div class="tip-options">
+
+<div
+class="tip-option active"
+onclick="selectTip(0,this)"
+>
+0 ج
+</div>
+
+<div
+class="tip-option"
+onclick="selectTip(5,this)"
+>
+5 ج
+</div>
+
+<div
+class="tip-option"
+onclick="selectTip(10,this)"
+>
+10 ج
+</div>
+
+<div
+class="tip-option"
+onclick="selectTip(15,this)"
+>
+15 ج
+</div>
+
+<div
+class="tip-option"
+onclick="selectTip(20,this)"
+>
+20 ج
+</div>
+
+</div>
+
+</div>
+
+
+<div class="form-group">
+
+<label class="form-label">
+📝 ملاحظات التوصيل
+</label>
+
+<textarea
+id="deliveryNotes"
+class="textarea"
+placeholder="مثال: اتصل قبل الوصول، سيب الطلب عند البواب، متخبطش على الباب..."
+></textarea>
+
+</div>
+
+
+<div
+id="orderError"
+class="error-box"
+></div>
+
+
+<button
+id="confirmBtn"
+class="confirm-btn"
+onclick="submitOrder()"
+>
+تأكيد الطلب ❤️
+</button>
+
+</div>
+
+</div>
+
+
+<div
+id="orderSuccess"
+class="order-success"
+>
+
+<div class="success-icon">
+✅
+</div>
+
+<div style="font-size:20px;font-weight:bold">
+تم استلام طلبك بنجاح
+</div>
+
+<div class="order-number">
+رقم الطلب: <span id="orderNumber"></span>
+</div>
+
+<div style="color:#777;margin-top:10px">
+شكرًا لاختيارك ألبان فلاحي ❤️
+</div>
+
+<button
+class="confirm-btn"
+onclick="location.reload()"
+>
+العودة للمنيو
+</button>
+
+</div>
+
 
 </div>
 
@@ -266,11 +652,22 @@ supabase.createClient(
 );
 
 
+const CREATE_ORDER_URL =
+"https://qxwvuxkbcghbkztjrzon.supabase.co/functions/v1/create-order";
+
+
 let categories = [];
 let products = [];
+let branches = [];
 let cart = [];
 
 let selectedCategory = null;
+
+let selectedPayment = "cash";
+
+let selectedTip = 0;
+
+let appliedPromo = "";
 
 
 /* =========================
@@ -283,6 +680,10 @@ localStorage.getItem("alban_customer_id");
 const customerName =
 localStorage.getItem("alban_customer_name");
 
+const customerPhone =
+localStorage.getItem("alban_customer_phone");
+
+
 if(!customerId){
 
 window.location.href =
@@ -290,10 +691,18 @@ window.location.href =
 
 }
 
+
 document.getElementById("customerName")
 .innerText =
 customerName
 ? `أهلاً ${customerName} 👋`
+: "";
+
+
+document.getElementById("customerPhone")
+.innerText =
+customerPhone
+? customerPhone
 : "";
 
 
@@ -306,6 +715,8 @@ async function loadData(){
 await loadCategories();
 
 await loadProducts();
+
+await loadBranches();
 
 renderCategories();
 
@@ -353,6 +764,7 @@ document.getElementById("categories");
 
 box.innerHTML = "";
 
+
 const all =
 document.createElement("button");
 
@@ -361,6 +773,7 @@ all.className =
 
 all.innerText =
 "كل الأصناف";
+
 
 all.onclick = () => {
 
@@ -378,6 +791,7 @@ renderProducts();
 
 };
 
+
 box.appendChild(all);
 
 
@@ -392,6 +806,7 @@ button.className =
 button.innerText =
 category.name_ar ||
 category.name;
+
 
 button.onclick = () => {
 
@@ -409,6 +824,7 @@ button.classList.add("active");
 renderProducts();
 
 };
+
 
 box.appendChild(button);
 
@@ -433,6 +849,7 @@ await supabaseClient
 .eq("active",true)
 .order("sort_order");
 
+
 if(error){
 
 console.log(error);
@@ -444,6 +861,7 @@ document.getElementById("products")
 return;
 
 }
+
 
 products =
 data || [];
@@ -458,8 +876,10 @@ document.getElementById("products");
 
 box.innerHTML = "";
 
+
 let list =
 products;
+
 
 if(selectedCategory !== null){
 
@@ -489,20 +909,24 @@ document.createElement("div");
 card.className =
 "product";
 
+
 const image =
 product.image_url
-? `<img class="product-image" src="${product.image_url}" alt="">`
+? `<img class="product-image" src="${escapeHtml(product.image_url)}" alt="">`
 : `<div class="product-image"></div>`;
+
 
 const name =
 product.name_ar ||
 product.name ||
 "";
 
+
 const description =
 product.description_ar ||
 product.description ||
 "";
+
 
 card.innerHTML = `
 
@@ -530,12 +954,73 @@ ${Number(product.price).toFixed(0)} ج
 
 `;
 
+
 card
 .querySelector(".add")
 .onclick = () =>
 addToCart(product.id);
 
+
 box.appendChild(card);
+
+});
+
+}
+
+
+/* =========================
+   BRANCHES
+========================= */
+
+async function loadBranches(){
+
+const {
+data,
+error
+} =
+await supabaseClient
+.from("branches")
+.select("id,name")
+.eq("active",true)
+.order("id");
+
+
+const select =
+document.getElementById("branch");
+
+
+if(error){
+
+console.log(error);
+
+select.innerHTML =
+'<option value="">تعذر تحميل الفروع</option>';
+
+return;
+
+}
+
+
+branches =
+data || [];
+
+
+select.innerHTML =
+'<option value="">اختر الفرع</option>';
+
+
+branches.forEach(branch => {
+
+const option =
+document.createElement("option");
+
+option.value =
+branch.id;
+
+option.textContent =
+branch.name;
+
+select.appendChild(option);
 
 });
 
@@ -553,12 +1038,15 @@ products.find(
 p => p.id === productId
 );
 
+
 if(!product) return;
+
 
 const existing =
 cart.find(
 item => item.product_id === productId
 );
+
 
 if(existing){
 
@@ -584,6 +1072,7 @@ quantity:1
 
 }
 
+
 renderCart();
 
 }
@@ -599,9 +1088,12 @@ cart.find(
 x => x.product_id === productId
 );
 
+
 if(!item) return;
 
+
 item.quantity += change;
+
 
 if(item.quantity <= 0){
 
@@ -611,6 +1103,7 @@ x => x.product_id !== productId
 );
 
 }
+
 
 renderCart();
 
@@ -629,6 +1122,10 @@ document.getElementById("cart");
 const summary =
 document.getElementById("summary");
 
+const checkout =
+document.getElementById("checkout");
+
+
 box.innerHTML = "";
 
 summary.innerHTML = "";
@@ -639,9 +1136,16 @@ if(!cart.length){
 box.innerHTML =
 '<div class="empty">السلة فاضية 🛒</div>';
 
+checkout.style.display =
+"none";
+
 return;
 
 }
+
+
+checkout.style.display =
+"block";
 
 
 cart.forEach(item => {
@@ -651,6 +1155,7 @@ document.createElement("div");
 
 row.className =
 "cart-item";
+
 
 row.innerHTML = `
 
@@ -680,8 +1185,10 @@ ${item.quantity}
 
 `;
 
+
 const buttons =
 row.querySelectorAll("button");
+
 
 buttons[0].onclick =
 () =>
@@ -690,12 +1197,14 @@ item.product_id,
 -1
 );
 
+
 buttons[1].onclick =
 () =>
 changeQuantity(
 item.product_id,
 1
 );
+
 
 box.appendChild(row);
 
@@ -738,7 +1247,8 @@ subtotal >= 500
 const total =
 subtotal +
 serviceFee +
-deliveryFee;
+deliveryFee +
+selectedTip;
 
 
 const summary =
@@ -746,6 +1256,7 @@ document.getElementById("summary");
 
 
 let deliveryMessage = "";
+
 
 if(subtotal >= 500){
 
@@ -784,6 +1295,15 @@ ${deliveryFee === 0
 </strong>
 </div>
 
+${selectedTip > 0 ? `
+
+<div class="summary-row">
+<span>بقشيش الكابتن</span>
+<strong>${selectedTip.toFixed(0)} ج</strong>
+</div>
+
+` : ""}
+
 <div class="total">
 الإجمالي: ${total.toFixed(0)} ج
 </div>
@@ -793,6 +1313,322 @@ ${deliveryMessage}
 </div>
 
 `;
+
+}
+
+
+/* =========================
+   PAYMENT
+========================= */
+
+function selectPayment(
+payment,
+element
+){
+
+selectedPayment =
+payment;
+
+
+document
+.querySelectorAll(".payment-option")
+.forEach(x =>
+x.classList.remove("active")
+);
+
+
+element.classList.add("active");
+
+}
+
+
+/* =========================
+   TIP
+========================= */
+
+function selectTip(
+amount,
+element
+){
+
+selectedTip =
+amount;
+
+
+document
+.querySelectorAll(".tip-option")
+.forEach(x =>
+x.classList.remove("active")
+);
+
+
+element.classList.add("active");
+
+
+calculateSummary();
+
+}
+
+
+/* =========================
+   PROMO
+========================= */
+
+function checkPromo(){
+
+const input =
+document.getElementById("promoCode");
+
+const message =
+document.getElementById("promoMessage");
+
+
+const code =
+input.value.trim().toUpperCase();
+
+
+if(!code){
+
+appliedPromo = "";
+
+message.innerText =
+"اكتب كود الخصم أولاً";
+
+message.style.color =
+"#b00020";
+
+return;
+
+}
+
+
+appliedPromo =
+code;
+
+
+message.innerText =
+"✅ تم حفظ الكود وسيتم التحقق منه عند تأكيد الطلب";
+
+message.style.color =
+"#188038";
+
+}
+
+
+/* =========================
+   SUBMIT ORDER
+========================= */
+
+async function submitOrder(){
+
+const button =
+document.getElementById("confirmBtn");
+
+const errorBox =
+document.getElementById("orderError");
+
+
+errorBox.style.display =
+"none";
+
+errorBox.innerText =
+"";
+
+
+if(!cart.length){
+
+showOrderError(
+"السلة فاضية"
+);
+
+return;
+
+}
+
+
+const branchId =
+document.getElementById("branch").value;
+
+
+const address =
+document.getElementById("address").value.trim();
+
+
+const deliveryNotes =
+document.getElementById("deliveryNotes").value.trim();
+
+
+if(!branchId){
+
+showOrderError(
+"من فضلك اختر الفرع"
+);
+
+return;
+
+}
+
+
+if(!address){
+
+showOrderError(
+"من فضلك اكتب عنوان التوصيل بالتفصيل"
+);
+
+return;
+
+}
+
+
+button.disabled =
+true;
+
+button.innerText =
+"جاري تأكيد الطلب...";
+
+
+const items =
+cart.map(item => ({
+
+product_id:
+item.product_id,
+
+quantity:
+item.quantity
+
+}));
+
+
+try{
+
+const response =
+await fetch(
+CREATE_ORDER_URL,
+{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+customer_id:
+customerId,
+
+branch_id:
+Number(branchId),
+
+customer_address:
+address,
+
+payment_method:
+selectedPayment,
+
+delivery_notes:
+deliveryNotes,
+
+promo_code:
+appliedPromo,
+
+tip_amount:
+selectedTip,
+
+items:
+items
+
+})
+
+}
+);
+
+
+const result =
+await response.json();
+
+
+if(!response.ok){
+
+throw new Error(
+result.error ||
+"تعذر إنشاء الطلب"
+);
+
+}
+
+
+if(!result.success){
+
+throw new Error(
+result.error ||
+"تعذر إنشاء الطلب"
+);
+
+}
+
+
+/* SUCCESS */
+
+document.getElementById("orderNumber")
+.innerText =
+result.order?.id || "";
+
+
+document.getElementById("orderSuccess")
+.style.display =
+"block";
+
+
+document.querySelector(".cart-box")
+.style.display =
+"none";
+
+
+window.scrollTo({
+top:0,
+behavior:"smooth"
+});
+
+
+cart = [];
+
+
+}catch(error){
+
+console.error(error);
+
+showOrderError(
+error.message ||
+"حدث خطأ أثناء إرسال الطلب"
+);
+
+
+button.disabled =
+false;
+
+button.innerText =
+"تأكيد الطلب ❤️";
+
+}
+
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+function showOrderError(message){
+
+const box =
+document.getElementById("orderError");
+
+box.innerText =
+"⚠️ " + message;
+
+box.style.display =
+"block";
 
 }
 
