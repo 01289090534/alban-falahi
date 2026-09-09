@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ألبان فلاحي</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 body{
     margin:0;
@@ -56,12 +58,34 @@ button{
     color:white;
     font-size:17px;
     font-weight:bold;
+    cursor:pointer;
+}
+button:disabled{
+    opacity:.5;
+}
+.hidden{
+    display:none;
 }
 .note{
     text-align:center;
     color:#777;
     font-size:13px;
     margin-top:15px;
+}
+.message{
+    text-align:center;
+    margin-top:15px;
+    padding:12px;
+    border-radius:10px;
+    display:none;
+}
+.success{
+    background:#e8f7e8;
+    color:#267326;
+}
+.error{
+    background:#fdeaea;
+    color:#a22;
 }
 </style>
 </head>
@@ -71,27 +95,119 @@ button{
 <div class="container">
 
 <div class="logo">🥛 ألبان فلاحي</div>
-<div class="subtitle">طبيعي 100% • فريش يوم بيوم</div>
+
+<div class="subtitle">
+طبيعي 100% • فريش يوم بيوم
+</div>
 
 <div class="card">
 
+<!-- تسجيل العميل -->
+
+<div id="registerBox">
+
 <h2>أهلاً بيك 👋</h2>
 
-<p>أنشئ حسابك أو ادخل برقم الموبايل</p>
+<p>أنشئ حسابك برقم الموبايل</p>
 
-<input type="text" placeholder="الاسم بالكامل">
+<input
+id="name"
+type="text"
+placeholder="الاسم بالكامل"
+autocomplete="name">
 
-<input type="tel" placeholder="رقم الموبايل">
+<input
+id="phone"
+type="tel"
+placeholder="رقم الموبايل مثال: 01012345678"
+autocomplete="tel">
 
-<button>إرسال كود التحقق</button>
+<button id="sendBtn" onclick="sendCode()">
+إرسال كود التحقق
+</button>
+
+</div>
+
+
+<!-- إدخال الكود -->
+
+<div id="verifyBox" class="hidden">
+
+<h2>🔐 تأكيد رقم الموبايل</h2>
+
+<p>
+تم إرسال كود التحقق إلى رقم الموبايل.
+</p>
+
+<input
+id="otp"
+type="text"
+inputmode="numeric"
+maxlength="6"
+placeholder="اكتب كود التحقق">
+
+<button id="verifyBtn" onclick="verifyCode()">
+تأكيد الكود
+</button>
+
+<button onclick="backToRegister()">
+تغيير رقم الموبايل
+</button>
+
+</div>
+
+
+<div id="message" class="message"></div>
 
 <div class="note">
-هنستخدم رقم الموبايل لتأكيد الحساب وتسهيل الدخول بعد كده.
+رقم الموبايل هو طريقة الدخول لحسابك بعد كده.
 </div>
 
 </div>
 
 </div>
 
-</body>
-</html>
+
+<script>
+
+const SUPABASE_URL =
+"https://qxwvuxkbcghbkztjrzon.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_JI9lC4YPTCQ8CwMxzvHNIA_C24ULpWH";
+
+const supabaseClient =
+supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+);
+
+let customerName = "";
+let customerPhone = "";
+
+
+// تحويل الرقم المصري إلى الصيغة الدولية
+function normalizeEgyptPhone(phone){
+
+    phone = phone.trim().replace(/\s+/g,"");
+
+    if(phone.startsWith("+20")){
+        return phone;
+    }
+
+    if(phone.startsWith("20")){
+        return "+" + phone;
+    }
+
+    if(phone.startsWith("0")){
+        return "+20" + phone.substring(1);
+    }
+
+    return "+20" + phone;
+}
+
+
+// إظهار رسالة
+function showMessage(text,type){
+
+    const box = document.getElementBy
