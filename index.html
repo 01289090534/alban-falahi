@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>ألبان فلاحي</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 *{box-sizing:border-box}
@@ -164,922 +161,873 @@ body{
 
 <div class="container">
 
-    <div class="logo">
-        🥛 ألبان فلاحي
-    </div>
+<div class="logo">
+🥛 ألبان فلاحي
+</div>
 
-    <div id="subtitle" class="subtitle">
-        طبيعي 100% • فريش يوم بيوم
-    </div>
+<div id="subtitle" class="subtitle">
+طبيعي 100% • فريش يوم بيوم
+</div>
 
+<!-- LANGUAGE -->
 
-    <!-- LANGUAGE -->
+<div id="languageCard" class="card">
 
-    <div id="languageCard" class="card">
+<div id="languageTitle" class="language-title">
+اختر اللغة
+</div>
 
-        <div id="languageTitle" class="language-title">
-            اختر اللغة
-        </div>
+<div class="language-buttons">
 
-        <div class="language-buttons">
+<button class="language-button"
+onclick="chooseLanguage('ar')">
+🇪🇬 العربية
+</button>
 
-            <button
-                class="language-button"
-                onclick="chooseLanguage('ar')"
-            >
-                🇪🇬 العربية
-            </button>
+<button class="language-button"
+onclick="chooseLanguage('en')">
+🇬🇧 English
+</button>
 
-            <button
-                class="language-button"
-                onclick="chooseLanguage('en')"
-            >
-                🇬🇧 English
-            </button>
+</div>
 
-        </div>
-
-    </div>
+</div>
 
 
-    <!-- AUTH -->
+<!-- AUTH -->
 
-    <div id="authCard" class="card hidden">
+<div id="authCard" class="card hidden">
 
-        <div id="formTitle" class="form-title">
-            تسجيل الدخول
-        </div>
-
-
-        <!-- REGISTER NAME -->
-
-        <div id="nameField" class="field hidden">
-
-            <label id="nameLabel">
-                الاسم
-            </label>
-
-            <input
-                id="nameInput"
-                type="text"
-                autocomplete="name"
-            >
-
-        </div>
+<div id="formTitle" class="form-title">
+تسجيل الدخول
+</div>
 
 
-        <!-- PHONE -->
+<div id="nameField" class="field hidden">
 
-        <div class="field">
+<label id="nameLabel">
+الاسم
+</label>
 
-            <label id="phoneLabel">
-                رقم الموبايل
-            </label>
+<input
+id="nameInput"
+type="text"
+autocomplete="name">
 
-            <input
-                id="phoneInput"
-                type="tel"
-                inputmode="tel"
-                placeholder="01xxxxxxxxx"
-                autocomplete="tel"
-            >
-
-        </div>
+</div>
 
 
-        <!-- PIN -->
+<div class="field">
 
-        <div class="field">
+<label id="phoneLabel">
+رقم الموبايل
+</label>
 
-            <label id="pinLabel">
-                الرقم السري
-            </label>
+<input
+id="phoneInput"
+type="tel"
+inputmode="tel"
+placeholder="01xxxxxxxxx"
+autocomplete="tel">
 
-            <input
-                id="pinInput"
-                type="password"
-                inputmode="numeric"
-                maxlength="6"
-                autocomplete="current-password"
-            >
-
-            <div id="pinNote" class="pin-note">
-                استخدم رقم سري من 6 أرقام
-            </div>
-
-        </div>
+</div>
 
 
-        <!-- CONFIRM PIN -->
+<div class="field">
 
-        <div id="confirmPinField" class="field hidden">
+<label id="pinLabel">
+الرقم السري
+</label>
 
-            <label id="confirmPinLabel">
-                تأكيد الرقم السري
-            </label>
+<input
+id="pinInput"
+type="password"
+inputmode="numeric"
+maxlength="6"
+autocomplete="off">
 
-            <input
-                id="confirmPinInput"
-                type="password"
-                inputmode="numeric"
-                maxlength="6"
-                autocomplete="new-password"
-            >
+<div id="pinNote" class="pin-note">
+استخدم رقم سري من 6 أرقام
+</div>
 
-        </div>
-
-
-        <button
-            id="mainButton"
-            class="main-button"
-            onclick="submitAuth()"
-        >
-            دخول
-        </button>
+</div>
 
 
-        <button
-            id="switchButton"
-            class="secondary-button"
-            onclick="toggleMode()"
-        >
-            إنشاء حساب جديد
-        </button>
+<div id="confirmPinField" class="field hidden">
+
+<label id="confirmPinLabel">
+تأكيد الرقم السري
+</label>
+
+<input
+id="confirmPinInput"
+type="password"
+inputmode="numeric"
+maxlength="6"
+autocomplete="off">
+
+</div>
 
 
-        <div
-            id="message"
-            class="message"
-        ></div>
+<button
+id="mainButton"
+class="main-button"
+onclick="submitAuth()">
+دخول
+</button>
 
 
-        <div class="language-switch">
+<button
+id="switchButton"
+class="secondary-button"
+onclick="toggleMode()">
+إنشاء حساب جديد
+</button>
 
-            <button onclick="changeLanguage()">
-                🌐 <span id="changeLanguageText">تغيير اللغة</span>
-            </button>
 
-        </div>
+<div id="message" class="message"></div>
 
-    </div>
+
+<div class="language-switch">
+
+<button onclick="changeLanguage()">
+🌐 <span id="changeLanguageText">تغيير اللغة</span>
+</button>
+
+</div>
+
+</div>
 
 </div>
 
 
 <script>
 
-const SUPABASE_URL =
-"https://qxwvuxkbcghbkztjrzon.supabase.co";
-
-const SUPABASE_KEY =
-"sb_publishable_JI9lC4YPTCQ8CwMxzvHNIA_C24ULpWH";
-
-const supabaseClient =
-supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+const AUTH_URL =
+"https://qxwvuxkbcghbkztjrzon.supabase.co/functions/v1/customer-auth";
 
 
 let currentLanguage =
-    localStorage.getItem("alban_language");
+localStorage.getItem("alban_language");
 
 let registerMode = false;
 
 
 /* =========================
-   TRANSLATIONS
+TRANSLATIONS
 ========================= */
 
 const translations = {
 
-    ar:{
+ar:{
 
-        subtitle:
-            "طبيعي 100% • فريش يوم بيوم",
+subtitle:
+"طبيعي 100% • فريش يوم بيوم",
 
-        languageTitle:
-            "اختر اللغة",
+languageTitle:
+"اختر اللغة",
 
-        login:
-            "تسجيل الدخول",
+login:
+"تسجيل الدخول",
 
-        register:
-            "إنشاء حساب جديد",
+register:
+"إنشاء حساب جديد",
 
-        name:
-            "الاسم",
+name:
+"الاسم",
 
-        phone:
-            "رقم الموبايل",
+phone:
+"رقم الموبايل",
 
-        pin:
-            "الرقم السري",
+pin:
+"الرقم السري",
 
-        confirmPin:
-            "تأكيد الرقم السري",
+confirmPin:
+"تأكيد الرقم السري",
 
-        pinNote:
-            "استخدم رقم سري من 6 أرقام",
+pinNote:
+"استخدم رقم سري من 6 أرقام",
 
-        loginButton:
-            "دخول",
+loginButton:
+"دخول",
 
-        registerButton:
-            "إنشاء الحساب",
+registerButton:
+"إنشاء الحساب",
 
-        createAccount:
-            "إنشاء حساب جديد",
+createAccount:
+"إنشاء حساب جديد",
 
-        alreadyAccount:
-            "عندي حساب بالفعل",
+alreadyAccount:
+"عندي حساب بالفعل",
 
-        changeLanguage:
-            "تغيير اللغة",
+changeLanguage:
+"تغيير اللغة",
 
-        enterName:
-            "من فضلك اكتب اسمك.",
+enterName:
+"من فضلك اكتب اسمك.",
 
-        enterPhone:
-            "من فضلك اكتب رقم الموبايل.",
+enterPhone:
+"من فضلك اكتب رقم الموبايل.",
 
-        invalidPhone:
-            "رقم الموبايل غير صحيح.",
+invalidPhone:
+"رقم الموبايل غير صحيح.",
 
-        invalidPin:
-            "الرقم السري يجب أن يكون 6 أرقام.",
+invalidPin:
+"الرقم السري يجب أن يكون 6 أرقام.",
 
-        pinMismatch:
-            "الرقمان السريان غير متطابقين.",
+pinMismatch:
+"الرقمان السريان غير متطابقين.",
 
-        accountCreated:
-            "تم إنشاء الحساب بنجاح ✅",
+accountCreated:
+"تم إنشاء الحساب بنجاح ✅",
 
-        loginSuccess:
-            "تم تسجيل الدخول بنجاح ✅",
+loginSuccess:
+"تم تسجيل الدخول بنجاح ✅",
 
-        loginError:
-            "رقم الموبايل أو الرقم السري غير صحيح.",
+loginError:
+"رقم الموبايل أو الرقم السري غير صحيح.",
 
-        registerError:
-            "حصل خطأ أثناء إنشاء الحساب. حاول مرة أخرى.",
+registerError:
+"حصل خطأ أثناء إنشاء الحساب. حاول مرة أخرى."
 
-        confirmRequired:
-            "قد يطلب النظام تأكيد رقم الموبايل حسب إعدادات الحساب."
+},
 
-    },
+en:{
 
-    en:{
+subtitle:
+"100% Natural • Fresh Every Day",
 
-        subtitle:
-            "100% Natural • Fresh Every Day",
+languageTitle:
+"Choose your language",
 
-        languageTitle:
-            "Choose your language",
+login:
+"Login",
 
-        login:
-            "Login",
+register:
+"Create Account",
 
-        register:
-            "Create Account",
+name:
+"Name",
 
-        name:
-            "Name",
+phone:
+"Mobile Number",
 
-        phone:
-            "Mobile Number",
+pin:
+"PIN",
 
-        pin:
-            "PIN",
+confirmPin:
+"Confirm PIN",
 
-        confirmPin:
-            "Confirm PIN",
+pinNote:
+"Use a 6-digit PIN",
 
-        pinNote:
-            "Use a 6-digit PIN",
+loginButton:
+"Login",
 
-        loginButton:
-            "Login",
+registerButton:
+"Create Account",
 
-        registerButton:
-            "Create Account",
+createAccount:
+"Create a new account",
 
-        createAccount:
-            "Create a new account",
+alreadyAccount:
+"I already have an account",
 
-        alreadyAccount:
-            "I already have an account",
+changeLanguage:
+"Change language",
 
-        changeLanguage:
-            "Change language",
+enterName:
+"Please enter your name.",
 
-        enterName:
-            "Please enter your name.",
+enterPhone:
+"Please enter your mobile number.",
 
-        enterPhone:
-            "Please enter your mobile number.",
+invalidPhone:
+"Invalid mobile number.",
 
-        invalidPhone:
-            "Invalid mobile number.",
+invalidPin:
+"PIN must contain 6 digits.",
 
-        invalidPin:
-            "PIN must contain 6 digits.",
+pinMismatch:
+"PINs do not match.",
 
-        pinMismatch:
-            "PINs do not match.",
+accountCreated:
+"Account created successfully ✅",
 
-        accountCreated:
-            "Account created successfully ✅",
+loginSuccess:
+"Logged in successfully ✅",
 
-        loginSuccess:
-            "Logged in successfully ✅",
+loginError:
+"Incorrect mobile number or PIN.",
 
-        loginError:
-            "Incorrect mobile number or PIN.",
+registerError:
+"Something went wrong. Please try again."
 
-        registerError:
-            "Something went wrong. Please try again.",
-
-        confirmRequired:
-            "Phone confirmation may be required depending on your account settings."
-
-    }
+}
 
 };
 
 
 /* =========================
-   PHONE
+PHONE
 ========================= */
 
 function normalizeEgyptianPhone(phone){
 
-    phone =
-        phone
-        .replace(/\s+/g,"")
-        .replace(/-/g,"");
+phone =
+phone
+.replace(/\s+/g,"")
+.replace(/-/g,"");
 
+if(phone.startsWith("+20")){
 
-    if(phone.startsWith("+20")){
+phone =
+"0" +
+phone.substring(3);
 
-        phone =
-            "0" +
-            phone.substring(3);
+}
 
-    }
+if(
+phone.startsWith("20") &&
+phone.length === 12
+){
 
+phone =
+"0" +
+phone.substring(2);
 
-    if(
-        phone.startsWith("20") &&
-        phone.length === 12
-    ){
+}
 
-        phone =
-            "0" +
-            phone.substring(2);
-
-    }
-
-
-    return phone;
+return phone;
 
 }
 
 
 function validEgyptianPhone(phone){
 
-    return /^01[0125][0-9]{8}$/.test(phone);
+return /^01[0125][0-9]{8}$/.test(phone);
 
 }
 
 
 /* =========================
-   LANGUAGE
+LANGUAGE
 ========================= */
 
 function chooseLanguage(language){
 
-    currentLanguage =
-        language;
+currentLanguage =
+language;
 
-    localStorage.setItem(
-        "alban_language",
-        language
-    );
+localStorage.setItem(
+"alban_language",
+language
+);
 
-    showAuth();
+showAuth();
 
 }
 
 
 function changeLanguage(){
 
-    localStorage.removeItem(
-        "alban_language"
-    );
+localStorage.removeItem(
+"alban_language"
+);
 
-    location.reload();
+location.reload();
 
 }
 
 
 /* =========================
-   SHOW AUTH
+SHOW AUTH
 ========================= */
 
 function showAuth(){
 
-    const t =
-        translations[currentLanguage];
+const t =
+translations[currentLanguage];
 
+document.documentElement.lang =
+currentLanguage;
 
-    document.documentElement.lang =
-        currentLanguage;
+document.documentElement.dir =
+currentLanguage === "ar"
+? "rtl"
+: "ltr";
 
-    document.documentElement.dir =
-        currentLanguage === "ar"
-        ? "rtl"
-        : "ltr";
+document.getElementById("subtitle")
+.innerText =
+t.subtitle;
 
+document.getElementById("languageCard")
+.classList.add("hidden");
 
-    document.getElementById("subtitle")
-        .innerText =
-        t.subtitle;
+document.getElementById("authCard")
+.classList.remove("hidden");
 
-
-    document.getElementById("languageCard")
-        .classList.add("hidden");
-
-
-    document.getElementById("authCard")
-        .classList.remove("hidden");
-
-
-    updateAuthUI();
+updateAuthUI();
 
 }
 
 
 /* =========================
-   AUTH UI
+AUTH UI
 ========================= */
 
 function updateAuthUI(){
 
-    const t =
-        translations[currentLanguage];
+const t =
+translations[currentLanguage];
 
+document.getElementById("formTitle")
+.innerText =
+registerMode
+? t.register
+: t.login;
 
-    document.getElementById("formTitle")
-        .innerText =
-        registerMode
-        ? t.register
-        : t.login;
+document.getElementById("nameLabel")
+.innerText =
+t.name;
 
+document.getElementById("phoneLabel")
+.innerText =
+t.phone;
 
-    document.getElementById("nameLabel")
-        .innerText =
-        t.name;
+document.getElementById("pinLabel")
+.innerText =
+t.pin;
 
+document.getElementById("confirmPinLabel")
+.innerText =
+t.confirmPin;
 
-    document.getElementById("phoneLabel")
-        .innerText =
-        t.phone;
+document.getElementById("pinNote")
+.innerText =
+t.pinNote;
 
+document.getElementById("mainButton")
+.innerText =
+registerMode
+? t.registerButton
+: t.loginButton;
 
-    document.getElementById("pinLabel")
-        .innerText =
-        t.pin;
+document.getElementById("switchButton")
+.innerText =
+registerMode
+? t.alreadyAccount
+: t.createAccount;
 
+document.getElementById("changeLanguageText")
+.innerText =
+t.changeLanguage;
 
-    document.getElementById("confirmPinLabel")
-        .innerText =
-        t.confirmPin;
+document.getElementById("nameField")
+.classList.toggle(
+"hidden",
+!registerMode
+);
 
+document.getElementById("confirmPinField")
+.classList.toggle(
+"hidden",
+!registerMode
+);
 
-    document.getElementById("pinNote")
-        .innerText =
-        t.pinNote;
-
-
-    document.getElementById("mainButton")
-        .innerText =
-        registerMode
-        ? t.registerButton
-        : t.loginButton;
-
-
-    document.getElementById("switchButton")
-        .innerText =
-        registerMode
-        ? t.alreadyAccount
-        : t.createAccount;
-
-
-    document.getElementById("changeLanguageText")
-        .innerText =
-        t.changeLanguage;
-
-
-    document.getElementById("nameField")
-        .classList.toggle(
-            "hidden",
-            !registerMode
-        );
-
-
-    document.getElementById("confirmPinField")
-        .classList.toggle(
-            "hidden",
-            !registerMode
-        );
-
-
-    document.getElementById("phoneInput")
-        .placeholder =
-        currentLanguage === "ar"
-        ? "01xxxxxxxxx"
-        : "01xxxxxxxxx";
-
-
-    clearMessage();
+clearMessage();
 
 }
 
 
 /* =========================
-   TOGGLE MODE
+TOGGLE
 ========================= */
 
 function toggleMode(){
 
-    registerMode =
-        !registerMode;
+registerMode =
+!registerMode;
 
-    updateAuthUI();
+clearInputs();
+
+updateAuthUI();
 
 }
 
 
 /* =========================
-   MESSAGE
+MESSAGE
 ========================= */
 
 function showMessage(text){
 
-    document.getElementById("message")
-        .innerText =
-        text;
+document.getElementById("message")
+.innerText =
+text;
 
 }
 
 
 function clearMessage(){
 
-    document.getElementById("message")
-        .innerText =
-        "";
+document.getElementById("message")
+.innerText =
+"";
+
+}
+
+
+function clearInputs(){
+
+document.getElementById("nameInput").value="";
+document.getElementById("phoneInput").value="";
+document.getElementById("pinInput").value="";
+document.getElementById("confirmPinInput").value="";
 
 }
 
 
 /* =========================
-   AUTH
+API
+========================= */
+
+async function callAuth(payload){
+
+const response =
+await fetch(
+AUTH_URL,
+{
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:
+JSON.stringify(payload)
+}
+);
+
+let result;
+
+try{
+
+result =
+await response.json();
+
+}catch(e){
+
+result = {};
+
+}
+
+if(!response.ok){
+
+throw new Error(
+result.error ||
+"حدث خطأ"
+);
+
+}
+
+return result;
+
+}
+
+
+/* =========================
+SUBMIT
 ========================= */
 
 async function submitAuth(){
 
-    const t =
-        translations[currentLanguage];
+const t =
+translations[currentLanguage];
+
+clearMessage();
+
+const name =
+document.getElementById("nameInput")
+.value
+.trim();
+
+let phone =
+document.getElementById("phoneInput")
+.value
+.trim();
+
+const pin =
+document.getElementById("pinInput")
+.value
+.trim();
+
+const confirmPin =
+document.getElementById("confirmPinInput")
+.value
+.trim();
 
 
-    clearMessage();
+if(registerMode && !name){
+
+showMessage(t.enterName);
+
+return;
+
+}
 
 
-    const name =
-        document.getElementById("nameInput")
-        .value
-        .trim();
+if(!phone){
+
+showMessage(t.enterPhone);
+
+return;
+
+}
 
 
-    let phone =
-        document.getElementById("phoneInput")
-        .value
-        .trim();
+phone =
+normalizeEgyptianPhone(phone);
 
 
-    const pin =
-        document.getElementById("pinInput")
-        .value
-        .trim();
+if(!validEgyptianPhone(phone)){
+
+showMessage(t.invalidPhone);
+
+return;
+
+}
 
 
-    const confirmPin =
-        document.getElementById("confirmPinInput")
-        .value
-        .trim();
+if(!/^[0-9]{6}$/.test(pin)){
+
+showMessage(t.invalidPin);
+
+return;
+
+}
 
 
-    if(registerMode && !name){
+if(registerMode){
 
-        showMessage(t.enterName);
+if(pin !== confirmPin){
 
-        return;
-    }
+showMessage(t.pinMismatch);
 
+return;
 
-    if(!phone){
+}
 
-        showMessage(t.enterPhone);
+await registerCustomer(
+name,
+phone,
+pin
+);
 
-        return;
-    }
+}else{
 
+await loginCustomer(
+phone,
+pin
+);
 
-    phone =
-        normalizeEgyptianPhone(phone);
-
-
-    if(!validEgyptianPhone(phone)){
-
-        showMessage(t.invalidPhone);
-
-        return;
-    }
-
-
-    if(!/^[0-9]{6}$/.test(pin)){
-
-        showMessage(t.invalidPin);
-
-        return;
-    }
-
-
-    if(registerMode){
-
-        if(pin !== confirmPin){
-
-            showMessage(t.pinMismatch);
-
-            return;
-        }
-
-
-        await registerCustomer(
-            name,
-            phone,
-            pin
-        );
-
-    }else{
-
-        await loginCustomer(
-            phone,
-            pin
-        );
-
-    }
+}
 
 }
 
 
 /* =========================
-   REGISTER
+REGISTER
 ========================= */
 
 async function registerCustomer(
-    name,
-    phone,
-    pin
+name,
+phone,
+pin
 ){
 
-    const t =
-        translations[currentLanguage];
+const t =
+translations[currentLanguage];
+
+const button =
+document.getElementById("mainButton");
+
+button.disabled = true;
+button.innerText =
+currentLanguage === "ar"
+? "جاري إنشاء الحساب..."
+: "Creating account...";
 
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth.signUp({
+try{
 
-            phone:phone,
+const result =
+await callAuth({
 
-            password:pin,
+action:"register",
 
-            options:{
+full_name:name,
 
-                data:{
-                    full_name:name
-                }
+phone:phone,
 
-            }
+pin:pin
 
-        });
+});
 
 
-    if(error){
+if(result.success){
 
-        console.log(error);
+localStorage.setItem(
+"alban_customer_id",
+result.customer.id
+);
 
-        showMessage(
-            error.message ||
-            t.registerError
-        );
+localStorage.setItem(
+"alban_customer_name",
+result.customer.full_name
+);
 
-        return;
-    }
+localStorage.setItem(
+"alban_customer_phone",
+result.customer.phone
+);
 
+showMessage(
+t.accountCreated
+);
 
-    if(!data.user){
+setTimeout(
+()=>{
+window.location.href =
+"menu.html";
+},
+700
+);
 
-        showMessage(
-            t.registerError
-        );
+}
 
-        return;
-    }
+}catch(error){
 
+console.log(error);
 
-    localStorage.setItem(
-        "alban_customer_name",
-        name
-    );
+showMessage(
+error.message ||
+t.registerError
+);
 
+}finally{
 
-    localStorage.setItem(
-        "alban_customer_phone",
-        phone
-    );
+button.disabled = false;
 
+updateAuthUI();
 
-    /*
-       نحاول حفظ بيانات العميل
-       إذا كان الحساب مؤكدًا ولديه Session.
-    */
-
-    if(data.session){
-
-        await saveCustomerProfile(
-            data.user.id,
-            name,
-            phone
-        );
-
-
-        showMessage(
-            t.accountCreated
-        );
-
-
-        setTimeout(
-            () => {
-
-                window.location.href =
-                    "menu.html";
-
-            },
-            700
-        );
-
-    }else{
-
-        showMessage(
-            t.confirmRequired
-        );
-
-    }
+}
 
 }
 
 
 /* =========================
-   LOGIN
+LOGIN
 ========================= */
 
 async function loginCustomer(
-    phone,
-    pin
+phone,
+pin
 ){
 
-    const t =
-        translations[currentLanguage];
+const t =
+translations[currentLanguage];
+
+const button =
+document.getElementById("mainButton");
+
+button.disabled = true;
+button.innerText =
+currentLanguage === "ar"
+? "جاري الدخول..."
+: "Logging in...";
 
 
-    const {
-        data,
-        error
-    } =
-        await supabaseClient.auth
-        .signInWithPassword({
+try{
 
-            phone:phone,
+const result =
+await callAuth({
 
-            password:pin
+action:"login",
 
-        });
+phone:phone,
 
+pin:pin
 
-    if(error){
-
-        console.log(error);
-
-        showMessage(
-            t.loginError
-        );
-
-        return;
-    }
+});
 
 
-    if(!data.user){
+if(result.success){
 
-        showMessage(
-            t.loginError
-        );
+localStorage.setItem(
+"alban_customer_id",
+result.customer.id
+);
 
-        return;
-    }
+localStorage.setItem(
+"alban_customer_name",
+result.customer.full_name
+);
 
+localStorage.setItem(
+"alban_customer_phone",
+result.customer.phone
+);
 
-    localStorage.setItem(
-        "alban_customer_phone",
-        phone
-    );
+showMessage(
+t.loginSuccess
+);
 
+setTimeout(
+()=>{
+window.location.href =
+"menu.html";
+},
+500
+);
 
-    showMessage(
-        t.loginSuccess
-    );
+}
 
+}catch(error){
 
-    setTimeout(
-        () => {
+console.log(error);
 
-            window.location.href =
-                "menu.html";
+showMessage(
+error.message ||
+t.loginError
+);
 
-        },
-        500
-    );
+}finally{
+
+button.disabled = false;
+
+updateAuthUI();
+
+}
 
 }
 
 
 /* =========================
-   CUSTOMER PROFILE
-========================= */
-
-async function saveCustomerProfile(
-    userId,
-    name,
-    phone
-){
-
-    const {
-        error
-    } =
-        await supabaseClient
-        .from("customer_profiles")
-        .upsert({
-
-            id:userId,
-
-            full_name:name,
-
-            phone:phone
-
-        });
-
-
-    if(error){
-
-        console.log(
-            "Profile error:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =========================
-   START
+START
 ========================= */
 
 if(currentLanguage){
 
-    showAuth();
+showAuth();
 
 }else{
 
-    document.documentElement.lang =
-        "ar";
+document.documentElement.lang =
+"ar";
 
-    document.documentElement.dir =
-        "rtl";
+document.documentElement.dir =
+"rtl";
 
 }
 
