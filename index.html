@@ -4,12 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ألبان فلاحي</title>
+<title>منيو ألبان فلاحي</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+    box-sizing:border-box;
+}
 
 body{
     margin:0;
@@ -18,183 +20,174 @@ body{
     color:#222;
 }
 
-.container{
-    max-width:480px;
-    margin:auto;
-    padding:25px 18px;
+header{
+    background:white;
+    padding:18px;
+    position:sticky;
+    top:0;
+    z-index:10;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
 }
 
 .logo{
     text-align:center;
-    font-size:32px;
+    font-size:28px;
     font-weight:bold;
-    margin:25px 0 5px;
 }
 
 .subtitle{
     text-align:center;
     color:#777;
-    margin-bottom:25px;
+    margin-top:5px;
 }
 
-.card{
-    background:white;
-    padding:22px;
-    border-radius:18px;
-    box-shadow:0 4px 18px rgba(0,0,0,.08);
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:18px;
 }
 
-h2{
-    margin-top:0;
-}
-
-input{
+.search{
     width:100%;
     padding:15px;
-    margin:8px 0;
     border:1px solid #ddd;
-    border-radius:12px;
+    border-radius:14px;
     font-size:16px;
+    margin-bottom:15px;
 }
 
-button{
-    width:100%;
-    padding:15px;
-    margin-top:12px;
+.categories{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:12px;
+}
+
+.category{
     border:0;
-    border-radius:12px;
+    background:white;
+    padding:10px 16px;
+    border-radius:20px;
+    white-space:nowrap;
+    cursor:pointer;
+}
+
+.category.active{
     background:#222;
     color:white;
+}
+
+.products{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+    gap:14px;
+}
+
+.product{
+    background:white;
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 3px 12px rgba(0,0,0,.07);
+}
+
+.product img{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    background:#eee;
+}
+
+.product-content{
+    padding:12px;
+}
+
+.product-name{
     font-size:17px;
     font-weight:bold;
+    margin-bottom:6px;
+}
+
+.product-description{
+    font-size:13px;
+    color:#777;
+    min-height:35px;
+}
+
+.price{
+    font-size:18px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.add{
+    width:100%;
+    border:0;
+    background:#222;
+    color:white;
+    padding:11px;
+    border-radius:10px;
+    margin-top:10px;
     cursor:pointer;
 }
 
-button.secondary{
-    background:#eee;
-    color:#222;
+.loading,
+.empty,
+.error{
+    text-align:center;
+    padding:40px 10px;
+    color:#777;
 }
 
-.message{
-    text-align:center;
-    margin-top:15px;
+.cart{
+    position:fixed;
+    left:18px;
+    bottom:18px;
+    background:#222;
+    color:white;
+    padding:14px 20px;
+    border-radius:30px;
+    box-shadow:0 4px 15px rgba(0,0,0,.25);
+    cursor:pointer;
     font-weight:bold;
 }
 
-.hidden{
-    display:none;
-}
-
-.switch{
-    text-align:center;
-    margin-top:18px;
-    color:#555;
-    cursor:pointer;
-}
-
-.note{
-    text-align:center;
-    color:#777;
-    font-size:13px;
-    margin-top:15px;
+.cart-count{
+    background:white;
+    color:#222;
+    padding:3px 7px;
+    border-radius:50%;
+    margin-right:5px;
 }
 </style>
 </head>
 
 <body>
 
+<header>
+    <div class="logo">🥛 ألبان فلاحي</div>
+    <div class="subtitle">طبيعي 100% • فريش يوم بيوم</div>
+</header>
+
 <div class="container">
 
-    <div class="logo">🥛 ألبان فلاحي</div>
+    <input
+        id="search"
+        class="search"
+        type="search"
+        placeholder="🔎 ابحث عن منتج..."
+    >
 
-    <div class="subtitle">
-        طبيعي 100% • فريش يوم بيوم
+    <div id="categories" class="categories"></div>
+
+    <div id="products" class="products">
+        <div class="loading">جاري تحميل المنيو...</div>
     </div>
 
-    <!-- تسجيل جديد -->
-    <div class="card" id="registerBox">
+</div>
 
-        <h2>إنشاء حساب 👋</h2>
-
-        <p>سجل بياناتك علشان تقدر تطلب بسهولة.</p>
-
-        <input
-            id="registerName"
-            type="text"
-            placeholder="الاسم بالكامل"
-        >
-
-        <input
-            id="registerPhone"
-            type="tel"
-            placeholder="رقم الموبايل"
-        >
-
-        <input
-            id="registerPin"
-            type="password"
-            inputmode="numeric"
-            maxlength="4"
-            placeholder="PIN سري 4 أرقام"
-        >
-
-        <input
-            id="registerPinConfirm"
-            type="password"
-            inputmode="numeric"
-            maxlength="4"
-            placeholder="تأكيد الـ PIN"
-        >
-
-        <button onclick="register()">
-            إنشاء الحساب
-        </button>
-
-        <div class="switch" onclick="showLogin()">
-            عندك حساب؟ تسجيل الدخول
-        </div>
-
-    </div>
-
-
-    <!-- تسجيل الدخول -->
-    <div class="card hidden" id="loginBox">
-
-        <h2>تسجيل الدخول 🔐</h2>
-
-        <p>ادخل برقم الموبايل والـ PIN.</p>
-
-        <input
-            id="loginPhone"
-            type="tel"
-            placeholder="رقم الموبايل"
-        >
-
-        <input
-            id="loginPin"
-            type="password"
-            inputmode="numeric"
-            maxlength="4"
-            placeholder="الـ PIN"
-        >
-
-        <button onclick="login()">
-            دخول
-        </button>
-
-        <div class="switch" onclick="showRegister()">
-            لسه معندكش حساب؟ إنشاء حساب
-        </div>
-
-    </div>
-
-
-    <div id="message" class="message"></div>
-
-    <div class="note">
-        بياناتك محفوظة بشكل آمن.
-    </div>
-
+<div class="cart" onclick="openCart()">
+    🛒 السلة
+    <span id="cartCount" class="cart-count">0</span>
 </div>
 
 
@@ -213,288 +206,395 @@ supabase.createClient(
 );
 
 
-// تحويل رقم الموبايل لصيغة مصرية
-function normalizePhone(phone){
+let categories = [];
+let products = [];
+let cart = [];
 
-    phone = phone.trim();
+let selectedCategory = "all";
 
-    if(phone.startsWith("01")){
-        return "+20" + phone.substring(1);
+
+// تحميل البيانات
+async function loadMenu(){
+
+    const categoriesResult =
+        await supabaseClient
+        .from("categories")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", {
+            ascending:true
+        });
+
+    if(categoriesResult.error){
+
+        document.getElementById("products").innerHTML =
+            `<div class="error">
+                حصل خطأ في تحميل الأقسام
+            </div>`;
+
+        console.log(categoriesResult.error);
+
+        return;
     }
 
-    if(phone.startsWith("0020")){
-        return "+" + phone.substring(2);
+
+    categories =
+        categoriesResult.data || [];
+
+
+    const productsResult =
+        await supabaseClient
+        .from("products")
+        .select("*")
+        .eq("active", true)
+        .order("sort_order", {
+            ascending:true
+        });
+
+
+    if(productsResult.error){
+
+        document.getElementById("products").innerHTML =
+            `<div class="error">
+                حصل خطأ في تحميل الأصناف
+            </div>`;
+
+        console.log(productsResult.error);
+
+        return;
     }
 
-    if(phone.startsWith("+20")){
-        return phone;
-    }
 
-    return phone;
+    products =
+        productsResult.data || [];
+
+
+    renderCategories();
+    renderProducts();
 }
 
 
-// رسالة للمستخدم
-function showMessage(text, success=false){
+// الأقسام
+function renderCategories(){
 
     const box =
-        document.getElementById("message");
+        document.getElementById("categories");
 
-    box.innerText = text;
+    box.innerHTML = "";
 
-    box.style.color =
-        success ? "green" : "red";
-}
 
+    const allButton =
+        document.createElement("button");
 
-// إظهار التسجيل
-function showRegister(){
+    allButton.className =
+        "category active";
 
-    document
-        .getElementById("registerBox")
-        .classList.remove("hidden");
+    allButton.innerText =
+        "كل الأصناف";
 
-    document
-        .getElementById("loginBox")
-        .classList.add("hidden");
+    allButton.onclick = function(){
 
-    showMessage("");
-}
-
-
-// إظهار الدخول
-function showLogin(){
-
-    document
-        .getElementById("registerBox")
-        .classList.add("hidden");
-
-    document
-        .getElementById("loginBox")
-        .classList.remove("hidden");
-
-    showMessage("");
-}
-
-
-// إنشاء الحساب
-async function register(){
-
-    const name =
-        document.getElementById("registerName")
-        .value.trim();
-
-    const phone =
-        normalizePhone(
-            document.getElementById("registerPhone")
-            .value
-        );
-
-    const pin =
-        document.getElementById("registerPin")
-        .value.trim();
-
-    const pinConfirm =
-        document.getElementById("registerPinConfirm")
-        .value.trim();
-
-
-    if(!name){
-
-        showMessage("اكتب الاسم بالكامل");
-
-        return;
-    }
-
-
-    if(!phone){
-
-        showMessage("اكتب رقم الموبايل");
-
-        return;
-    }
-
-
-    if(!/^\+20\d{10}$/.test(phone)){
-
-        showMessage(
-            "اكتب رقم موبايل مصري صحيح مثل 010xxxxxxxx"
-        );
-
-        return;
-    }
-
-
-    if(!/^\d{4}$/.test(pin)){
-
-        showMessage(
-            "الـ PIN لازم يكون 4 أرقام"
-        );
-
-        return;
-    }
-
-
-    if(pin !== pinConfirm){
-
-        showMessage(
-            "الـ PIN وتأكيده مش متطابقين"
-        );
-
-        return;
-    }
-
-
-    showMessage("جاري إنشاء الحساب...", true);
-
-
-    const { data, error } =
-        await supabaseClient.auth.signUp({
-
-            phone: phone,
-
-            password: pin,
-
-            options:{
-                data:{
-                    full_name:name
-                }
-            }
-
-        });
-
-
-    if(error){
-
-        showMessage(
-            "حصل خطأ: " + error.message
-        );
-
-        return;
-    }
-
-
-    // حفظ بيانات العميل في customer_profiles
-    if(data.user){
-
-        const { error: profileError } =
-            await supabaseClient
-            .from("customer_profiles")
-            .upsert({
-
-                id:data.user.id,
-
-                phone:phone,
-
-                full_name:name
-
-            });
-
-
-        if(profileError){
-
-            console.log(profileError);
-
-        }
-    }
-
-
-    showMessage(
-        "تم إنشاء الحساب بنجاح ❤️",
-        true
-    );
-
-
-    setTimeout(()=>{
-
-        showLogin();
+        selectedCategory = "all";
 
         document
-            .getElementById("loginPhone")
-            .value =
-            document
-            .getElementById("registerPhone")
-            .value;
+            .querySelectorAll(".category")
+            .forEach(btn =>
+                btn.classList.remove("active")
+            );
 
-    },1200);
+        allButton.classList.add("active");
+
+        renderProducts();
+    };
+
+    box.appendChild(allButton);
+
+
+    categories.forEach(category => {
+
+        const button =
+            document.createElement("button");
+
+        button.className =
+            "category";
+
+        button.innerText =
+            category.name_ar ||
+            category.name ||
+            category.name_en ||
+            "قسم";
+
+
+        button.onclick = function(){
+
+            selectedCategory =
+                category.id;
+
+            document
+                .querySelectorAll(".category")
+                .forEach(btn =>
+                    btn.classList.remove("active")
+                );
+
+            button.classList.add("active");
+
+            renderProducts();
+        };
+
+
+        box.appendChild(button);
+
+    });
 
 }
 
 
-// تسجيل الدخول
-async function login(){
+// عرض المنتجات
+function renderProducts(){
 
-    const phone =
-        normalizePhone(
-            document.getElementById("loginPhone")
-            .value
-        );
+    const box =
+        document.getElementById("products");
 
-    const pin =
-        document.getElementById("loginPin")
-        .value.trim();
-
-
-    if(!phone){
-
-        showMessage("اكتب رقم الموبايل");
-
-        return;
-    }
+    const search =
+        document
+        .getElementById("search")
+        .value
+        .trim()
+        .toLowerCase();
 
 
-    if(!pin){
+    let filtered =
+        products.filter(product => {
 
-        showMessage("اكتب الـ PIN");
-
-        return;
-    }
-
-
-    showMessage(
-        "جاري تسجيل الدخول...",
-        true
-    );
+            const categoryMatch =
+                selectedCategory === "all" ||
+                product.category_id === selectedCategory;
 
 
-    const { data, error } =
-        await supabaseClient.auth
-        .signInWithPassword({
+            const name =
+                (
+                    product.name_ar ||
+                    product.name ||
+                    product.name_en ||
+                    ""
+                ).toLowerCase();
 
-            phone:phone,
 
-            password:pin
+            const description =
+                (
+                    product.description_ar ||
+                    product.description ||
+                    ""
+                ).toLowerCase();
+
+
+            const searchMatch =
+                !search ||
+                name.includes(search) ||
+                description.includes(search);
+
+
+            return categoryMatch && searchMatch;
 
         });
 
 
-    if(error){
+    if(filtered.length === 0){
 
-        showMessage(
-            "رقم الموبايل أو الـ PIN غير صحيح"
-        );
+        box.innerHTML =
+            `<div class="empty">
+                لا توجد أصناف حاليًا
+            </div>`;
 
         return;
     }
 
 
-    showMessage(
-        "تم تسجيل الدخول بنجاح ❤️",
-        true
+    box.innerHTML = "";
+
+
+    filtered.forEach(product => {
+
+        const card =
+            document.createElement("div");
+
+        card.className =
+            "product";
+
+
+        const image =
+            product.image_url ||
+            "https://placehold.co/600x400?text=Alban+Falahi";
+
+
+        const name =
+            product.name_ar ||
+            product.name ||
+            product.name_en ||
+            "منتج";
+
+
+        const description =
+            product.description_ar ||
+            product.description ||
+            "";
+
+
+        card.innerHTML = `
+
+            <img
+                src="${image}"
+                alt="${name}"
+            >
+
+            <div class="product-content">
+
+                <div class="product-name">
+                    ${name}
+                </div>
+
+                <div class="product-description">
+                    ${description}
+                </div>
+
+                <div class="price">
+                    ${product.price} جنيه
+                </div>
+
+                <button
+                    class="add"
+                    onclick="addToCart(${product.id})"
+                >
+                    + أضف للسلة
+                </button>
+
+            </div>
+        `;
+
+
+        box.appendChild(card);
+
+    });
+
+}
+
+
+// إضافة للسلة
+function addToCart(productId){
+
+    const product =
+        products.find(
+            p => p.id === productId
+        );
+
+
+    if(!product) return;
+
+
+    const existing =
+        cart.find(
+            item => item.id === productId
+        );
+
+
+    if(existing){
+
+        existing.quantity++;
+
+    }else{
+
+        cart.push({
+
+            id:product.id,
+
+            name:
+                product.name_ar ||
+                product.name ||
+                product.name_en,
+
+            price:Number(product.price),
+
+            quantity:1
+
+        });
+
+    }
+
+
+    updateCartCount();
+
+}
+
+
+// عدد المنتجات
+function updateCartCount(){
+
+    const count =
+        cart.reduce(
+            (total,item) =>
+                total + item.quantity,
+            0
+        );
+
+
+    document.getElementById("cartCount")
+        .innerText = count;
+
+}
+
+
+// السلة - هنكملها في الخطوة القادمة
+function openCart(){
+
+    if(cart.length === 0){
+
+        alert("السلة فاضية 🛒");
+
+        return;
+    }
+
+
+    let text =
+        "محتويات السلة:\\n\\n";
+
+
+    let total = 0;
+
+
+    cart.forEach(item => {
+
+        const line =
+            item.price * item.quantity;
+
+        total += line;
+
+
+        text +=
+            `${item.name} × ${item.quantity} = ${line} جنيه\\n`;
+
+    });
+
+
+    text +=
+        `\\nالإجمالي: ${total} جنيه`;
+
+
+    alert(text);
+
+}
+
+
+// البحث
+document
+    .getElementById("search")
+    .addEventListener(
+        "input",
+        renderProducts
     );
 
 
-    // مؤقتًا نعرض رسالة نجاح
-    // وبعدها هنربطه بالمنيو
-
-    setTimeout(()=>{
-
-        window.location.href =
-        "menu.html";
-
-    },1000);
-
-}
+// بدء تحميل المنيو
+loadMenu();
 
 </script>
 
