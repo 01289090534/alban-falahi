@@ -1,0 +1,77 @@
+name: Fix homepage points and app rating
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix-homepage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore homepage points and rating safely
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('menu.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Remove the previously malformed nested style injection, if present.
+          bad_css = '<style id="alban-home-points-style">.home-points{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 11px;border-radius:999px;background:#fff8df;border:1px solid #f0d98a;color:#7a5600;font-size:13px;font-weight:900}.home-points strong{font-size:14px}</style>'
+          s = s.replace(bad_css, '')
+          s = s.replace('</style></style></head>', '</style></head>')
+
+          points_css = '<style id="alban-home-points-style">.home-points{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:8px 11px;border-radius:999px;background:#fff8df;border:1px solid #f0d98a;color:#7a5600;font-size:13px;font-weight:900}.home-points strong{font-size:14px}.app-rating{margin-top:14px;background:#fff;border:1px solid #eee;border-radius:18px;padding:16px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.05)}.app-rating-title{font-size:18px;font-weight:900}.app-rating-stars{display:flex;justify-content:center;gap:7px;margin:12px 0}.app-rating-stars button{border:0;background:#f4f4f4;border-radius:12px;width:42px;height:42px;font-size:23px;cursor:pointer}.app-rating-stars button.active{background:#fff0d8}.app-rating-message{font-size:13px;color:#777;min-height:20px}</style>'
+          if 'id="alban-home-points-style"' not in s:
+              s = s.replace('</style></head>', points_css + '</style></head>', 1)
+
+          # Points badge immediately under customer name.
+          points_html = '<div id="customerPoints" class="home-points">⭐ نقاطك: <strong>جاري التحميل...</strong></div>'
+          if 'id="customerPoints"' not in s:
+              marker = '<div id="customerName" class="customer"></div>'
+              if marker not in s:
+                  raise SystemExit('customerName marker not found')
+              s = s.replace(marker, marker + points_html, 1)
+
+          # Load points from the existing customer-account endpoint.
+          if 'async function loadCustomerPoints()' not in s:
+              fn = """async function loadCustomerPoints(){const box=document.getElementById('customerPoints');if(!box)return;try{const r=await fetch(API+'customer-account',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({customer_id:customerId,action:'get'})});const d=await r.json();if(!r.ok||!d.success)throw new Error();const points=Number(d.points?.total_points??d.points_balance??0);const value=Number(d.points?.value_egp??d.points_value_egp??points*0.005);box.innerHTML='⭐ نقاطك: <strong>'+points+' نقطة = '+value.toFixed(2)+' ج</strong>';}catch(e){box.innerHTML='⭐ نقاطك: <strong>غير متاح حاليًا</strong>';}}"""
+              s = s.replace('</script></body></html>', fn + '</script></body></html>', 1)
+
+          if 'await loadCustomerPoints();' not in s:
+              needle = 'await loadAddresses();renderCart();'
+              if needle in s:
+                  s = s.replace(needle, 'await loadAddresses();await loadCustomerPoints();renderCart();', 1)
+              else:
+                  raise SystemExit('loadAll insertion point not found')
+
+          # App rating card on homepage, five stars. Keep it lightweight and independent of ordering.
+          rating_html = '<div id="appRating" class="app-rating"><div class="app-rating-title">⭐ قيّم البرنامج</div><div class="app-rating-stars"><button type="button" data-rating="1" onclick="selectAppRating(1)">★</button><button type="button" data-rating="2" onclick="selectAppRating(2)">★</button><button type="button" data-rating="3" onclick="selectAppRating(3)">★</button><button type="button" data-rating="4" onclick="selectAppRating(4)">★</button><button type="button" data-rating="5" onclick="selectAppRating(5)">★</button></div><div id="appRatingMessage" class="app-rating-message">رأيك يهمنا ❤️</div></div>'
+          if 'id="appRating"' not in s:
+              nav = '<nav class="bottom-nav">'
+              if nav not in s:
+                  raise SystemExit('bottom nav marker not found')
+              s = s.replace(nav, rating_html + nav, 1)
+
+          if 'function selectAppRating(' not in s:
+              js = """function selectAppRating(r){document.querySelectorAll('.app-rating-stars button').forEach(b=>b.classList.toggle('active',Number(b.dataset.rating)<=r));const m=document.getElementById('appRatingMessage');if(m)m.textContent=r>=4?'شكرًا لتقييمك الجميل ❤️':'شكرًا لرأيك، هنحاول نكون أفضل دائمًا ❤️';try{localStorage.setItem('alban_app_rating',String(r));}catch(e){}}"""
+              s = s.replace('</script></body></html>', js + '</script></body></html>', 1)
+
+          p.write_text(s, encoding='utf-8')
+
+      - name: Commit homepage fix
+        shell: bash
+        run: |
+          if git diff --quiet -- menu.html; then
+            echo "No homepage changes needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add menu.html
+          git commit -m "Restore homepage points and app rating [skip ci]"
+          git push
