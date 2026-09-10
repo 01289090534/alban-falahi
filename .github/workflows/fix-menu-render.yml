@@ -1,0 +1,34 @@
+name: Fix menu render
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-menu-render.yml'
+      - 'menu.html'
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repair malformed style and zero points
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('menu.html')
+          s=p.read_text(encoding='utf-8')
+          # The current file has a nested duplicate <style> tag that swallows the document.
+          s=re.sub(r'<style id="alban-home-points-style">(.*?)<style id="alban-home-points-style">(.*?)</style>\s*</style>', r'<style id="alban-home-points-style">\1\2</style>', s, flags=re.S)
+          s=re.sub(r'</style>\s*</style>\s*</head>', '</style></head>', s)
+          s=s.replace('⭐ نقاطك: <strong>جاري التحميل...</strong>','⭐ نقاطك: <strong>0 نقطة = 0.00 ج</strong>')
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit repaired menu
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add menu.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Fix menu rendering and points display'
+          git push
