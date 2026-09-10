@@ -1,0 +1,30 @@
+name: Cleanup real final
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cleanup menu
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('menu.html');s=p.read_text(encoding='utf-8')
+          s=re.sub(r'/\* ALBAN_HOME_POINTS_BADGE_V1 \*/.*?(?=</script>)','',s,flags=re.S)
+          s=s.replace('<style id="alban-home-points-style"><style id="alban-home-points-style">','<style id="alban-home-points-style">')
+          s=s.replace('</style></style></head>','</style></head>')
+          p.write_text(s,encoding='utf-8')
+          PY
+          rm -f .github/workflows/cleanup-real-final.yml
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add menu.html .github/workflows
+          git commit -m "Remove duplicate points injector and repair styles [skip ci]" || exit 0
+          git push
