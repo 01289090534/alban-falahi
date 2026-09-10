@@ -1,0 +1,53 @@
+name: Finalize real customer experience
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Finalize customer menu
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('menu.html')
+          s=p.read_text(encoding='utf-8')
+          # Real program rating only: never show fabricated 4.9/1K values in production.
+          s=s.replace('⭐ 4.9/5 (1K+ تقييم)','⭐ —/5')
+          # Remove any demo-only customer review section/script.
+          s=re.sub(r'<div id="programReviewsDemo".*?</div>\s*', '', s, flags=re.S)
+          s=re.sub(r'<script>document\.addEventListener\([\s\S]*?programReviewsDemo[\s\S]*?</script>', '', s, flags=re.S)
+          # Ensure card checkout is the real endpoint when card is selected.
+          old="const r=await fetch(API+'create-order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})"
+          new="const endpoint=selectedPayment==='card'?'card-order':'create-order';const r=await fetch(API+endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})"
+          if old in s and "selectedPayment==='card'?'card-order'" not in s: s=s.replace(old,new,1)
+          # Keep a real customer name/phone in the card request.
+          oldp="const payload={customer_id:customerId,branch_id:Number(branchId),customer_address:address,payment_method:selectedPayment,"
+          newp="const payload={customer_id:customerId,customer_name:customerName,customer_phone:localStorage.getItem('alban_customer_phone')||'',branch_id:Number(branchId),customer_address:address,payment_method:selectedPayment,"
+          if oldp in s: s=s.replace(oldp,newp,1)
+          # Prevent duplicate homepage points blocks.
+          matches=re.findall(r'<div id="customerPoints"[^>]*>.*?</div>',s,flags=re.S)
+          if len(matches)>1:
+              first=matches[0]
+              s=s.replace(first,'__POINTS_KEEP__',1)
+              s=re.sub(r'<div id="customerPoints"[^>]*>.*?</div>','',s,flags=re.S)
+              s=s.replace('__POINTS_KEEP__',first,1)
+          # Production marker.
+          s=re.sub(r'<!-- ALBAN_CUSTOMER_REAL_V1 -->','',s)
+          s+='\n<!-- ALBAN_CUSTOMER_REAL_V1 -->\n'
+          p.write_text(s,encoding='utf-8')
+          PY
+          rm -f .github/workflows/fix-program-rating.yml .github/workflows/final-customer-cleanup.yml .github/workflows/make-customer-flow-real.yml
+      - name: Commit final production state
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add menu.html .github/workflows
+          git commit -m "Finalize real customer experience [skip ci]" || exit 0
+          git push
