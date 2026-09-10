@@ -24,48 +24,48 @@ jobs:
 
           path = Path('menu.html')
           s = path.read_text(encoding='utf-8')
-          if 'ALBAN_PROGRAM_RATING_V1' in s:
+          if 'ALBAN_PROGRAM_RATING_V2' in s:
               print('Already patched')
               raise SystemExit(0)
 
-          # Fix the malformed nested style tag currently in the minified page.
-          s = s.replace('}}</style><style id="alban-home-points-style">', '}}</style><style id="alban-home-points-style">')
-          s = s.replace('}}<style id="alban-home-points-style">', '}}</style><style id="alban-home-points-style">')
+          # Repair the malformed nested style tags left by earlier automated patches.
+          s = re.sub(r'</style>\s*<style id="alban-home-points-style">', '</style><style id="alban-home-points-style">', s, count=1)
+          s = re.sub(r'<style id="alban-home-points-style">(.*?)<style id="alban-home-points-style">(.*?)</style></style>', r'<style id="alban-home-points-style">\1\2</style>', s, count=1, flags=re.S)
 
-          # Add the aggregate program rating beside the brand name.
-          s = s.replace(
-              '<div class="logo">🥛 ألبان فلاحي</div>',
-              '<div class="logo">🥛 ألبان فلاحي <span id="programRating" class="program-rating">⭐ —/5</span></div>',
-              1
-          )
+          # Ensure the brand has one overall-rating badge.
+          s = re.sub(r'<div class="logo">🥛 ألبان فلاحي(?:\s*<span id="programRating".*?</span>)?</div>', '<div class="logo">🥛 ألبان فلاحي <span id="programRating" class="program-rating">⭐ —/5</span></div>', s, count=1, flags=re.S)
 
-          # Remove the duplicate injected homepage points badge.
+          # Remove the duplicate homepage points injector if it exists.
           s = re.sub(r'/\* ALBAN_HOME_POINTS_BADGE_V1 \*/.*?async function loadCustomerPoints\(\)', 'async function loadCustomerPoints()', s, count=1, flags=re.S)
 
-          # Move the program-rating prompt into the successful-order card.
-          rating_html = '''<div id="appRating" class="app-rating"><div class="app-rating-title">⭐ قيّم البرنامج</div><div class="app-rating-stars"><button type="button" data-rating="1" onclick="selectAppRating(1)">★</button><button type="button" data-rating="2" onclick="selectAppRating(2)">★</button><button type="button" data-rating="3" onclick="selectAppRating(3)">★</button><button type="button" data-rating="4" onclick="selectAppRating(4)">★</button><button type="button" data-rating="5" onclick="selectAppRating(5)">★</button></div><div id="appRatingMessage" class="app-rating-message">رأيك يهمنا ❤️</div></div>'''
+          # Put the customer program-rating prompt in the order-success card, once only.
+          rating_html = '<div id="appRating" class="app-rating"><div class="app-rating-title">⭐ قيّم البرنامج</div><div class="app-rating-stars"><button type="button" data-rating="1" onclick="selectAppRating(1)">★</button><button type="button" data-rating="2" onclick="selectAppRating(2)">★</button><button type="button" data-rating="3" onclick="selectAppRating(3)">★</button><button type="button" data-rating="4" onclick="selectAppRating(4)">★</button><button type="button" data-rating="5" onclick="selectAppRating(5)">★</button></div><div id="appRatingMessage" class="app-rating-message">رأيك يهمنا ❤️</div></div>'
           s = re.sub(r'<div id="appRating" class="app-rating">.*?</div>\s*</div>\s*</nav>', '</div></nav>', s, count=1, flags=re.S)
-          s = s.replace(
-              '<div id="orderNumber"></div><button class="confirm-btn" onclick="openAccount()">متابعة الطلب</button>',
-              '<div id="orderNumber"></div>'+rating_html+'<button class="confirm-btn" onclick="openAccount()">متابعة الطلب</button>',
-              1
-          )
+          if '<div id="orderNumber"></div>' in s and 'id="appRating"' not in s:
+              s = s.replace('<div id="orderNumber"></div><button class="confirm-btn" onclick="openAccount()">متابعة الطلب</button>', '<div id="orderNumber"></div>'+rating_html+'<button class="confirm-btn" onclick="openAccount()">متابعة الطلب</button>', 1)
 
-          # Program rating styling.
-          marker_css = '.program-rating{display:inline-flex;align-items:center;margin-inline-start:7px;padding:5px 9px;border-radius:999px;background:#fff8df;border:1px solid #f0d98a;color:#7a5600;font-size:13px;vertical-align:middle}.app-rating{margin-top:14px;background:#fff;border:1px solid #eee;border-radius:18px;padding:16px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.05)}'
-          s = s.replace('.app-rating{margin-top:14px;background:#fff;border:1px solid #eee;border-radius:18px;padding:16px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.05)}', marker_css, 1)
+          # Styling.
+          if '.program-rating{' not in s:
+              s = s.replace('.app-rating{margin-top:14px;background:#fff;border:1px solid #eee;border-radius:18px;padding:16px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.05)}', '.program-rating{display:inline-flex;align-items:center;margin-inline-start:7px;padding:5px 9px;border-radius:999px;background:#fff8df;border:1px solid #f0d98a;color:#7a5600;font-size:13px;vertical-align:middle}.app-rating{margin-top:14px;background:#fff;border:1px solid #eee;border-radius:18px;padding:16px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,.05)}', 1)
 
-          # Replace local-only rating storage with the central API and add homepage summary loading.
+          # Central rating API + safe demo preview.
           old_fn = '''function selectAppRating(r){document.querySelectorAll('.app-rating-stars button').forEach(b=>b.classList.toggle('active',Number(b.dataset.rating)<=r));const m=document.getElementById('appRatingMessage');if(m)m.textContent=r>=4?'شكرًا لتقييمك الجميل ❤️':'شكرًا لرأيك، هنحاول نكون أفضل دائمًا ❤️';try{localStorage.setItem('alban_app_rating',String(r));}catch(e){}}'''
-          new_fn = '''async function loadProgramRating(){const box=document.getElementById('programRating');if(!box)return;try{const r=await fetch(API+'reviews-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'program_summary'})});const d=await r.json();if(!r.ok||!d.success)throw new Error();const avg=Number(d.summary?.average||0),count=Number(d.summary?.count||0);box.textContent=count?('⭐ '+avg.toFixed(1)+'/5 ('+count+' تقييم)'):'⭐ —/5';}catch(e){box.textContent='⭐ —/5';}}async function selectAppRating(r){document.querySelectorAll('.app-rating-stars button').forEach(b=>b.classList.toggle('active',Number(b.dataset.rating)<=r));const m=document.getElementById('appRatingMessage');if(m)m.textContent='جاري حفظ تقييمك...';try{const resp=await fetch(API+'reviews-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'program_submit',customer_id:customerId,rating:r})});const d=await resp.json();if(!resp.ok||!d.success)throw new Error(d.error||'تعذر حفظ التقييم');if(m)m.textContent='شكرًا لتقييمك الجميل ❤️';await loadProgramRating();}catch(e){if(m)m.textContent=e.message||'تعذر حفظ التقييم، حاول مرة أخرى';}}'''
+          new_fn = '''async function loadProgramRating(){const box=document.getElementById('programRating');if(!box)return;const demo=new URLSearchParams(location.search).get('demo')==='1';if(demo){box.textContent='⭐ 4.9/5 (1K+ تقييم)';return;}try{const r=await fetch(API+'reviews-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'program_summary'})});const d=await r.json();if(!r.ok||!d.success)throw new Error();const avg=Number(d.summary?.average||0),count=Number(d.summary?.count||0);box.textContent=count?('⭐ '+avg.toFixed(1)+'/5 ('+count+' تقييم)'):'⭐ —/5';}catch(e){box.textContent='⭐ —/5';}}async function selectAppRating(r){document.querySelectorAll('.app-rating-stars button').forEach(b=>b.classList.toggle('active',Number(b.dataset.rating)<=r));const m=document.getElementById('appRatingMessage');if(m)m.textContent='جاري حفظ تقييمك...';try{const resp=await fetch(API+'reviews-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'program_submit',customer_id:customerId,rating:r})});const d=await resp.json();if(!resp.ok||!d.success)throw new Error(d.error||'تعذر حفظ التقييم');if(m)m.textContent='شكرًا لتقييمك الجميل ❤️';await loadProgramRating();}catch(e){if(m)m.textContent=e.message||'تعذر حفظ التقييم، حاول مرة أخرى';}}'''
           s = s.replace(old_fn, new_fn, 1)
 
-          # Load aggregate rating with the rest of the customer data.
-          s = s.replace('await loadCustomerPoints();renderCart();', 'await loadCustomerPoints();await loadProgramRating();renderCart();', 1)
+          # Demo comments are visible only in explicit preview mode (?demo=1), never presented as real reviews.
+          demo_section = '''<div id="programReviewsDemo" class="program-reviews-demo" style="display:none"><div class="program-reviews-title">💬 آراء العملاء <span>تجريبي للمعاينة</span></div><div class="program-review-demo-list"><div>⭐ أحمد — الأكل نظيف جدًا والجودة ممتازة وأنصح بالتعامل معاهم.</div><div>⭐ علي — الخامات فريش والطعم ممتاز والتعامل محترم.</div><div>⭐ محمد — جربتهم أكتر من مرة والمستوى ثابت وممتاز.</div><div>⭐ البرنس — أكل نضيف وطعم حلو والتوصيل كويس.</div><div>⭐ Amira — جودة ممتازة وأنصح بيهم جدًا ❤️</div></div></div>'''
+          if 'id="programReviewsDemo"' not in s:
+              anchor = '<div id="repeatSection" class="repeat-section">'
+              s = s.replace(anchor, demo_section+anchor, 1)
 
-          s += '\n<!-- ALBAN_PROGRAM_RATING_V1 -->\n'
+          demo_js = '''<script>document.addEventListener('DOMContentLoaded',function(){if(new URLSearchParams(location.search).get('demo')==='1'){const x=document.getElementById('programReviewsDemo');if(x)x.style.display='block';}});</script>'''
+          if 'programReviewsDemo' in s and 'ALBAN_DEMO_REVIEWS_V1' not in s:
+              s += demo_js
+
+          s = s.replace('await loadCustomerPoints();renderCart();', 'await loadCustomerPoints();await loadProgramRating();renderCart();', 1)
+          s += '\n<!-- ALBAN_PROGRAM_RATING_V2 -->\n'
           path.write_text(s, encoding='utf-8')
-          print('Patched menu.html')
           PY
 
       - name: Commit patched menu
@@ -77,5 +77,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add menu.html
-          git commit -m "Fix homepage rating and duplicate points [skip ci]"
+          git commit -m "Fix homepage program rating and add demo preview [skip ci]"
           git push
