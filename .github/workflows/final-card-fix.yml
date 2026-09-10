@@ -1,0 +1,33 @@
+name: Finish real card checkout
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix card redirect and cleanup markers
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('menu.html')
+          s=p.read_text(encoding='utf-8')
+          old="if(!r.ok||!d.success){showError(d.error||'تعذر إنشاء الطلب');btn.disabled=false;return}localStorage.removeItem(CART_KEY);"
+          new="if(!r.ok||!d.success){showError(d.error||'تعذر إنشاء الطلب');btn.disabled=false;return}if(selectedPayment==='card'&&d.checkout_url){window.location.href=d.checkout_url;return}localStorage.removeItem(CART_KEY);"
+          if old in s and "selectedPayment==='card'&&d.checkout_url" not in s: s=s.replace(old,new,1)
+          s=re.sub(r'(?:\n?<!-- ALBAN_FINAL_CUSTOMER_UI_V1 -->)+','\n',s)
+          if '<!-- ALBAN_CUSTOMER_REAL_V1 -->' not in s: s+='\n<!-- ALBAN_CUSTOMER_REAL_V1 -->\n'
+          p.write_text(s,encoding='utf-8')
+          PY
+          rm -f .github/workflows/finalize-real-customer.yml
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add menu.html .github/workflows
+          git commit -m "Finish real card checkout flow [skip ci]" || exit 0
+          git push
