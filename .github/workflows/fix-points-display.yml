@@ -1,0 +1,32 @@
+name: Fix points display
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-points-display.yml'
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix menu points display
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('menu.html')
+          s=p.read_text()
+          old="const value=money(d.points_value_egp||0);const points=Number(d.points_balance||0);box.textContent='⭐ رصيد نقاطك: '+points+' نقطة — قيمتها '+value.toFixed(2)+' ج';"
+          new="const points=Number(d.points?.total_points ?? d.points_balance ?? 0);const value=money(d.points?.value_egp ?? d.points_value_egp ?? points*0.005);box.textContent='⭐ نقاطك: '+points+' نقطة = '+value.toFixed(2)+' ج';"
+          if old not in s:
+              raise SystemExit('target code not found')
+          p.write_text(s.replace(old,new,1))
+          PY
+      - name: Commit and remove temporary workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add menu.html
+          git rm .github/workflows/fix-points-display.yml
+          git commit -m 'Fix customer points value display [skip ci]'
+          git push
