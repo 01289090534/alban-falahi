@@ -1,0 +1,69 @@
+name: Final customer UI cleanup
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Repair menu customer UI
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('menu.html')
+          s=p.read_text(encoding='utf-8')
+
+          # Remove every duplicate homepage points injector, preserving the real function.
+          s=re.sub(r'/\* ALBAN_HOME_POINTS_BADGE_V1 \*/.*?(?=</script>)','',s,flags=re.S)
+          s=re.sub(r'<style id="alban-home-points-style">.*?<style id="alban-home-points-style">.*?</style></style>', lambda m: '<style id="alban-home-points-style">'+re.sub(r'<style id="alban-home-points-style">|</style>','',m.group(0)).replace('</style>','')+'</style>', s, flags=re.S)
+          # Simpler deterministic repair if malformed style nesting remains.
+          s=s.replace('<style id="alban-home-points-style"><style id="alban-home-points-style">','<style id="alban-home-points-style">')
+          s=s.replace('</style></style></head>','</style></head>')
+
+          # Keep exactly one homepage points element and one program-rating element.
+          points='<div id="customerPoints" class="home-points">⭐ نقاطك: <strong>جاري التحميل...</strong></div>'
+          s=re.sub(r'<div id="customerPoints"[^>]*>.*?</div>', '', s, count=1, flags=re.S)
+          # Remove any accidental second points elements.
+          s=re.sub(r'<div id="customerPoints"[^>]*>.*?</div>', '', s, flags=re.S)
+          s=s.replace('<div id="customerName" class="customer"></div>', '<div id="customerName" class="customer"></div>'+points, 1)
+
+          # Remove duplicate app-rating blocks; retain the one inside order-success.
+          blocks=re.findall(r'<div id="appRating" class="app-rating">.*?</div>(?=\s*(?:<button|</div>|<nav))',s,flags=re.S)
+          if len(blocks)>1:
+              first=blocks[0]
+              s=s.replace(first,'__KEEP_APP_RATING__',1)
+              s=re.sub(r'<div id="appRating" class="app-rating">.*?</div>(?=\s*(?:<button|</div>|<nav))','',s,flags=re.S)
+              s=s.replace('__KEEP_APP_RATING__',first,1)
+
+          # Ensure the rating badge is visible beside the brand and starts with the agreed demo value.
+          badge='<span id="programRating" class="program-rating">⭐ 4.9/5 (1K+ تقييم)</span>'
+          s=re.sub(r'<span id="programRating"[^>]*>.*?</span>', badge, s, count=1, flags=re.S)
+          if 'id="programRating"' not in s:
+              s=s.replace('<div class="logo">🥛 ألبان فلاحي</div>','<div class="logo">🥛 ألبان فلاحي '+badge+'</div>',1)
+
+          # Do not allow a second rating widget outside the order-success card.
+          s=re.sub(r'<div id="appRating" class="app-rating">.*?</div>\s*</div>\s*<nav class="bottom-nav">','</div><nav class="bottom-nav">',s,count=1,flags=re.S)
+
+          # Keep one real program-rating loader; do not overwrite stored customer rating locally.
+          s=re.sub(r'async function loadProgramRating\(\).*?\}\s*async function selectAppRating', '''async function loadProgramRating(){const box=document.getElementById('programRating');if(!box)return;try{const r=await fetch(API+'reviews-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'program_summary'})});const d=await r.json();if(!r.ok||!d.success)throw new Error();const avg=Number(d.summary?.average||0),count=Number(d.summary?.count||0);if(count)box.textContent='⭐ '+avg.toFixed(1)+'/5 ('+count+' تقييم)';}catch(e){}}async function selectAppRating''',s,count=1,flags=re.S)
+
+          s += '\n<!-- ALBAN_FINAL_CUSTOMER_UI_V1 -->\n'
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit final menu
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add menu.html
+          git commit -m "Final customer UI cleanup [skip ci]" || exit 0
+          git push
