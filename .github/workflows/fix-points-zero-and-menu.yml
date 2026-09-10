@@ -9,25 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch menu
+      - name: Repair menu HTML
         run: |
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p=Path('menu.html')
           s=p.read_text(encoding='utf-8')
+          # Repair the exact corruption that leaves a nested style tag inside the head.
+          s=re.sub(r'<style id="alban-home-points-style">(.*?)<style id="alban-home-points-style">(.*?)</style>\s*</style>', r'<style id="alban-home-points-style">\1\2</style>', s, flags=re.S)
+          # Fallback for a nested style tag with only one closing tag.
+          s=re.sub(r'<style id="alban-home-points-style">(.*?)<style id="alban-home-points-style">(.*?)</style>(?=</head>)', r'<style id="alban-home-points-style">\1\2</style>', s, flags=re.S)
+          s=s.replace('</style></style></head>', '</style></head>')
           s=s.replace('⭐ نقاطك: <strong>جاري التحميل...</strong>', '⭐ نقاطك: <strong>0 نقطة = 0.00 ج</strong>')
           s=s.replace("box.innerHTML='⭐ نقاطك: <strong>غير متاح حاليًا</strong>';", "box.innerHTML='⭐ نقاطك: <strong>0 نقطة = 0.00 ج</strong>';")
-          s=s.replace('<style id="alban-home-points-style"><style id="alban-home-points-style">', '<style id="alban-home-points-style">')
-          s=s.replace('</style></style></head>', '</style></head>')
-          # Remove any duplicate closing/empty marker noise at the end.
-          while s.endswith('\n'):
-              s=s[:-1]
-          p.write_text(s+'\n',encoding='utf-8')
+          p.write_text(s.rstrip('\n')+'\n',encoding='utf-8')
           PY
       - name: Commit fix
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add menu.html
-          git commit -m "Fix menu points zero display [skip ci]" || exit 0
+          git diff --cached --quiet && exit 0
+          git commit -m "Fix menu rendering and points display [skip ci]"
           git push
