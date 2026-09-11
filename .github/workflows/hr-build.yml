@@ -1,0 +1,21 @@
+name: HR build
+on:
+  push:
+    branches: [app-migration]
+  pull_request:
+    paths: ['hr-app/**']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hr-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: hr-app/package.json
+      - run: npm install
+      - run: npm run build
