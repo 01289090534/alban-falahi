@@ -34,25 +34,18 @@ export default function App(){
 
   useEffect(()=>{
     let alive=true;
-    const timer=window.setTimeout(()=>{if(alive){setUserId(null);setChecking(false)}},3000);
-    async function checkSession(){
+    const finish=(id:string|null)=>{if(!alive)return;setUserId(id);setChecking(false)};
+    async function restoreSession(){
       try{
         const {data,error}=await supabase.auth.getSession();
         if(!alive)return;
-        window.clearTimeout(timer);
-        if(error||!data.session){setUserId(null);setChecking(false);return}
-        setUserId(data.session.user.id);setChecking(false);
-      }catch{
-        if(alive){window.clearTimeout(timer);setUserId(null);setChecking(false)}
-      }
+        if(error){finish(null);return}
+        finish(data.session?.user?.id||null);
+      }catch{finish(null)}
     }
-    void checkSession();
-    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{
-      if(!alive)return;
-      setUserId(session?.user?.id||null);
-      setChecking(false);
-    });
-    return()=>{alive=false;window.clearTimeout(timer);subscription.unsubscribe()};
+    void restoreSession();
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>finish(session?.user?.id||null));
+    return()=>{alive=false;subscription.unsubscribe()};
   },[]);
 
   useEffect(()=>{
