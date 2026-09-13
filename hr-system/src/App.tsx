@@ -1,5 +1,5 @@
 import {useEffect,useState} from 'react';
-import {Navigate,Route,Routes} from 'react-router-dom';
+import {Navigate,Route,Routes,useLocation} from 'react-router-dom';
 import type {Profile} from './types';
 import {supabase} from './lib/supabase';
 import Login from './pages/Login';
@@ -28,6 +28,7 @@ function ProtectedApp({profile}:{profile:Profile}){return <Routes>
 </Routes>}
 
 export default function App(){
+  const location=useLocation();
   const [userId,setUserId]=useState<string|null>(null);
   const [profile,setProfile]=useState<Profile|null>(null);
   const [checking,setChecking]=useState(true);
@@ -35,14 +36,12 @@ export default function App(){
 
   useEffect(()=>{
     let alive=true;
-    const timer=window.setTimeout(()=>{if(alive){setUserId(null);setChecking(false)}},2500);
     supabase.auth.getUser().then(({data,error})=>{
       if(!alive)return;
-      window.clearTimeout(timer);
       if(error||!data.user){setUserId(null);setChecking(false);return}
       setUserId(data.user.id);setChecking(false);
-    }).catch(()=>{if(alive){window.clearTimeout(timer);setUserId(null);setChecking(false)}});
-    return()=>{alive=false;window.clearTimeout(timer)};
+    }).catch(()=>{if(alive){setUserId(null);setChecking(false)}});
+    return()=>{alive=false};
   },[]);
 
   useEffect(()=>{
@@ -57,8 +56,9 @@ export default function App(){
     return()=>{alive=false;window.clearTimeout(timer)};
   },[userId]);
 
+  if(location.pathname==='/login')return <Login/>;
   if(checking)return <div className="loading">جاري فتح النظام...</div>;
-  if(!userId)return <Routes><Route path="/login" element={<Login/>}/><Route path="*" element={<Navigate to="/login" replace/>}/></Routes>;
+  if(!userId)return <Navigate to="/login" replace/>;
   if(profileError||!profile)return <div className="login-page"><section className="login-card"><div className="error">{profileError||'تعذر تحميل بيانات المستخدم.'}</div><button className="primary full" onClick={()=>{supabase.auth.signOut({scope:'local'}).finally(()=>window.location.href='/login')}}>العودة لتسجيل الدخول</button></section></div>;
   return <ProtectedApp profile={profile}/>;
 }
