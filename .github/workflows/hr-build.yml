@@ -1,0 +1,32 @@
+name: Build Alban Falahi HR Web
+
+on:
+  push:
+    branches: [hr-system]
+    paths:
+      - 'hr-system/**'
+      - '.github/workflows/hr-build.yml'
+  pull_request:
+    branches: [hr-system]
+    paths:
+      - 'hr-system/**'
+      - '.github/workflows/hr-build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hr-system
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
