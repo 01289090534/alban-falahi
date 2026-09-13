@@ -18,11 +18,9 @@ import Layout from './components/Layout';
 
 function ProtectedApp({profile}:{profile:Profile}){return <Routes>
   <Route element={<Layout profile={profile}/>}> 
-    <Route index element={<Dashboard profile={profile}/>}/>
-    <Route path="employees" element={<Employees/>}/><Route path="branches" element={<Branches/>}/>
-    <Route path="attendance" element={<Attendance/>}/><Route path="closeouts" element={<Closeouts profile={profile}/>}/>
-    <Route path="overtime" element={<Overtime profile={profile}/>}/><Route path="money" element={<Money profile={profile}/>}/>
-    <Route path="payroll" element={<Payroll profile={profile}/>}/><Route path="reports" element={<Reports/>}/>
+    <Route index element={<Dashboard profile={profile}/>}/><Route path="employees" element={<Employees/>}/><Route path="branches" element={<Branches/>}/>
+    <Route path="attendance" element={<Attendance/>}/><Route path="closeouts" element={<Closeouts profile={profile}/>}/><Route path="overtime" element={<Overtime profile={profile}/>}/>
+    <Route path="money" element={<Money profile={profile}/>}/><Route path="payroll" element={<Payroll profile={profile}/>}/><Route path="reports" element={<Reports/>}/>
     <Route path="users" element={<Users/>}/><Route path="settings" element={<Settings profile={profile}/>}/>
   </Route><Route path="*" element={<Navigate to="/" replace/>}/>
 </Routes>}
@@ -54,11 +52,18 @@ export default function App(){
     if(!userId){setProfile(null);setProfileError('');return}
     let alive=true;
     const timer=window.setTimeout(()=>{if(alive){setProfileError('انتهى وقت تحميل الحساب.');setProfile(null)}},5000);
-    supabase.rpc('hr_v2_get_my_profile').then(({data,error})=>{
-      if(!alive)return;window.clearTimeout(timer);
-      if(error||!data?.id){setProfileError('تعذر تحميل بيانات المستخدم.');setProfile(null);return}
-      setProfile(data as Profile);
-    }).catch(()=>{if(alive){window.clearTimeout(timer);setProfileError('تعذر تحميل بيانات المستخدم.');setProfile(null)}});
+    async function loadProfile(){
+      try{
+        const {data,error}=await supabase.rpc('hr_v2_get_my_profile');
+        if(!alive)return;
+        window.clearTimeout(timer);
+        if(error||!data?.id){setProfileError('تعذر تحميل بيانات المستخدم.');setProfile(null);return}
+        setProfile(data as Profile);
+      }catch{
+        if(alive){window.clearTimeout(timer);setProfileError('تعذر تحميل بيانات المستخدم.');setProfile(null)}
+      }
+    }
+    void loadProfile();
     return()=>{alive=false;window.clearTimeout(timer)};
   },[userId]);
 
