@@ -19,63 +19,47 @@ import Layout from './components/Layout';
 
 function Loading(){return <div className="loading">جاري التحقق من تسجيل الدخول...</div>}
 
-function ProtectedApp({profile}:{profile:Profile}){
-  return <Routes>
-    <Route element={<Layout profile={profile}/>}> 
-      <Route index element={<Dashboard profile={profile}/>}/>
-      <Route path="employees" element={<Employees/>}/>
-      <Route path="branches" element={<Branches/>}/>
-      <Route path="attendance" element={<Attendance/>}/>
-      <Route path="closeouts" element={<Closeouts profile={profile}/>}/>
-      <Route path="overtime" element={<Overtime profile={profile}/>}/>
-      <Route path="money" element={<Money profile={profile}/>}/>
-      <Route path="payroll" element={<Payroll profile={profile}/>}/>
-      <Route path="reports" element={<Reports/>}/>
-      <Route path="users" element={<Users/>}/>
-      <Route path="settings" element={<Settings profile={profile}/>}/>
-    </Route>
-    <Route path="*" element={<Navigate to="/" replace/>}/>
-  </Routes>;
-}
+function ProtectedApp({profile}:{profile:Profile}){return <Routes>
+  <Route element={<Layout profile={profile}/>}> 
+    <Route index element={<Dashboard profile={profile}/>}/>
+    <Route path="employees" element={<Employees/>}/><Route path="branches" element={<Branches/>}/>
+    <Route path="attendance" element={<Attendance/>}/><Route path="closeouts" element={<Closeouts profile={profile}/>}/>
+    <Route path="overtime" element={<Overtime profile={profile}/>}/><Route path="money" element={<Money profile={profile}/>}/>
+    <Route path="payroll" element={<Payroll profile={profile}/>}/><Route path="reports" element={<Reports/>}/>
+    <Route path="users" element={<Users/>}/><Route path="settings" element={<Settings profile={profile}/>}/>
+  </Route><Route path="*" element={<Navigate to="/" replace/>}/>
+</Routes>}
 
 export default function App(){
   const [session,setSession]=useState<Session|null>(null);
   const [profile,setProfile]=useState<Profile|null>(null);
-  const [ready,setReady]=useState(false);
+  const [checking,setChecking]=useState(true);
   const [profileError,setProfileError]=useState('');
 
   useEffect(()=>{
     let alive=true;
+    const timer=window.setTimeout(()=>{if(alive){setSession(null);setChecking(false)}},3000);
     supabase.auth.getSession().then(({data})=>{
       if(!alive)return;
-      setSession(data.session);
-      if(!data.session)setReady(true);
-    });
-    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,nextSession)=>{
-      if(!alive)return;
-      setSession(nextSession);
-      if(!nextSession){setProfile(null);setProfileError('');setReady(true);}
-      else setReady(false);
-    });
-    return()=>{alive=false;subscription.unsubscribe()};
+      window.clearTimeout(timer);setSession(data.session);setChecking(false);
+    }).catch(()=>{if(alive){window.clearTimeout(timer);setSession(null);setChecking(false)}});
+    return()=>{alive=false;window.clearTimeout(timer)};
   },[]);
 
   useEffect(()=>{
-    if(!session){setProfile(null);return}
+    if(!session){setProfile(null);setProfileError('');return}
     let alive=true;
-    (async()=>{
-      setProfileError('');
-      const {data,error}=await supabase.rpc('hr_v2_get_my_profile');
-      if(!alive)return;
-      if(error||!data?.id){setProfileError('تعذر تحميل بيانات المستخدم.');setProfile(null);setReady(true);return}
+    const timer=window.setTimeout(()=>{if(alive){setProfileError('انتهى وقت تحميل الحساب.');setProfile(null)}},5000);
+    supabase.rpc('hr_v2_get_my_profile').then(({data,error})=>{
+      if(!alive)return;window.clearTimeout(timer);
+      if(error||!data?.id){setProfileError('تعذر تحميل بيانات المستخدم.');setProfile(null);return}
       setProfile(data as Profile);
-      setReady(true);
-    })();
-    return()=>{alive=false};
+    }).catch(()=>{if(alive){window.clearTimeout(timer);setProfileError('تعذر تحميل بيانات المستخدم.');setProfile(null)}});
+    return()=>{alive=false;window.clearTimeout(timer)};
   },[session]);
 
-  if(!ready)return <Loading/>;
+  if(checking)return <Loading/>;
   if(!session)return <Routes><Route path="/login" element={<Login/>}/><Route path="*" element={<Navigate to="/login" replace/>}/></Routes>;
-  if(profileError||!profile)return <div className="login-page"><section className="login-card"><div className="error">{profileError||'تعذر تحميل بيانات المستخدم.'}</div><button className="primary full" onClick={()=>supabase.auth.signOut()}>العودة لتسجيل الدخول</button></section></div>;
+  if(profileError||!profile)return <div className="login-page"><section className="login-card"><div className="error">{profileError||'تعذر تحميل بيانات المستخدم.'}</div><button className="primary full" onClick={()=>{supabase.auth.signOut().finally(()=>window.location.href='/login')}}>العودة لتسجيل الدخول</button></section></div>;
   return <ProtectedApp profile={profile}/>;
 }
