@@ -42,7 +42,12 @@ export default function App(){
         const {data,error}=await supabase.auth.getSession();
         if(!alive)return;
         if(error){finish(null);return}
-        finish(data.session?.user?.id||null);
+        if(data.session?.user?.id){
+          const {data:userData,error:userError}=await supabase.auth.getUser();
+          if(!alive)return;
+          if(!userError&&userData.user){finish(userData.user.id);return}
+        }
+        finish(null);
       }catch{finish(null)}
     }
     void restoreSession();
@@ -53,7 +58,7 @@ export default function App(){
   useEffect(()=>{
     if(!userId){setProfile(null);setProfileError('');return}
     let alive=true;
-    const timer=window.setTimeout(()=>{if(alive){setProfileError('انتهى وقت تحميل الحساب.');setProfile(null)}},5000);
+    const timer=window.setTimeout(()=>{if(alive){setProfileError('تعذر تحميل الحساب مؤقتًا.');setProfile(null)}},8000);
     async function loadProfile(){
       try{
         const {data,error}=await supabase.rpc('hr_v2_get_my_profile');
@@ -69,9 +74,19 @@ export default function App(){
     return()=>{alive=false;window.clearTimeout(timer)};
   },[userId]);
 
+  useEffect(()=>{
+    const refresh=async()=>{
+      if(document.visibilityState!=='visible')return;
+      try{await supabase.auth.getSession()}catch{}
+    };
+    document.addEventListener('visibilitychange',refresh);
+    window.addEventListener('focus',refresh);
+    return()=>{document.removeEventListener('visibilitychange',refresh);window.removeEventListener('focus',refresh)};
+  },[]);
+
   if(location.pathname==='/login')return <Login/>;
   if(checking)return <div className="loading">جاري فتح النظام...</div>;
   if(!userId)return <Navigate to="/login" replace/>;
-  if(profileError||!profile)return <div className="login-page"><section className="login-card"><div className="error">{profileError||'تعذر تحميل بيانات المستخدم.'}</div><button className="primary full" onClick={()=>{void supabase.auth.signOut({scope:'local'});window.location.href='/login'}}>العودة لتسجيل الدخول</button></section></div>;
+  if(profileError||!profile)return <div className="login-page"><section className="login-card"><div className="error">{profileError||'تعذر تحميل بيانات المستخدم.'}</div><button className="primary full" onClick={()=>window.location.reload()}>إعادة المحاولة</button></section></div>;
   return <ProtectedApp profile={profile}/>;
 }
