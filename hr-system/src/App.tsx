@@ -34,18 +34,25 @@ export default function App(){
 
   useEffect(()=>{
     let alive=true;
-    async function checkUser(){
+    const timer=window.setTimeout(()=>{if(alive){setUserId(null);setChecking(false)}},3000);
+    async function checkSession(){
       try{
-        const {data,error}=await supabase.auth.getUser();
+        const {data,error}=await supabase.auth.getSession();
         if(!alive)return;
-        if(error||!data.user){setUserId(null);setChecking(false);return}
-        setUserId(data.user.id);setChecking(false);
+        window.clearTimeout(timer);
+        if(error||!data.session){setUserId(null);setChecking(false);return}
+        setUserId(data.session.user.id);setChecking(false);
       }catch{
-        if(alive){setUserId(null);setChecking(false)}
+        if(alive){window.clearTimeout(timer);setUserId(null);setChecking(false)}
       }
     }
-    void checkUser();
-    return()=>{alive=false};
+    void checkSession();
+    const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>{
+      if(!alive)return;
+      setUserId(session?.user?.id||null);
+      setChecking(false);
+    });
+    return()=>{alive=false;window.clearTimeout(timer);subscription.unsubscribe()};
   },[]);
 
   useEffect(()=>{
@@ -70,6 +77,6 @@ export default function App(){
   if(location.pathname==='/login')return <Login/>;
   if(checking)return <div className="loading">جاري فتح النظام...</div>;
   if(!userId)return <Navigate to="/login" replace/>;
-  if(profileError||!profile)return <div className="login-page"><section className="login-card"><div className="error">{profileError||'تعذر تحميل بيانات المستخدم.'}</div><button className="primary full" onClick={()=>{supabase.auth.signOut({scope:'local'}).finally(()=>window.location.href='/login')}}>العودة لتسجيل الدخول</button></section></div>;
+  if(profileError||!profile)return <div className="login-page"><section className="login-card"><div className="error">{profileError||'تعذر تحميل بيانات المستخدم.'}</div><button className="primary full" onClick={()=>{void supabase.auth.signOut({scope:'local'});window.location.href='/login'}}>العودة لتسجيل الدخول</button></section></div>;
   return <ProtectedApp profile={profile}/>;
 }
