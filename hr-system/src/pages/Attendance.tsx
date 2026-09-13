@@ -1,73 +1,17 @@
-import { useEffect, useState } from 'react';
-import { Clock3, LogIn, LogOut, RefreshCw } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-
-const statusAr: Record<string,string> = { present:'حاضر', late:'متأخر', absent:'غائب', leave:'إجازة', rest:'راحة', sick_leave:'إجازة مرضية', missing_checkout:'لم يسجل انصراف' };
-
-export default function Attendance() {
-  const [profile, setProfile] = useState<any>(null);
-  const [rows, setRows] = useState<any[]>([]);
-  const [employees, setEmployees] = useState<any[]>([]);
-  const [today, setToday] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-
-  async function load() {
-    if (!supabase) return;
-    setLoading(true); setError('');
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    const { data: account, error: accountError } = await supabase.from('hr_v2_accounts').select('id,full_name,role,employee_id,is_active').eq('id', user.id).maybeSingle();
-    if (accountError || !account) { setError('تعذر تحميل حساب المستخدم'); setLoading(false); return; }
-    setProfile(account);
-    const cairoDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo' }).format(new Date());
-    if (account.role === 'employee') {
-      const { data } = await supabase.from('hr_v2_attendance').select('*').eq('employee_id', account.employee_id).eq('work_date', cairoDate).maybeSingle();
-      setToday(data || null);
-    } else {
-      const { data } = await supabase.from('hr_v2_attendance').select('*').eq('work_date', cairoDate).order('check_in', { ascending: false });
-      setRows(data || []);
-      const { data: emps } = await supabase.from('hr_v2_employees').select('id,employee_no,full_name_ar,branch_id').order('full_name_ar');
-      setEmployees(emps || []);
-    }
-    setLoading(false);
-  }
-
-  useEffect(() => { load(); }, []);
-
-  async function checkIn() {
-    if (!supabase || !profile?.employee_id) return;
-    setBusy(true); setMessage(''); setError('');
-    const cairoDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo' }).format(new Date());
-    const { error: e } = await supabase.from('hr_v2_attendance').insert({ employee_id: profile.employee_id, work_date: cairoDate, check_in: new Date().toISOString(), check_out: null, late_minutes: 0, work_minutes: 0, overtime_minutes: 0, status: 'present' });
-    if (e) setError(e.code === '23505' ? 'تم تسجيل الحضور بالفعل اليوم' : e.message);
-    else { setMessage('تم تسجيل الحضور بنجاح'); await load(); }
-    setBusy(false);
-  }
-
-  async function checkOut() {
-    if (!supabase || !today) return;
-    setBusy(true); setMessage(''); setError('');
-    const { error: e } = await supabase.from('hr_v2_attendance').update({ check_out: new Date().toISOString() }).eq('id', today.id);
-    if (e) setError(e.message); else { setMessage('تم تسجيل الانصراف بنجاح'); await load(); }
-    setBusy(false);
-  }
-
-  if (loading) return <div className="panel"><div className="empty">جاري تحميل الحضور...</div></div>;
-  if (profile?.role === 'employee') return <>
-    <div className="page-head"><div><h2>الحضور والانصراف</h2><p>سجل حضورك وانصرافك لليوم.</p></div><button className="secondary" onClick={load}><RefreshCw size={17}/>تحديث</button></div>
-    <div className="panel attendance-card"><div className="attendance-icon"><Clock3 size={32}/></div><h3>{profile.full_name}</h3><p className="muted">{today ? `تاريخ اليوم: ${today.work_date}` : 'لم يتم تسجيل حضور اليوم'}</p>
-      <div className="attendance-times"><div><span>الحضور</span><b>{today?.check_in ? new Date(today.check_in).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) : '—'}</b></div><div><span>الانصراف</span><b>{today?.check_out ? new Date(today.check_out).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}) : '—'}</b></div><div><span>الحالة</span><b>{today ? (statusAr[today.status] || today.status) : '—'}</b></div></div>
-      {!today && <button className="primary big-action" disabled={busy} onClick={checkIn}><LogIn size={19}/>{busy?'جاري التسجيل...':'تسجيل الحضور'}</button>}
-      {today && !today.check_out && <button className="primary big-action" disabled={busy} onClick={checkOut}><LogOut size={19}/>{busy?'جاري التسجيل...':'تسجيل الانصراف'}</button>}
-      {today?.check_out && <div className="success">تم تسجيل حضور وانصراف اليوم.</div>}{message && <div className="success">{message}</div>}{error && <div className="error">{error}</div>}
-    </div>
-  </>;
-
-  return <><div className="page-head"><div><h2>الحضور والانصراف</h2><p>متابعة حضور الموظفين اليوم.</p></div><button className="secondary" onClick={load}><RefreshCw size={17}/>تحديث</button></div>
-    <div className="stats-grid"><div className="stat-card"><span>سجلات اليوم</span><strong>{rows.length}</strong></div><div className="stat-card"><span>حاضر</span><strong>{rows.filter(r=>r.status==='present').length}</strong></div><div className="stat-card"><span>متأخر</span><strong>{rows.filter(r=>r.status==='late').length}</strong></div><div className="stat-card"><span>بدون انصراف</span><strong>{rows.filter(r=>!r.check_out).length}</strong></div></div>
-    <div className="panel table-wrap"><table><thead><tr><th>الموظف</th><th>التاريخ</th><th>الحضور</th><th>الانصراف</th><th>التأخير</th><th>الدقائق</th><th>الإضافي</th><th>الحالة</th></tr></thead><tbody>{rows.map(r=>{const e=employees.find(x=>x.id===r.employee_id);return <tr key={r.id}><td>{e?.full_name_ar || r.employee_id}</td><td>{r.work_date}</td><td>{r.check_in?new Date(r.check_in).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}):'—'}</td><td>{r.check_out?new Date(r.check_out).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}):'—'}</td><td>{r.late_minutes||0}</td><td>{r.work_minutes||0}</td><td>{r.overtime_minutes||0}</td><td>{statusAr[r.status]||r.status}</td></tr>})}</tbody></table>{!rows.length&&<div className="empty">لا توجد سجلات حضور اليوم.</div>}</div>
-  </>;
+import {useEffect,useMemo,useState} from 'react';
+import {Check,Clock3,LogIn,LogOut,RefreshCw} from 'lucide-react';
+import {supabase} from '../lib/supabase';
+const statusAr:Record<string,string>={present:'حاضر',late:'متأخر',absent:'غائب',leave:'إجازة',rest:'راحة',sick_leave:'إجازة مرضية',missing_checkout:'لم يسجل انصراف'};
+const cairoDate=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Cairo'}).format(new Date());
+export default function Attendance(){
+ const[profile,setProfile]=useState<any>(null),[rows,setRows]=useState<any[]>([]),[employees,setEmployees]=useState<any[]>([]),[date,setDate]=useState(cairoDate()),[loading,setLoading]=useState(true),[busy,setBusy]=useState(''),[error,setError]=useState('');
+ async function load(){if(!supabase)return;setLoading(true);setError('');const{data:{user}}=await supabase.auth.getUser();if(!user){setLoading(false);return}const{data:p,error:pe}=await supabase.from('hr_v2_accounts').select('id,full_name,role,employee_id,is_active').eq('id',user.id).maybeSingle();if(pe||!p){setError('تعذر تحميل الحساب');setLoading(false);return}setProfile(p);if(p.role==='employee'){const{data}=await supabase.from('hr_v2_attendance').select('*').eq('employee_id',p.employee_id).eq('work_date',date).maybeSingle();setRows(data?[data]:[])}else{const[{data:a},{data:e}]=await Promise.all([supabase.from('hr_v2_attendance').select('*').eq('work_date',date),supabase.from('hr_v2_employees').select('id,employee_no,full_name_ar,position,branch_id,max_daily_paid_hours,daily_work_hours').eq('status','active').order('full_name_ar')]);setRows(a||[]);setEmployees(e||[])}setLoading(false)}
+ useEffect(()=>{load()},[date]);
+ const byEmployee=useMemo(()=>Object.fromEntries(rows.map(r=>[r.employee_id,r])),[rows]);
+ async function checkIn(id:string){if(!supabase)return;setBusy(id+'-in');setError('');const{error:e}=await supabase.from('hr_v2_attendance').insert({employee_id:id,work_date:date,check_in:new Date().toISOString(),check_out:null,notes:null});if(e)setError(e.code==='23505'?'تم تسجيل حضور الموظف بالفعل':e.message);await load();setBusy('')}
+ async function checkOut(r:any){if(!supabase)return;setBusy(r.id+'-out');setError('');const{error:e}=await supabase.from('hr_v2_attendance').update({check_out:new Date().toISOString()}).eq('id',r.id);if(e)setError(e.message);await load();setBusy('')}
+ async function approveExtra(r:any){if(!supabase)return;const max=Number(employees.find(e=>e.id===r.employee_id)?.max_daily_paid_hours||8)*60;const extra=Math.max(0,Number(r.overtime_minutes||0));if(extra<=0)return;setBusy(r.id+'-ot');const{data:{user}}=await supabase.auth.getUser();const{error:e}=await supabase.from('hr_v2_attendance').update({approved_overtime_minutes:extra,approved_by:user?.id,approved_at:new Date().toISOString()}).eq('id',r.id);if(e)setError(e.message);await load();setBusy('')}
+ if(loading)return <div className="panel"><div className="empty">جاري تحميل الحضور...</div></div>;
+ if(profile?.role==='employee'){const today=rows[0];return <><div className="page-head"><div><h2>الحضور والانصراف</h2><p>سجل حضورك وانصرافك.</p></div><button className="secondary" onClick={load}><RefreshCw size={17}/>تحديث</button></div><div className="panel attendance-card"><div className="attendance-icon"><Clock3 size={32}/></div><h3>{profile.full_name}</h3><p className="muted">{date}</p><div className="attendance-times"><div><span>الحضور</span><b>{today?.check_in?new Date(today.check_in).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}):'—'}</b></div><div><span>الانصراف</span><b>{today?.check_out?new Date(today.check_out).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}):'—'}</b></div><div><span>الساعات المدفوعة</span><b>{today?((Number(today.work_minutes||0)/60).toFixed(2)):'0'} ساعة</b></div></div>{date===cairoDate()&&!today&&<button className="primary big-action" disabled={!!busy} onClick={()=>checkIn(profile.employee_id)}><LogIn size={19}/>تسجيل الحضور</button>}{date===cairoDate()&&today&&!today.check_out&&<button className="primary big-action" disabled={!!busy} onClick={()=>checkOut(today)}><LogOut size={19}/>تسجيل الانصراف</button>}{today?.check_out&&<div className="success">تم تسجيل اليوم — الساعات المدفوعة لا تتجاوز الحد المحدد.</div>}{error&&<div className="error">{error}</div>}</div></>}
+ return <><div className="page-head"><div><h2>الحضور والانصراف</h2><p>شاشة المحاسب اليومية — تسجيل جميع الموظفين ومراجعة الساعات والإضافي.</p></div><div style={{display:'flex',gap:8,alignItems:'center'}}><input type="date" value={date} onChange={e=>setDate(e.target.value)} /><button className="secondary" onClick={load}><RefreshCw size={17}/>تحديث</button></div></div><div className="stats-grid"><div className="stat"><span>إجمالي الموظفين</span><strong>{employees.length}</strong></div><div className="stat"><span>حاضر</span><strong>{rows.filter(r=>r.check_in).length}</strong></div><div className="stat"><span>لم يسجل حضور</span><strong>{Math.max(0,employees.length-rows.filter(r=>r.check_in).length)}</strong></div><div className="stat"><span>إضافي بانتظار الاعتماد</span><strong>{rows.filter(r=>Number(r.overtime_minutes||0)>0&&Number(r.approved_overtime_minutes||0)===0).length}</strong></div></div><div className="panel table-wrap"><table><thead><tr><th>الموظف</th><th>الوظيفة</th><th>الحضور</th><th>الانصراف</th><th>الساعات المدفوعة</th><th>إضافي فعلي</th><th>إضافي معتمد</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody>{employees.map(e=>{const r=byEmployee[e.id];return <tr key={e.id}><td>{e.full_name_ar}</td><td>{e.position||'—'}</td><td>{r?.check_in?new Date(r.check_in).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}):'—'}</td><td>{r?.check_out?new Date(r.check_out).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'}):'—'}</td><td>{r?(Number(r.work_minutes||0)/60).toFixed(2):'0'} ساعة</td><td>{r?(Number(r.overtime_minutes||0)/60).toFixed(2):'0'} ساعة</td><td>{r?(Number(r.approved_overtime_minutes||0)/60).toFixed(2):'0'} ساعة</td><td>{r?(statusAr[r.status]||r.status):'لم يسجل'}</td><td>{!r&&<button className="icon-btn" disabled={!!busy} onClick={()=>checkIn(e.id)} title="تسجيل حضور"><LogIn size={17}/></button>}{r&&!r.check_out&&<button className="icon-btn" disabled={!!busy} onClick={()=>checkOut(r)} title="تسجيل انصراف"><LogOut size={17}/></button>}{r&&Number(r.overtime_minutes||0)>Number(r.approved_overtime_minutes||0)&&<button className="icon-btn" disabled={!!busy} onClick={()=>approveExtra(r)} title="اعتماد الإضافي"><Check size={17}/></button>}</td></tr>})}</tbody></table>{error&&<div className="error" style={{margin:12}}>{error}</div>}</div></>;
 }
