@@ -1,5 +1,6 @@
 import {useEffect,useState} from 'react';
 import {Navigate,Route,Routes,useLocation} from 'react-router-dom';
+import type {ReactElement} from 'react';
 import type {Profile} from './types';
 import {supabase} from './lib/supabase';
 import Login from './pages/Login';
@@ -16,13 +17,13 @@ import Settings from './pages/Settings';
 import Users from './pages/Users';
 import Layout from './components/Layout';
 
-const accountantOnly=(profile:Profile,element:JSX.Element)=>(profile.role==='accountant'?<Navigate to="/attendance" replace/>:element);
+const accountantOnly=(profile:Profile,element:ReactElement)=>(profile.role==='accountant'?<Navigate to="/attendance" replace/>:element);
 function ProtectedApp({profile}:{profile:Profile}){return <Routes>
   <Route element={<Layout profile={profile}/>}> 
     <Route index element={profile.role==='accountant'?<Navigate to="/attendance" replace/>:<Dashboard profile={profile}/>}/><Route path="employees" element={accountantOnly(profile,<Employees/>)}/><Route path="branches" element={accountantOnly(profile,<Branches/>)}/>
     <Route path="attendance" element={<Attendance/>}/><Route path="closeouts" element={<Closeouts profile={profile}/>}/><Route path="overtime" element={accountantOnly(profile,<Overtime profile={profile}/>)}/>
     <Route path="money" element={<Money profile={profile}/>}/><Route path="payroll" element={<Payroll profile={profile}/>}/><Route path="reports" element={accountantOnly(profile,<Reports/>)}/>
-    <Route path="users" element={accountantOnly(profile,<Users/>)}/><Route path="settings" element={accountantOnly(profile,<Settings profile={profile}/>)}/>
+    <Route path="users" element={accountantOnly(profile,<Users/>)}/><Route path="settings" element={accountantOnly(profile,<Settings profile={profile}/> )}/>
   </Route><Route path="*" element={<Navigate to={profile.role==='accountant'?'/attendance':'/'} replace/>}/>
 </Routes>}
 
