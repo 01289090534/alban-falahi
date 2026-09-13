@@ -1,6 +1,5 @@
 import {useEffect,useState} from 'react';
 import {Navigate,Route,Routes} from 'react-router-dom';
-import type {Session} from '@supabase/supabase-js';
 import type {Profile} from './types';
 import {supabase} from './lib/supabase';
 import Login from './pages/Login';
@@ -17,8 +16,6 @@ import Settings from './pages/Settings';
 import Users from './pages/Users';
 import Layout from './components/Layout';
 
-function Loading(){return <div className="loading">جاري التحقق من تسجيل الدخول...</div>}
-
 function ProtectedApp({profile}:{profile:Profile}){return <Routes>
   <Route element={<Layout profile={profile}/>}> 
     <Route index element={<Dashboard profile={profile}/>}/>
@@ -31,23 +28,25 @@ function ProtectedApp({profile}:{profile:Profile}){return <Routes>
 </Routes>}
 
 export default function App(){
-  const [session,setSession]=useState<Session|null>(null);
+  const [userId,setUserId]=useState<string|null>(null);
   const [profile,setProfile]=useState<Profile|null>(null);
   const [checking,setChecking]=useState(true);
   const [profileError,setProfileError]=useState('');
 
   useEffect(()=>{
     let alive=true;
-    const timer=window.setTimeout(()=>{if(alive){setSession(null);setChecking(false)}},3000);
-    supabase.auth.getSession().then(({data})=>{
+    const timer=window.setTimeout(()=>{if(alive){setUserId(null);setChecking(false)}},2500);
+    supabase.auth.getUser().then(({data,error})=>{
       if(!alive)return;
-      window.clearTimeout(timer);setSession(data.session);setChecking(false);
-    }).catch(()=>{if(alive){window.clearTimeout(timer);setSession(null);setChecking(false)}});
+      window.clearTimeout(timer);
+      if(error||!data.user){setUserId(null);setChecking(false);return}
+      setUserId(data.user.id);setChecking(false);
+    }).catch(()=>{if(alive){window.clearTimeout(timer);setUserId(null);setChecking(false)}});
     return()=>{alive=false;window.clearTimeout(timer)};
   },[]);
 
   useEffect(()=>{
-    if(!session){setProfile(null);setProfileError('');return}
+    if(!userId){setProfile(null);setProfileError('');return}
     let alive=true;
     const timer=window.setTimeout(()=>{if(alive){setProfileError('انتهى وقت تحميل الحساب.');setProfile(null)}},5000);
     supabase.rpc('hr_v2_get_my_profile').then(({data,error})=>{
@@ -56,10 +55,10 @@ export default function App(){
       setProfile(data as Profile);
     }).catch(()=>{if(alive){window.clearTimeout(timer);setProfileError('تعذر تحميل بيانات المستخدم.');setProfile(null)}});
     return()=>{alive=false;window.clearTimeout(timer)};
-  },[session]);
+  },[userId]);
 
-  if(checking)return <Loading/>;
-  if(!session)return <Routes><Route path="/login" element={<Login/>}/><Route path="*" element={<Navigate to="/login" replace/>}/></Routes>;
-  if(profileError||!profile)return <div className="login-page"><section className="login-card"><div className="error">{profileError||'تعذر تحميل بيانات المستخدم.'}</div><button className="primary full" onClick={()=>{supabase.auth.signOut().finally(()=>window.location.href='/login')}}>العودة لتسجيل الدخول</button></section></div>;
+  if(checking)return <div className="loading">جاري فتح النظام...</div>;
+  if(!userId)return <Routes><Route path="/login" element={<Login/>}/><Route path="*" element={<Navigate to="/login" replace/>}/></Routes>;
+  if(profileError||!profile)return <div className="login-page"><section className="login-card"><div className="error">{profileError||'تعذر تحميل بيانات المستخدم.'}</div><button className="primary full" onClick={()=>{supabase.auth.signOut({scope:'local'}).finally(()=>window.location.href='/login')}}>العودة لتسجيل الدخول</button></section></div>;
   return <ProtectedApp profile={profile}/>;
 }
