@@ -36,11 +36,17 @@ export default function App(){
 
   useEffect(()=>{
     let alive=true;
-    supabase.auth.getUser().then(({data,error})=>{
-      if(!alive)return;
-      if(error||!data.user){setUserId(null);setChecking(false);return}
-      setUserId(data.user.id);setChecking(false);
-    }).catch(()=>{if(alive){setUserId(null);setChecking(false)}});
+    async function checkUser(){
+      try{
+        const {data,error}=await supabase.auth.getUser();
+        if(!alive)return;
+        if(error||!data.user){setUserId(null);setChecking(false);return}
+        setUserId(data.user.id);setChecking(false);
+      }catch{
+        if(alive){setUserId(null);setChecking(false)}
+      }
+    }
+    void checkUser();
     return()=>{alive=false};
   },[]);
 
