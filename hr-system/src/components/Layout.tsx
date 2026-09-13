@@ -1,14 +1,24 @@
 import {NavLink,Outlet,useNavigate} from 'react-router-dom';
-import {Building2,Clock3,LogOut,ReceiptText,Settings,Timer,Users,WalletCards,LayoutDashboard,BarChart3} from 'lucide-react';
+import {Building2,Clock3,LogOut,ReceiptText,Settings,Timer,Users,WalletCards,LayoutDashboard,BarChart3,Menu,X} from 'lucide-react';
+import {useState} from 'react';
 import {supabase} from '../lib/supabase';
 import type {Profile} from '../types';
+import logoData from '../assets/logoData';
 
 const menu=[['/','الرئيسية',LayoutDashboard],['/employees','الموظفون',Users],['/branches','الفروع',Building2],['/attendance','الحضور والانصراف',Clock3],['/overtime','الإضافي',Timer],['/money','السلف والخصومات',WalletCards],['/payroll','الرواتب',ReceiptText],['/reports','التقارير',BarChart3],['/settings','الإعدادات',Settings]] as const;
 
 export default function Layout({profile}:{profile:Profile}){
-  const nav=useNavigate();
+  const nav=useNavigate(); const [open,setOpen]=useState(false);
   async function logout(){await supabase?.auth.signOut();nav('/login')}
   const employeeMenu=menu.filter(([to])=>to==='/'||to==='/attendance'||to==='/overtime'||to==='/money'||to==='/payroll'||to==='/settings');
   const visible=profile.role==='employee'?employeeMenu:menu;
-  return <div className="app-shell"><aside className="sidebar"><div className="brand"><div className="logo">ف</div><div><b>ألبان فلاحي</b><small>الموارد البشرية</small></div></div><nav>{visible.map(([to,label,Icon])=><NavLink key={to} to={to} end={to==='/'} className={({isActive})=>isActive?'active':''}><Icon size={19}/><span>{label}</span></NavLink>)}</nav><button className="logout" onClick={logout}><LogOut size={18}/>تسجيل الخروج</button></aside><main className="main"><header className="topbar"><div><strong>{profile.full_name}</strong><span className="role">{profile.role==='admin'?'مدير النظام':profile.role==='accountant'?'محاسب':'موظف'}</span></div><div className="top-title">نظام إدارة الموارد البشرية</div></header><section className="content"><Outlet/></section></main></div>
+  return <div className="app-shell">
+    <button className="mobile-menu" aria-label="فتح القائمة" onClick={()=>setOpen(true)}><Menu size={25}/></button>
+    <aside className={`sidebar ${open?'open':''}`}>
+      <div className="brand"><img src={logoData} alt="ألبان فلاحي"/><div><b>ألبان فلاحي</b><small>الموارد البشرية</small></div><button className="mobile-close" aria-label="إغلاق القائمة" onClick={()=>setOpen(false)}><X size={22}/></button></div>
+      <nav>{visible.map(([to,label,Icon])=><NavLink key={to} to={to} end={to==='/'} onClick={()=>setOpen(false)} className={({isActive})=>isActive?'active':''}><Icon size={19}/><span>{label}</span></NavLink>)}</nav>
+      <button className="logout" onClick={logout}><LogOut size={18}/>تسجيل الخروج</button>
+    </aside>
+    <main className="main"><header className="topbar"><div className="top-user"><img src={logoData} alt=""/><div><strong>{profile.full_name}</strong><span className="role">{profile.role==='admin'?'مدير النظام':profile.role==='accountant'?'محاسب':'موظف'}</span></div></div><div className="top-title">نظام إدارة الموارد البشرية</div></header><section className="content"><Outlet/></section></main>
+  </div>
 }
