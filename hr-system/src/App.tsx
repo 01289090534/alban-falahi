@@ -6,6 +6,7 @@ import {supabase} from './lib/supabase';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Employees from './pages/Employees';
+import EmployeeReview from './pages/EmployeeReview';
 import Branches from './pages/Branches';
 import Attendance from './pages/Attendance';
 import Closeouts from './pages/Closeouts';
@@ -20,7 +21,7 @@ import Layout from './components/Layout';
 const accountantOnly=(profile:Profile,element:ReactElement)=>(profile.role==='accountant'?<Navigate to="/attendance" replace/>:element);
 function ProtectedApp({profile}:{profile:Profile}){return <Routes>
   <Route element={<Layout profile={profile}/>}> 
-    <Route index element={profile.role==='accountant'?<Navigate to="/attendance" replace/>:<Dashboard profile={profile}/>}/><Route path="employees" element={accountantOnly(profile,<Employees/>)}/><Route path="branches" element={accountantOnly(profile,<Branches/>)}/>
+    <Route index element={profile.role==='accountant'?<Navigate to="/attendance" replace/>:<Dashboard profile={profile}/>}/><Route path="employees" element={accountantOnly(profile,<Employees/>)}/><Route path="employee-review" element={accountantOnly(profile,<EmployeeReview/>)}/><Route path="branches" element={accountantOnly(profile,<Branches/>)}/>
     <Route path="attendance" element={<Attendance/>}/><Route path="closeouts" element={<Closeouts profile={profile}/>}/><Route path="overtime" element={accountantOnly(profile,<Overtime profile={profile}/>)}/>
     <Route path="money" element={<Money profile={profile}/>}/><Route path="payroll" element={<Payroll profile={profile}/>}/><Route path="reports" element={accountantOnly(profile,<Reports/>)}/>
     <Route path="users" element={accountantOnly(profile,<Users/>)}/><Route path="settings" element={accountantOnly(profile,<Settings profile={profile}/> )}/>
