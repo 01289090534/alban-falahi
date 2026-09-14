@@ -2,7 +2,7 @@ import {useEffect,useState} from 'react';
 import {Calculator,Check,Printer,Send} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 import type {Profile} from '../types';
-function arabicNumber(n:any,decimals?:number){return Number(n||0).toLocaleString('ar-EG',{minimumFractionDigits:decimals??0,maximumFractionDigits:decimals??0)} }
+function arabicNumber(n:any,decimals?:number){const d=decimals==null?0:decimals;return Number(n||0).toLocaleString('ar-EG',{minimumFractionDigits:d,maximumFractionDigits:d}) }
 function money(n:any){return arabicNumber(n,2)+' ج.م'}
 function textNumber(v:any){return String(v??'').replace(/[0-9]/g,d=>'٠١٢٣٤٥٦٧٨٩'[Number(d)])}
 function deliveryWeek(){const d=new Date();const diff=(d.getDay()+1)%7;const sat=new Date(d);sat.setDate(d.getDate()-diff);const fri=new Date(sat);fri.setDate(sat.getDate()+6);return [sat.toISOString().slice(0,10),fri.toISOString().slice(0,10)]}
