@@ -70,10 +70,11 @@ export default function Notifications() {
         ...overtime.map((x: any) => x.employee_id),
         ...moneyRows.map((x: any) => x.employee_id),
         ...open.map((x: any) => x.employee_id),
+        ...closeouts.map((x: any) => x.cashier_employee_id),
       ].filter(Boolean))];
 
       const employeesRes = employeeIds.length
-        ? await supabase.from('hr_v2_employees').select('id,full_name_ar,branch_id,position').in('id', employeeIds)
+        ? await supabase.from('hr_v2_employees').select('id,full_name_ar,branch_id,position,work_schedule,daily_work_hours').in('id', employeeIds)
         : { data: [] };
       const employees = employeesRes.data || [];
       const branchesRes = await supabase.from('hr_v2_branches').select('id,name');
@@ -84,6 +85,15 @@ export default function Notifications() {
       const list: Item[] = [];
 
       const names = (rows: any[]) => rows.slice(0, 8).map((x: any) => employeeMap.get(x.employee_id)?.full_name_ar || 'موظف');
+      const withEmployeeContext = (rows: any[]) => rows.map((x: any) => {
+        const e = employeeMap.get(x.employee_id) || employeeMap.get(x.cashier_employee_id);
+        return { ...x, employee_name: e?.full_name_ar || 'موظف', employee_position: e?.position || '', employee_branch_id: e?.branch_id || '' };
+      });
+      const attendanceRecords = withEmployeeContext(attendance);
+      const overtimeRecords = withEmployeeContext(overtime);
+      const moneyRecords = withEmployeeContext(moneyRows);
+      const openRecords = withEmployeeContext(open);
+      const closeoutRecords = closeouts.map((x: any) => ({ ...x, branch_name: branchMap.get(x.branch_id) || 'فرع', cashier_name: employeeMap.get(x.cashier_employee_id)?.full_name_ar || '—' }));
 
       if (attendance.length) {
         list.push({
@@ -93,7 +103,7 @@ export default function Notifications() {
           count: attendance.length,
           level: 'high',
           path: '/attendance',
-          records: attendance,
+          records: attendanceRecords,
         });
       }
 
@@ -105,7 +115,7 @@ export default function Notifications() {
           count: overtime.length,
           level: 'medium',
           path: '/overtime',
-          records: overtime,
+          records: overtimeRecords,
         });
       }
 
@@ -117,7 +127,7 @@ export default function Notifications() {
           count: moneyRows.length,
           level: 'medium',
           path: '/money',
-          records: moneyRows,
+          records: moneyRecords,
         });
       }
 
@@ -130,7 +140,7 @@ export default function Notifications() {
           count: deficits.length,
           level: 'high',
           path: '/closeouts',
-          records: deficits,
+          records: closeoutRecords.filter((x: any) => Number(x.actual_cash || 0) - Number(x.expected_cash || 0) < -0.01),
         });
       }
 
@@ -143,7 +153,7 @@ export default function Notifications() {
           count: missingPaper.length,
           level: 'medium',
           path: '/closeouts',
-          records: missingPaper,
+          records: closeoutRecords.filter((x: any) => !x.paper_image_path && !x.paper_image_path_2),
         });
       }
 
@@ -157,7 +167,7 @@ export default function Notifications() {
           count: missingCustody.length,
           level: 'medium',
           path: '/closeouts',
-          records: missingCustody,
+          records: closeoutRecords.filter((x: any) => !custodyMap.has(x.id)),
         });
       }
 
@@ -173,7 +183,10 @@ export default function Notifications() {
           count: missingCustodyPhoto.length,
           level: 'medium',
           path: '/closeouts',
-          records: missingCustodyPhoto,
+          records: closeoutRecords.filter((x: any) => {
+            const c = custodyMap.get(x.id);
+            return c && !c.custody_image_path && !c.custody_image_path_2;
+          }),
         });
       }
 
@@ -185,7 +198,7 @@ export default function Notifications() {
           count: open.length,
           level: 'high',
           path: '/attendance',
-          records: open,
+          records: openRecords,
         });
       }
 
@@ -206,7 +219,7 @@ export default function Notifications() {
           count: criticalEmployees.length,
           level: 'high',
           path: '/employee-ranking',
-          records: criticalEmployees.map((e: any) => ({ ...e, issueCount: employeeIssues.get(e.id) || 0 })),
+          records: criticalEmployees.map((e: any) => ({ ...e, issueCount: employeeIssues.get(e.id) || 0, branch_name: branchMap.get(e.branch_id) || 'فرع' })),
         });
       }
 
@@ -222,16 +235,26 @@ export default function Notifications() {
   const critical = items.filter(x => x.id === 'critical-employees').reduce((n, x) => n + x.count, 0);
   const sortedItems = [...items].sort((a, b) => (a.level === 'high' ? 0 : 1) - (b.level === 'high' ? 0 : 1));
 
-  const renderRecord = (item: Item, record: any, index: number) => {
-    const employeeName = employeeMapSafe(record.employee_id, item.id, items);
-    const branchName = branchMapSafe(record.branch_id);
+  const actionPath = (item: Item) => {
+    const first = item.records[0];
+    if (item.id === 'attendance' && first?.work_date) return `/attendance?date=${first.work_date}`;
+    if (item.id === 'checkout' && first?.work_date) return `/attendance?date=${first.work_date}`;
+    if (item.id === 'overtime' && first?.work_date) return `/overtime?date=${first.work_date}`;
+    if (item.id === 'money' && first?.transaction_date) return `/money?date=${first.transaction_date}`;
+    if (item.id === 'deficit' && first?.work_date) return `/closeouts?date=${first.work_date}`;
+    return item.path;
+  };
+
+  const renderRecord = (item: Item, record: any) => {
+    const employeeName = record.employee_name || 'موظف';
+    const branchName = record.branch_name || 'فرع';
 
     if (item.id === 'deficit') return `${branchName} • ${record.work_date} • عجز ${money(Number(record.actual_cash || 0) - Number(record.expected_cash || 0))}`;
     if (item.id === 'overtime') return `${employeeName} • ${record.work_date} • ${Number(record.hours || 0).toFixed(2)} ساعة • ${money(record.amount)}`;
     if (item.id === 'money') return `${employeeName} • ${record.transaction_date} • ${money(record.amount)} • ${record.reason || 'بدون بيان'}`;
     if (item.id === 'checkout') return `${employeeName} • ${record.work_date} • حضور ${time(record.check_in)} بدون انصراف`;
     if (item.id === 'attendance') return `${employeeName} • ${record.work_date} • حضور ${time(record.check_in)} خارج الموعد`;
-    if (item.id === 'critical-employees') return `${record.full_name_ar} • ${record.position || '—'} • ${branchName === 'فرع' ? 'بدون فرع' : branchName} • ${record.issueCount} حالات تحتاج تدخل`;
+    if (item.id === 'critical-employees') return `${record.full_name_ar} • ${record.position || '—'} • ${branchName} • ${record.issueCount} حالات تحتاج تدخل`;
     return `${branchName} • ${record.work_date} • يحتاج مراجعة`;
   };
 
@@ -268,14 +291,14 @@ export default function Notifications() {
                     <h3 style={{ margin: '0 0 6px' }}>{item.level === 'high' ? '🚨' : '⚠️'} {item.title} <span className="muted">({item.count})</span></h3>
                     <p style={{ margin: 0 }}>{item.detail}</p>
                   </div>
-                  <button className="primary" onClick={() => { window.location.href = item.path; }}>
+                  <button className="primary" onClick={() => { window.location.href = actionPath(item); }}>
                     فتح الإجراء <ChevronLeft size={16} />
                   </button>
                 </div>
                 <div style={{ display: 'grid', gap: 5, marginTop: 10 }}>
                   {item.records.slice(0, 5).map((record: any, index: number) => (
                     <div key={record.id || index} style={{ background: '#f7f7f7', padding: '7px 9px', borderRadius: 7, fontSize: 13 }}>
-                      {renderRecord(item, record, index)}
+                      {renderRecord(item, record)}
                     </div>
                   ))}
                 </div>
@@ -287,12 +310,4 @@ export default function Notifications() {
       </div>
     </div>
   );
-}
-
-// Helpers are kept outside the component so the JSX cannot accidentally capture a block-local map.
-function employeeMapSafe(employeeId: string | undefined, _itemId: string, _items: Item[]) {
-  return employeeId ? 'موظف' : 'موظف';
-}
-function branchMapSafe(branchId: string | undefined) {
-  return branchId ? 'فرع' : 'فرع';
 }
