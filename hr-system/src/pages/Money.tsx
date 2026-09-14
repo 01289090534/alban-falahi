@@ -1,3 +1,4 @@
+/* Money transactions: advances, deductions, and bonuses are active immediately; owner/admin can edit or delete. */
 import {useEffect,useState} from 'react';import {Edit3,Trash2,Plus} from 'lucide-react';import {supabase} from '../lib/supabase';import type {Profile} from '../types';
 function numAr(n:any){return Number(n||0).toLocaleString('ar-EG',{maximumFractionDigits:2})}
 export default function Money({profile}:{profile:Profile}){const role=String(profile.role||'').trim().toLowerCase(),isEmployee=role==='employee',canManageMoney=role==='owner'||role==='admin';const[r,setR]=useState<any[]>([]),[e,setE]=useState<any[]>([]),[show,setShow]=useState(false),[editing,setEditing]=useState<any>(null),[f,setF]=useState({employee_id:profile.employee_id||'',transaction_date:new Date().toISOString().slice(0,10),type:'advance',amount:'',reason:'',notes:''}),[err,setErr]=useState('');
