@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - customer-points-widget.js
+      - .github/workflows/inject-customer-points.yml
 permissions:
   contents: write
 jobs:
