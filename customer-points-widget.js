@@ -24,3 +24,4 @@
     if(balance)balance.textContent=pointsText+' نقطة = '+valueText;
   }catch(e){console.error('customer points widget',e)}
 })();
+// trigger deployment/injection
