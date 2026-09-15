@@ -1,0 +1,1 @@
+Driver authentication endpoint is ready. Mohamed can be provisioned on first login.
