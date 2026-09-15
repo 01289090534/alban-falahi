@@ -1,0 +1,33 @@
+name: Fix menu latest 10 rating
+on:
+  push:
+    paths:
+      - .github/workflows/fix-menu-rating.yml
+permissions:
+  contents: write
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject rating code into menu
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('menu.html')
+          s=p.read_text(encoding='utf-8')
+          marker='customer-rating-summary-secure'
+          if marker not in s:
+              tag='''<script>\n(async()=>{const el=document.getElementById('rating');if(!el)return;el.textContent='⭐ جاري حساب التقييم...';try{const s=JSON.parse(localStorage.getItem('alban_auth_session')||'null');if(!s?.access_token){el.textContent='⭐ —/5 (0 تقييم)';return}const r=await fetch('https://qxwvuxkbcghbkztjrzon.supabase.co/functions/v1/customer-rating-summary-secure',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.access_token},body:'{}',cache:'no-store'});const d=await r.json();if(!d?.success)throw Error(d?.error||'rating failed');el.textContent=d.count?`⭐ ${Number(d.average).toFixed(1)}/5 (${d.count} تقييم)`: '⭐ —/5 (0 تقييم)'}catch(e){console.error('rating summary',e);el.textContent='⭐ —/5 (0 تقييم)'}})();\n</script>'''
+              if '</body>' not in s:
+                  raise SystemExit('menu.html has no </body> marker')
+              s=s.replace('</body>',tag+'</body>',1)
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit menu change
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add menu.html
+          git diff --cached --quiet || git commit -m 'Fix menu latest 10 rating display'
+          git push
