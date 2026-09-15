@@ -877,6 +877,15 @@ pin:pin
 
 if(result.success){
 
+/* Keep the existing customer identifiers and also persist
+   the Supabase session returned by customer-auth. */
+if(result.session){
+localStorage.setItem(
+"alban_auth_session",
+JSON.stringify(result.session)
+);
+}
+
 localStorage.setItem(
 "alban_customer_id",
 result.customer.id
@@ -963,6 +972,15 @@ pin:pin
 
 
 if(result.success){
+
+/* Keep the existing customer identifiers and also persist
+   the Supabase session returned by customer-auth. */
+if(result.session){
+localStorage.setItem(
+"alban_auth_session",
+JSON.stringify(result.session)
+);
+}
 
 localStorage.setItem(
 "alban_customer_id",
