@@ -1,0 +1,1 @@
+// driver-auth endpoint is configured in Supabase; driver.js uses it in the next release.
