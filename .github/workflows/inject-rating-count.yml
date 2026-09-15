@@ -1,0 +1,30 @@
+name: Inject rating count formatter
+on:
+  push:
+    paths:
+      - rating-count-format.js
+permissions:
+  contents: write
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject formatter into menu
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('menu.html')
+          s=p.read_text(encoding='utf-8')
+          tag='<script src="rating-count-format.js"></script>'
+          if tag not in s:
+              s=s.replace('</body>',tag+'</body>',1)
+              p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add menu.html
+          git diff --cached --quiet || git commit -m 'Format rating count as K after 1000'
+          git push
