@@ -11,21 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inject widget into account page
+      - name: Inject widget into account and menu pages
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('account.html')
-          s=p.read_text(encoding='utf-8')
           tag='<script src="customer-points-widget.js"></script>'
-          if tag not in s:
-              s=s.replace('</body>',tag+'</body>',1)
-              p.write_text(s,encoding='utf-8')
+          for name in ('account.html','menu.html'):
+              p=Path(name)
+              if not p.exists():
+                  continue
+              s=p.read_text(encoding='utf-8')
+              if tag not in s:
+                  s=s.replace('</body>',tag+'</body>',1)
+                  p.write_text(s,encoding='utf-8')
           PY
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add account.html
-          git diff --cached --quiet || git commit -m 'Show real customer bonus balance'
+          git add account.html menu.html
+          git diff --cached --quiet || git commit -m 'Show real customer bonus on account and menu'
           git push
