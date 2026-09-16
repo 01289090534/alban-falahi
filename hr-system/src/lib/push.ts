@@ -1,29 +1,5 @@
 import { supabase } from './supabase';
-
-const VAPID_PUBLIC_KEY = 'BC44bZ1fpyQmwx1lmT2wvanol_ClUJlObEq5e_p2tsrpSv61I6Qvsq3Sv61I6QvscreNvl7XoibxozJERDUpPlJ_DvV_1pZI';
-
-function base64urlToUint8Array(value: string) {
-  const padded = value + '='.repeat((4 - (value.length % 4)) % 4);
-  const binary = atob(padded.replace(/-/g, '+').replace(/_/g, '/'));
-  return Uint8Array.from(binary, char => char.charCodeAt(0));
-}
-
-export async function isPushEnabled() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return false;
-  const registration = await navigator.serviceWorker.ready;
-  return !!(await registration.pushManager.getSubscription());
-}
-
-export async function enablePushNotifications() {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) throw new Error('الإشعارات الفورية غير مدعومة على هذا الجهاز أو المتصفح');
-  const permission = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
-  if (permission !== 'granted') throw new Error('لم يتم السماح بإشعارات الهاتف. فعّل الإشعارات من إعدادات المتصفح.');
-  const registration = await navigator.serviceWorker.ready;
-  let subscription = await registration.pushManager.getSubscription();
-  if (!subscription) subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64urlToUint8Array(VAPID_PUBLIC_KEY) });
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) throw new Error('انتهت جلسة الدخول، أعد تسجيل الدخول.');
-  const response = await fetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` }, body: JSON.stringify({ subscription: subscription.toJSON(), userAgent: navigator.userAgent }) });
-  if (!response.ok) throw new Error((await response.json().catch(() => null))?.error || 'تعذر تفعيل إشعارات الهاتف');
-  return true;
-}
+const VAPID_PUBLIC_KEY = 'BC44bZ1fpyQmwx1lmT2wvanol_ClUJlObEq5e_p2tsrpSv61I6QvsqscreNvl7XoibxozJERDUpPlJ_DvV_1pZI';
+function base64urlToUint8Array(value: string) { const padded = value + '='.repeat((4 - (value.length % 4)) % 4); const binary = atob(padded.replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(binary, char => char.charCodeAt(0)); }
+export async function isPushEnabled() { if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return false; const registration = await navigator.serviceWorker.ready; return !!(await registration.pushManager.getSubscription()); }
+export async function enablePushNotifications() { if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) throw new Error('الإشعارات الفورية غير مدعومة على هذا الجهاز أو المتصفح'); const permission = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission(); if (permission !== 'granted') throw new Error('لم يتم السماح بإشعارات الهاتف. فعّل الإشعارات من إعدادات المتصفح.'); const registration = await navigator.serviceWorker.ready; let subscription = await registration.pushManager.getSubscription(); if (!subscription) subscription = await registration.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: base64urlToUint8Array(VAPID_PUBLIC_KEY) }); const { data: { session } } = await supabase.auth.getSession(); if (!session) throw new Error('انتهت جلسة الدخول، أعد تسجيل الدخول.'); const response = await fetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` }, body: JSON.stringify({ subscription: subscription.toJSON(), userAgent: navigator.userAgent }) }); if (!response.ok) throw new Error((await response.json().catch(() => null))?.error || 'تعذر تفعيل إشعارات الهاتف'); return true; }
