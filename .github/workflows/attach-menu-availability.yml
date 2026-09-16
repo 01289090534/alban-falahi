@@ -16,11 +16,11 @@ jobs:
           from pathlib import Path
           p=Path('menu.html')
           s=p.read_text(encoding='utf-8')
-          tags=['<script src="menu-availability.js"></script>','<script src="menu-branch-gps.js"></script>','<script src="menu-points.js"></script>']
+          tags=['<script src="menu-availability.js"></script>','<script src="menu-branch-gps.js"></script>','<script src="menu-points.js"></script>','<link rel="stylesheet" href="customer-coupon.css?v=1">','<script src="dashboard/dashboard-customer-coupons.js"></script>']
           changed=False
           for tag in tags:
               if tag not in s:
-                  s=s.replace('</body>',tag+'</body>')
+                  s=s.replace('</head>',tag+'</head>') if tag.startswith('<link') else s.replace('</body>',tag+'</body>')
                   changed=True
           if changed:
               p.write_text(s,encoding='utf-8')
@@ -30,5 +30,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add menu.html
-          git diff --cached --quiet || git commit -m 'Attach menu availability, GPS and points [menu-availability]'
+          git diff --cached --quiet || git commit -m 'Attach menu coupon UI [menu-availability]'
           git push
