@@ -1,5 +1,5 @@
 // تحديث البونص من endpoint آمن وإظهار الرصيد الحقيقي في صفحة الحساب
-(async()=>{
+async function refreshCustomerPoints(){
   try{
     const customerId=localStorage.getItem('alban_customer_id');
     const session=JSON.parse(localStorage.getItem('alban_auth_session')||'null');
@@ -17,10 +17,14 @@
     set('pointsText','متاح للاستخدام: '+pointsText+' نقطة');
     set('totalPoints',pointsText);
     set('value',valueText);
+    set('bonusBalance',pointsText+' نقطة = '+valueText);
     const mini=document.getElementById('topPoints');
     if(mini){mini.style.display='flex';mini.innerHTML='<span class="points-badge">🎁 البونص: <strong>'+pointsText+' نقطة</strong> = '+valueText+'</span>';}
-    const balance=document.getElementById('bonusBalance');
-    if(balance)balance.textContent=pointsText+' نقطة = '+valueText;
+    const balance=document.getElementById('balance');
+    if(balance)balance.textContent=valueText;
   }catch(e){console.error('customer points widget',e)}
-})();
-// trigger deployment/injection v2
+}
+refreshCustomerPoints();
+setTimeout(refreshCustomerPoints,2500);
+setInterval(refreshCustomerPoints,10000);
+// trigger deployment/injection v3
