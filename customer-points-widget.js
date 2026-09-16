@@ -13,7 +13,6 @@
     const arabic=n=>String(n).replace(/\d/g,x=>'٠١٢٣٤٥٦٧٨٩'[x]);
     const pointsText=arabic(Math.floor(points).toLocaleString('en-US'));
     const valueText=arabic(value.toFixed(2).replace('.', '٫'))+' ج.م';
-    const targets=['pointsText','totalPoints','value','soon'];
     const set=(id,text)=>{const e=document.getElementById(id);if(e)e.textContent=text};
     set('pointsText','متاح للاستخدام: '+pointsText+' نقطة');
     set('totalPoints',pointsText);
@@ -24,4 +23,4 @@
     if(balance)balance.textContent=pointsText+' نقطة = '+valueText;
   }catch(e){console.error('customer points widget',e)}
 })();
-// trigger deployment/injection
+// trigger deployment/injection v2
