@@ -2,7 +2,7 @@ import {useEffect,useMemo,useState} from 'react';
 import {AlertTriangle,Check,Edit3,RefreshCw,Search,X} from 'lucide-react';
 import {supabase} from '../lib/supabase';
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Cairo'}).format(new Date());
-const monthAgo=()=>{const d=new Date();d.setDate(d.getDate()-30);return new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Cairo'}).format(d)};
+const monthAgo=()=>{const d=new Date();return new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Cairo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(d.getFullYear(),d.getMonth(),1))};
 const money=(n:any)=>Number(n||0).toLocaleString('ar-EG',{minimumFractionDigits:2,maximumFractionDigits:2})+' ج.م';
 const hours=(n:any)=>(Number(n||0)/60).toFixed(2)+' س';
 const timeValue=(v:string|null)=>v?new Date(v).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'Africa/Cairo'}):'—';
