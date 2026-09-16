@@ -8,7 +8,7 @@ type Item={id:string;title:string;detail:string;count:number;level:'high'|'mediu
 export default function Notifications(){
  const[items,setItems]=useState<Item[]>([]),[loading,setLoading]=useState(true),[refresh,setRefresh]=useState(0);
  useEffect(()=>{let alive=true;(async()=>{setLoading(true);const d=today();const[attendanceRes,overtimeRes,moneyRes,closeoutsRes,custodyRes,openRes]=await Promise.all([
-  supabase.from('hr_v2_attendance').select('id,employee_id,work_date,check_in,check_out,schedule_exception_required,schedule_exception_approved').eq('schedule_exception_required',true).eq('schedule_exception_approved',false).order('work_date',{ascending:false}),
+  supabase.from('hr_v2_attendance').select('id,employee_id,work_date,check_in,check_out,schedule_exception_required,schedule_exception_approved').eq('work_date',d).eq('schedule_exception_required',true).eq('schedule_exception_approved',false).not('check_in','is',null).order('work_date',{ascending:false}),
   supabase.from('hr_v2_overtime').select('id,employee_id,work_date,hours,amount,reason').eq('approval_status','pending').order('work_date',{ascending:false}),
   supabase.from('hr_v2_money_transactions').select('id,employee_id,transaction_date,type,amount,reason').eq('approval_status','pending').order('transaction_date',{ascending:false}),
   supabase.from('hr_v2_shift_closeouts').select('id,branch_id,work_date,shift_label,cashier_employee_id,expected_cash,actual_cash,paper_image_path,paper_image_path_2').order('work_date',{ascending:false}).limit(300),
