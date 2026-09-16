@@ -18,6 +18,27 @@
   }
   window.addEventListener('load',()=>{setTimeout(sync,700);const b=document.getElementById('branch');if(b)b.addEventListener('change',()=>setTimeout(sync,100));});
 
+  // PWA install prompt: show on every normal web load/refresh.
+  const pwaStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  let pwaDeferred=null;
+  const pwaShow=()=>{
+    if(pwaStandalone()||document.getElementById('pwaInstallBox'))return;
+    const b=document.createElement('div');
+    b.id='pwaInstallBox';b.dir='rtl';
+    b.style.cssText='position:fixed;left:10px;right:10px;bottom:88px;z-index:99999;background:#fff;border:2px solid #222;border-radius:18px;padding:14px;box-shadow:0 10px 35px #0004;font-family:Arial,sans-serif;display:flex;align-items:center;gap:10px';
+    b.innerHTML='<div style="flex:1;font-weight:900;line-height:1.5">📲 ثبّت برنامج ألبان فلاحي على موبايلك<br><small style="font-weight:600;color:#666">ثبّته على موبايلك للوصول السريع ❤️</small></div><button id="pwaInstallBtn" style="border:0;border-radius:11px;padding:11px 15px;background:#222;color:#fff;font-weight:900">تثبيت</button><button id="pwaCloseBtn" aria-label="إغلاق" style="border:0;background:transparent;font-size:22px">×</button>';
+    document.body.appendChild(b);
+    document.getElementById('pwaCloseBtn').onclick=()=>b.remove();
+    document.getElementById('pwaInstallBtn').onclick=async()=>{
+      if(pwaDeferred){pwaDeferred.prompt();try{await pwaDeferred.userChoice}catch(e){}pwaDeferred=null;b.remove()}
+      else alert('من قائمة المتصفح اختر «إضافة إلى الشاشة الرئيسية» أو «تثبيت التطبيق».');
+    };
+  };
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pwaDeferred=e;pwaShow()});
+  window.addEventListener('appinstalled',()=>{pwaDeferred=null;document.getElementById('pwaInstallBox')?.remove()});
+  window.addEventListener('pageshow',()=>setTimeout(()=>{if(!pwaStandalone()){document.getElementById('pwaInstallBox')?.remove();pwaShow()}},300));
+  window.addEventListener('load',()=>setTimeout(()=>{if(!pwaStandalone())pwaShow()},500));
+
   // Override the legacy create-order call with the current UUID-based database RPC.
   window.order=async function(){
     const t=totals();
