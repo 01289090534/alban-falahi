@@ -1,4 +1,4 @@
-// تحديث البونص من endpoint آمن وإظهار الرصيد الحقيقي في صفحة الحساب
+// تحديث البونص من endpoint آمن وإظهاره في كل الصفحات
 async function refreshCustomerPoints(){
   try{
     const customerId=localStorage.getItem('alban_customer_id');
@@ -13,18 +13,23 @@ async function refreshCustomerPoints(){
     const arabic=n=>String(n).replace(/\d/g,x=>'٠١٢٣٤٥٦٧٨٩'[x]);
     const pointsText=arabic(Math.floor(points).toLocaleString('en-US'));
     const valueText=arabic(value.toFixed(2).replace('.', '٫'))+' ج.م';
-    const set=(id,text)=>{const e=document.getElementById(id);if(e)e.textContent=text};
-    set('pointsText','متاح للاستخدام: '+pointsText+' نقطة');
-    set('totalPoints',pointsText);
-    set('value',valueText);
-    set('bonusBalance',pointsText+' نقطة = '+valueText);
+    const text='🎁 البونص: '+pointsText+' نقطة = '+valueText;
+    const setText=(id,t)=>{const e=document.getElementById(id);if(e&&e.textContent!==t)e.textContent=t};
+    setText('pointsText','متاح للاستخدام: '+pointsText+' نقطة');
+    setText('totalPoints',pointsText);
+    setText('value',valueText);
+    setText('bonusBalance',pointsText+' نقطة = '+valueText);
+    setText('bonusText','متاح '+pointsText+' نقطة = '+valueText);
+    setText('points',text);
     const mini=document.getElementById('topPoints');
-    if(mini){mini.style.display='flex';mini.innerHTML='<span class="points-badge">🎁 البونص: <strong>'+pointsText+' نقطة</strong> = '+valueText+'</span>';}
+    if(mini){mini.style.display='flex';mini.innerHTML='<span class="points-badge">'+text+'</span>';}
     const balance=document.getElementById('balance');
     if(balance)balance.textContent=valueText;
   }catch(e){console.error('customer points widget',e)}
 }
 refreshCustomerPoints();
-setTimeout(refreshCustomerPoints,2500);
+setTimeout(refreshCustomerPoints,1000);
+setTimeout(refreshCustomerPoints,3000);
+setTimeout(refreshCustomerPoints,6000);
 setInterval(refreshCustomerPoints,10000);
-// trigger deployment/injection v3
+// trigger deployment/injection v4
