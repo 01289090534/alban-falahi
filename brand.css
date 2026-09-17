@@ -64,13 +64,13 @@ body:has(#cats) #products .product > div:first-child { display:contents !importa
 body:has(#cats) #products .product .pic { grid-column:1; grid-row:1 / span 3; width:120px; height:120px; margin:0; }
 body:has(#cats) #products .product .name { grid-column:2; grid-row:1; margin-top:2px; font-size:16px; font-weight:900; }
 body:has(#cats) #products .product .desc { display:-webkit-box !important; grid-column:2; grid-row:2; margin-top:6px; min-height:0; font-size:12px; line-height:1.55; color:#718594; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-body:has(#cats) #products .product .bottom { grid-column:2; grid-row:3; align-self:end; display:flex; align-items:center; justify-content:flex-start; margin-top:10px; padding-left:0; }
+body:has(#cats) #products .product .bottom { grid-column:2; grid-row:3; align-self:end; display:flex; align-items:center; justify-content:flex-start; margin-top:10px; padding-left:0; padding-right:45px; }
 body:has(#cats) #products .product .bottom > span:first-child { margin-right:auto; }
 body:has(#cats) #products .product .bottom > span:last-child { position:absolute; left:10px; bottom:10px; z-index:3; }
 body:has(#cats) #products .product .bottom .qty { gap:3px; padding:3px; border-radius:12px; background:rgba(255,255,255,.92); box-shadow:0 4px 12px rgba(20,77,112,.18); }
 body:has(#cats) #products .product .bottom .qty button { width:30px; height:30px; border-radius:9px; }
 body:has(#cats) #products .product .add { width:38px; height:38px; border-radius:50%; box-shadow:0 5px 14px rgba(23,105,170,.28); }
-@media(max-width:480px){body:has(#cats) #products .product{grid-template-columns:100px minmax(0,1fr);column-gap:10px;min-height:125px;padding:9px}body:has(#cats) #products .product .pic{width:100px;height:100px}body:has(#cats) #products .product .name{font-size:15px}body:has(#cats) #products .product .desc{font-size:11px;line-height:1.5;margin-top:4px}body:has(#cats) #products .product .bottom{margin-top:7px}body:has(#cats) #products .product .bottom > span:last-child{left:9px;bottom:9px}body:has(#cats) #products .product .add{width:36px;height:36px}}
+@media(max-width:480px){body:has(#cats) #products .product{grid-template-columns:110px minmax(0,1fr);column-gap:10px;min-height:130px;padding:9px}body:has(#cats) #products .product .pic{width:110px;height:110px}body:has(#cats) #products .product .name{font-size:15px}body:has(#cats) #products .product .desc{font-size:11px;line-height:1.5;margin-top:4px}body:has(#cats) #products .product .bottom{margin-top:7px;padding-right:45px}body:has(#cats) #products .product .bottom > span:last-child{left:9px;bottom:9px}body:has(#cats) #products .product .add{width:36px;height:36px}}
 body:has(#cats) #products.repeat-layout,body:has(#cats) #products.picks-layout { display:flex !important; flex-direction:row !important; direction:rtl !important; flex-wrap:nowrap !important; overflow-x:auto !important; overflow-y:hidden !important; gap:11px !important; padding:2px 2px 12px !important; scroll-snap-type:x proximity !important; -webkit-overflow-scrolling:touch !important; scrollbar-width:none !important; }
 body:has(#cats) #products.repeat-layout::-webkit-scrollbar,body:has(#cats) #products.picks-layout::-webkit-scrollbar { display:none; }
 body:has(#cats) #products.repeat-layout .product,body:has(#cats) #products.picks-layout .product { flex:0 0 calc(50% - 5.5px) !important; max-width:calc(50% - 5.5px) !important; display:flex !important; flex-direction:column !important; gap:0 !important; padding:8px !important; min-height:0 !important; scroll-snap-align:start !important; }
@@ -83,19 +83,9 @@ body:has(#cats) #products.repeat-layout .product .bottom > span:first-child,body
 body:has(#cats) #products.repeat-layout .product .price,body:has(#cats) #products.picks-layout .product .price { display:block !important; margin:0 !important; text-align:center !important; font-size:15px !important; font-weight:900 !important; }
 body:has(#cats) #products.repeat-layout .product .bottom > span:last-child,body:has(#cats) #products.picks-layout .product .bottom > span:last-child { display:none !important; }
 @media(max-width:480px){body:has(#cats) #products.repeat-layout .product,body:has(#cats) #products.picks-layout .product { flex-basis:calc(50% - 5.5px) !important; max-width:calc(50% - 5.5px) !important; } body:has(#cats) #products.repeat-layout .product .pic,body:has(#cats) #products.picks-layout .product .pic { height:125px !important; } }
-
-/* FIX: اختيارات على ذوقك = عمودان بالطول، 6 منتجات كحد أقصى، بدون سحب أفقي. */
 body:has(#cats) #products.picks-layout { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; flex-wrap:unset !important; overflow-x:visible !important; overflow-y:visible !important; direction:rtl !important; }
 body:has(#cats) #products.picks-layout .product { width:100% !important; max-width:none !important; min-width:0 !important; flex:none !important; }
 @media(max-width:480px){body:has(#cats) #products.picks-layout { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }}
-
-/* SPECIAL SECTIONS: no description — image, Arabic name, price only. */
-body:has(#cats) #products.repeat-layout .desc,
-body:has(#cats) #products.repeat-layout .description,
-body:has(#cats) #products.repeat-layout .product-description,
-body:has(#cats) #products.picks-layout .desc,
-body:has(#cats) #products.picks-layout .description,
-body:has(#cats) #products.picks-layout .product-description { display:none !important; }
-body:has(#cats) #products.repeat-layout .price,
-body:has(#cats) #products.picks-layout .price { white-space:nowrap !important; word-break:keep-all !important; overflow-wrap:normal !important; display:block !important; direction:rtl !important; text-align:center !important; width:100% !important; }
+body:has(#cats) #products.repeat-layout .desc,body:has(#cats) #products.repeat-layout .description,body:has(#cats) #products.repeat-layout .product-description,body:has(#cats) #products.picks-layout .desc,body:has(#cats) #products.picks-layout .description,body:has(#cats) #products.picks-layout .product-description { display:none !important; }
+body:has(#cats) #products.repeat-layout .price,body:has(#cats) #products.picks-layout .price { white-space:nowrap !important; word-break:keep-all !important; overflow-wrap:normal !important; display:block !important; direction:rtl !important; text-align:center !important; width:100% !important; }
 body:has(#cats) #products.picks-layout .bottom > span:first-child { white-space:nowrap !important; display:block !important; width:100% !important; }
