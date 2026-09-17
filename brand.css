@@ -92,3 +92,7 @@ body:has(#cats) #products.picks-layout .bottom > span:first-child { white-space:
 
 /* EXACTLY 6 PRODUCTS in اختيارات على ذوقك — no other layout changes. */
 body:has(#cats) #products.picks-layout .product:nth-child(n+7) { display:none !important; }
+
+/* Normal category products only: put the add/quantity control over the product image. */
+body:has(#cats) #products.normal-layout .product .bottom > span:last-child { left:20px !important; bottom:20px !important; z-index:10 !important; }
+@media(max-width:480px){body:has(#cats) #products.normal-layout .product .bottom > span:last-child { left:17px !important; bottom:17px !important; }}
