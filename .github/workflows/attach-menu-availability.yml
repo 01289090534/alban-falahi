@@ -41,10 +41,21 @@ jobs:
           if n!=1: raise SystemExit('shop prep alert block not found')
           p.write_text(ns,encoding='utf-8')
           PY
+      - name: Attach shop order action dropdowns
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('admin/index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='<script src="/admin/order-action-selects.js?v=1"></script>'
+          if tag not in s:
+              s=s.replace('</body>',tag+'</body>')
+              p.write_text(s,encoding='utf-8')
+          PY
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add menu.html admin/index.html
-          git diff --cached --quiet || git commit -m 'Fix shop prep deadline triple alerts [menu-availability]'
+          git diff --cached --quiet || git commit -m 'Attach shop order action dropdowns [menu-availability]'
           git push
