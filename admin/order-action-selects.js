@@ -9,7 +9,7 @@
     let list=[];
     try{list=type==='driver'?await api({action:'drivers'}):await api({action:'branches'})}catch(e){alert(e.message||'تعذر تحميل القائمة');return}
     if(!Array.isArray(list))list=list?.drivers||list?.branches||list?.data||[];
-    if(type==='driver')list=list.filter(x=>(x.branch_id==null||x.branch_id===me?.branch_id)&&String(x.status||'available').toLowerCase()!=='busy');
+    if(type==='driver')list=list.filter(x=>(x.branch_id==null||x.branch_id===me?.branch_id)&&x.is_active!==false&&x.is_available!==false&&String(x.status||'').toLowerCase()!=='busy');
     else list=list.filter(x=>x.id&&x.id!==me?.branch_id&&(x.is_active!==false));
     const modal=document.createElement('div'); modal.className='af-select-modal';
     const title=type==='driver'?'🚗 اختيار السائق':'🏪 اختيار الفرع';
