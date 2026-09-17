@@ -28,10 +28,24 @@ jobs:
           if changed:
               p.write_text(s,encoding='utf-8')
           PY
+      - name: Patch shop minute prep alerts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('admin/index.html')
+          s=p.read_text(encoding='utf-8')
+          pattern=r'function updateTimers\(\)\{.*?setTimeout\(updateTimers,1000\)\}'
+          replacement="""function prepAlertKey(o){return 'af_prep_alert_'+o.id+'_'+String(o.prep_started_at||'')}\nfunction prepAlertState(o){try{return JSON.parse(localStorage.getItem(prepAlertKey(o))||'{}')}catch{return {}}}\nfunction savePrepAlertState(o,state){try{localStorage.setItem(prepAlertKey(o),JSON.stringify(state))}catch{}}\nfunction triplePrepBeep(){beep(560,.25);setTimeout(()=>beep(560,.25),350);setTimeout(()=>beep(560,.25),700)}\nfunction updateTimers(){orders.filter(o=>o.status==='preparing').forEach(o=>{const el=document.getElementById('timer-'+o.id);if(!el)return;el.textContent=timerText(o);el.classList.toggle('dangerTimer',o.prep_deadline_at&&new Date(o.prep_deadline_at).getTime()<=Date.now());const start=new Date(o.prep_started_at).getTime(),initial=start+Number(o.prep_initial_minutes||15)*60000,now=Date.now();if(enabledSound&&now>=initial){const st=prepAlertState(o);if(!st.initial){triplePrepBeep();st.initial=true;st.lastMinute=Math.floor((now-initial)/60000);savePrepAlertState(o,st)}else{const minute=Math.floor((now-initial)/60000);if(minute>0&&minute!==st.lastMinute){beep(420,.35);st.lastMinute=minute;savePrepAlertState(o,st)}}}});setTimeout(updateTimers,1000)}"""
+          ns,n=re.subn(pattern,replacement,s,count=1,flags=re.S)
+          if n!=1:
+              raise SystemExit('shop updateTimers block not found')
+          p.write_text(ns,encoding='utf-8')
+          PY
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add menu.html
-          git diff --cached --quiet || git commit -m 'Attach checkout enhancements [menu-availability]'
+          git add menu.html admin/index.html
+          git diff --cached --quiet || git commit -m 'Fix shop minute prep alerts [menu-availability]'
           git push
