@@ -1,0 +1,1 @@
+(()=>{document.addEventListener('click',e=>{const b=e.target.closest?.('[data-page="products"]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();try{window.page='products'}catch{};const run=()=>{if(typeof window.products==='function')window.products();};setTimeout(run,0)},true);})();
