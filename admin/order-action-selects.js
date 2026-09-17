@@ -41,9 +41,11 @@
       }
       const confirmed=await confirmChoice('🏪 تأكيد تحويل الطلب','هل تريد تحويل الطلب إلى فرع <span class="af-confirm-name">'+String(name).replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>؟');
       if(!confirmed)return;
-      const oldPrompt=window.prompt; let used=false;
-      window.prompt=function(){if(!used){used=true;return value}return oldPrompt.apply(window,arguments)};
-      try{(0,eval)(onclick)}catch(e){alert(e.message||'تعذر تنفيذ العملية')}finally{window.prompt=oldPrompt}
+      try{
+        await api({action:'transfer',order_id:m[2],to_branch_id:value});
+        if(typeof loadOrders==='function')await loadOrders();
+      }catch(e){alert(e.message||'تعذر تحويل الطلب')}
+      return;
     };
   }
   document.addEventListener('click',function(e){
