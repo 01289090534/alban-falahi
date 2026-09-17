@@ -1,1 +1,0 @@
-// Legacy audio activation removed. Intentionally empty.
