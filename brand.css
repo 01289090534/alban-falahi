@@ -89,3 +89,6 @@ body:has(#cats) #products.picks-layout .product { width:100% !important; max-wid
 body:has(#cats) #products.repeat-layout .desc,body:has(#cats) #products.repeat-layout .description,body:has(#cats) #products.repeat-layout .product-description,body:has(#cats) #products.picks-layout .desc,body:has(#cats) #products.picks-layout .description,body:has(#cats) #products.picks-layout .product-description { display:none !important; }
 body:has(#cats) #products.repeat-layout .price,body:has(#cats) #products.picks-layout .price { white-space:nowrap !important; word-break:keep-all !important; overflow-wrap:normal !important; display:block !important; direction:rtl !important; text-align:center !important; width:100% !important; }
 body:has(#cats) #products.picks-layout .bottom > span:first-child { white-space:nowrap !important; display:block !important; width:100% !important; }
+
+/* EXACTLY 6 PRODUCTS in اختيارات على ذوقك — no other layout changes. */
+body:has(#cats) #products.picks-layout .product:nth-child(n+7) { display:none !important; }
