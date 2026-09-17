@@ -41,6 +41,10 @@ function prepAlertKey(o){return 'af_prep_alert_'+o.id+'_'+String(o.prep_started_
 function prepAlertState(o){try{return JSON.parse(localStorage.getItem(prepAlertKey(o))||'{}')}catch{return {}}}
 function savePrepAlertState(o,state){try{localStorage.setItem(prepAlertKey(o),JSON.stringify(state))}catch{}}
 function triplePrepBeep(){beep(560,.25);setTimeout(()=>beep(560,.25),350);setTimeout(()=>beep(560,.25),700)}
+function prepAlertKey(o){return 'af_prep_alert_'+o.id+'_'+String(o.prep_started_at||'')}
+function prepAlertState(o){try{return JSON.parse(localStorage.getItem(prepAlertKey(o))||'{}')}catch{return {}}}
+function savePrepAlertState(o,state){try{localStorage.setItem(prepAlertKey(o),JSON.stringify(state))}catch{}}
+function triplePrepBeep(){beep(560,.25);setTimeout(()=>beep(560,.25),350);setTimeout(()=>beep(560,.25),700)}
 function updateTimers(){orders.filter(o=>o.status==='preparing').forEach(o=>{const el=document.getElementById('timer-'+o.id);if(!el)return;el.textContent=timerText(o);el.classList.toggle('dangerTimer',o.prep_deadline_at&&new Date(o.prep_deadline_at).getTime()<=Date.now());const start=new Date(o.prep_started_at).getTime(),initial=start+Number(o.prep_initial_minutes||15)*60000,now=Date.now();if(enabledSound&&now>=initial){const st=prepAlertState(o);if(!st.initial){triplePrepBeep();st.initial=true;st.lastMinute=Math.floor((now-initial)/60000);savePrepAlertState(o,st)}else{const minute=Math.floor((now-initial)/60000);if(minute>0&&minute!==st.lastMinute){beep(420,.35);st.lastMinute=minute;savePrepAlertState(o,st)}}}});setTimeout(updateTimers,1000)}
 function logout(){localStorage.removeItem('af_shop_session');localStorage.removeItem('af_shop_user');session=null;me=null;location.reload()}
 if(session&&me){render();document.getElementById('modal').classList.remove('hidden');loadOrders();const ch=sb.channel('shop-orders').on('postgres_changes',{event:'*',schema:'public',table:'orders'},payload=>{loadOrders();if(payload.eventType==='INSERT'&&payload.new?.branch_id===me.branch_id){startAlarm(payload.new)}}).subscribe()}else showLogin();
