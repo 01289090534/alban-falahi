@@ -18,11 +18,20 @@
     modal.innerHTML='<div class="af-select-box"><h3>'+title+'</h3>'+(options?'<label style="display:block;font-weight:800;margin-bottom:7px">'+label+'</label><select id="afSelectValue"><option value="">اختر '+label+'</option>'+options+'</select>':'<div class="af-select-empty">لا توجد خيارات متاحة حاليًا.</div>')+'<div class="af-select-actions"><button class="af-select-cancel">إلغاء</button><button class="af-select-ok" '+(options?'':'disabled')+'>اختيار</button></div></div>';
     document.body.appendChild(modal);
     modal.querySelector('.af-select-cancel').onclick=()=>close(modal);
-    modal.querySelector('.af-select-ok').onclick=()=>{
+    modal.querySelector('.af-select-ok').onclick=async()=>{
       const value=modal.querySelector('#afSelectValue')?.value; if(!value)return;
+      close(modal);
+      if(type==='driver'){
+        const m=onclick.match(/assignDriver\s*\(\s*['\"]([^'\"]+)['\"]\s*\)/);
+        if(!m){alert('تعذر تحديد الطلب');return}
+        try{
+          await api({action:'assign',order_id:m[1],driver_id:value});
+          if(typeof loadOrders==='function')await loadOrders();
+        }catch(e){alert(e.message||'تعذر تعيين السائق')}
+        return;
+      }
       const oldPrompt=window.prompt; let used=false;
       window.prompt=function(){if(!used){used=true;return value}return oldPrompt.apply(window,arguments)};
-      close(modal);
       try{(0,eval)(onclick)}catch(e){alert(e.message||'تعذر تنفيذ العملية')}finally{window.prompt=oldPrompt}
     };
   }
