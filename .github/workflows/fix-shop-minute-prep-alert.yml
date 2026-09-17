@@ -34,3 +34,4 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m 'fix: shop minute prep alerts'
           git push
+# retrigger patch
