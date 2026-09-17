@@ -42,7 +42,8 @@ body:has(#cats) .products { gap:13px; }
 body:has(#cats) .product { padding:10px;border:1px solid #dce9f2;border-radius:19px;background:rgba(255,255,255,.97);box-shadow:0 8px 22px rgba(20,77,112,.08);transition:transform .18s ease,box-shadow .18s ease; }
 body:has(#cats) .product:hover { transform:translateY(-2px);box-shadow:0 12px 28px rgba(20,77,112,.13); }
 body:has(#cats) .pic { height:150px;border-radius:15px;background:radial-gradient(circle at 30% 20%,#fff,transparent 34%),linear-gradient(145deg,#eaf7ff,#fff5e8);border:1px solid #e4eef5; }
-body:has(#cats) .name { color:#17324d;font-size:15px;line-height:1.4; }
+body:has(#cats) .name { color:#17324d;font-size:15px;line-height:1.4;direction:rtl;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;overflow-wrap:normal; }
+body:has(#cats) .product > div:first-child { min-width:0; }
 body:has(#cats) .desc { color:#718594;line-height:1.45; }
 body:has(#cats) .price { color:var(--af-blue-dark);font-size:15px; }
 body:has(#cats) .add { width:40px;height:40px;border-radius:13px;font-weight:900; }
@@ -63,3 +64,6 @@ body:has(#cats) .cart { border:1px solid #dbeaf5;box-shadow:0 12px 30px rgba(20,
 body:has(#cats) #products > .product .desc,
 body:has(#cats) #products > .product .description,
 body:has(#cats) #products > .product .product-description { display:none !important; }
+
+/* Customer product names: Arabic in a normal horizontal line, never one word/character per line. */
+body:has(#cats) .product .name { direction:rtl !important; text-align:right !important; white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important; display:block !important; width:100%; min-width:0; overflow:hidden; text-overflow:ellipsis; }
