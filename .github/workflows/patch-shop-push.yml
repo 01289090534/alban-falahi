@@ -1,0 +1,50 @@
+name: Patch shop background push
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: ${{ github.event.head_commit.message != 'chore: install shop background push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch shop app and service worker
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('admin/index.html')
+          s=p.read_text(encoding='utf-8')
+          if "PUSH=SUPA+'/functions/v1/shop-push'" not in s:
+              s=s.replace("const SUPA='https://qxwvuxkbcghbkztjrzon.supabase.co',KEY='sb_publishable_JI9lC4YPTCQ8CwMxzvHNIA_C24ULpWH',AUTH=SUPA+'/functions/v1/shop-auth',API=SUPA+'/functions/v1/shop-api';", "const SUPA='https://qxwvuxkbcghbkztjrzon.supabase.co',KEY='sb_publishable_JI9lC4YPTCQ8CwMxzvHNIA_C24ULpWH',AUTH=SUPA+'/functions/v1/shop-auth',API=SUPA+'/functions/v1/shop-api',PUSH=SUPA+'/functions/v1/shop-push';")
+              marker="function enableSound(){"
+              fn="""function pushKeyBytes(base64){const pad='='.repeat((4-base64.length%4)%4),s=(base64+pad).replace(/-/g,'+').replace(/_/g,'/');const raw=atob(s);return Uint8Array.from(raw,c=>c.charCodeAt(0))}\nasync function registerShopPush(promptPermission=false){try{if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)||!session?.access_token)return false;if(Notification.permission==='default'&&promptPermission)await Notification.requestPermission();if(Notification.permission!=='granted')return false;const reg=await navigator.serviceWorker.register('/shop-push-sw.js',{scope:'/admin/'});const pk=await fetch(PUSH).then(r=>r.json());if(!pk.public_key)return false;let sub=await reg.pushManager.getSubscription();if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:pushKeyBytes(pk.public_key)});const r=await fetch(PUSH,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({action:'subscribe',subscription:sub.toJSON()})});return r.ok}catch(e){console.warn('shop push',e);return false}}\n"""
+              s=s.replace(marker,fn+marker,1)
+              old="function enableSound(){enabledSound=true;audioCtx=new(window.AudioContext||window.webkitAudioContext)();audioCtx.resume();document.getElementById('modal').classList.add('hidden');beep(660,.12);setTimeout(syncPendingAlarm,150)}"
+              new="function enableSound(){enabledSound=true;audioCtx=new(window.AudioContext||window.webkitAudioContext)();audioCtx.resume();document.getElementById('modal').classList.add('hidden');beep(660,.12);registerShopPush(true);setTimeout(syncPendingAlarm,150)}"
+              if old not in s: raise SystemExit('enableSound marker not found')
+              s=s.replace(old,new,1)
+              startup="if(session&&me){render();document.getElementById('modal').classList.remove('hidden');loadOrders();startLiveOrders();"
+              s=s.replace(startup,"if(session&&me){render();if(Notification.permission==='granted')registerShopPush(false);document.getElementById('modal').classList.remove('hidden');loadOrders();startLiveOrders();",1)
+              p.write_text(s,encoding='utf-8')
+          sw=Path('shop-push-sw.js')
+          sw.write_text("""self.addEventListener('push',event=>{let data={};try{data=event.data?event.data.json():{}}catch{data={body:event.data?.text()||'وصل طلب جديد'}};const title=data.title||'🥛 طلب جديد - ألبان فلاحي';const options={body:data.body||'وصل طلب جديد للفرع',tag:data.tag||'alban-falahi-order',renotify:true,requireInteraction:true,vibrate:[300,100,300,100,500],data:{url:data.url||'/admin/'}};event.waitUntil(self.registration.showNotification(title,options))});self.addEventListener('notificationclick',event=>{event.notification.close();const url=event.notification.data?.url||'/admin/';event.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(list=>{for(const c of list){if('focus' in c){c.focus();return c.navigate(url)}}return clients.openWindow(url)}))});""",encoding='utf-8')
+          PY
+      - name: Commit
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin/index.html shop-push-sw.js
+          git add .github/workflows/patch-shop-push.yml
+          git commit -m 'chore: install shop background push' || exit 0
+          git push
+      - name: Remove one-shot workflow
+        if: success()
+        shell: bash
+        run: |
+          git rm .github/workflows/patch-shop-push.yml || true
+          git commit -m 'chore: remove one-shot shop push workflow' || true
+          git push || true
