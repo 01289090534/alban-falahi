@@ -93,6 +93,8 @@ body:has(#cats) #products.picks-layout .bottom > span:first-child { white-space:
 /* EXACTLY 6 PRODUCTS in اختيارات على ذوقك — no other layout changes. */
 body:has(#cats) #products.picks-layout .product:nth-child(n+7) { display:none !important; }
 
-/* Normal category products only: put the add/quantity control over the product image. */
-body:has(#cats) #products.normal-layout .product .bottom > span:last-child { left:20px !important; bottom:20px !important; z-index:10 !important; }
-@media(max-width:480px){body:has(#cats) #products.normal-layout .product .bottom > span:last-child { left:17px !important; bottom:17px !important; }}
+/* Normal category products only: put the add/quantity control below the product image. */
+body:has(#cats) #products.normal-layout .product { min-height:180px !important; }
+body:has(#cats) #products.normal-layout .product .bottom > span:last-child { left:10px !important; top:132px !important; bottom:auto !important; z-index:10 !important; }
+body:has(#cats) #products.normal-layout .product .price { white-space:nowrap !important; word-break:keep-all !important; overflow-wrap:normal !important; }
+@media(max-width:480px){body:has(#cats) #products.normal-layout .product{min-height:165px !important}body:has(#cats) #products.normal-layout .product .bottom > span:last-child{left:9px !important;top:123px !important;bottom:auto !important}}
