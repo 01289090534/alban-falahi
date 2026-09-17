@@ -1,0 +1,8 @@
+/* Only the normal product layout: keep + below image and price visible on one line. */
+body:has(#cats) #products.normal-layout .product { min-height:170px !important; }
+body:has(#cats) #products.normal-layout .product .bottom > span:last-child { position:absolute !important; left:10px !important; top:132px !important; bottom:auto !important; z-index:5 !important; }
+body:has(#cats) #products.normal-layout .product .price { white-space:nowrap !important; word-break:keep-all !important; overflow-wrap:normal !important; }
+@media(max-width:480px){
+  body:has(#cats) #products.normal-layout .product { min-height:157px !important; }
+  body:has(#cats) #products.normal-layout .product .bottom > span:last-child { left:9px !important; top:121px !important; bottom:auto !important; }
+}
