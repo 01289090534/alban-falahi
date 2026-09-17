@@ -41,78 +41,10 @@ jobs:
           if n!=1: raise SystemExit('shop prep alert block not found')
           p.write_text(ns,encoding='utf-8')
           PY
-      - name: Group shop availability by category
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-          p=Path('admin/index.html')
-          s=p.read_text(encoding='utf-8')
-          pattern=r"async function renderProducts\(\)\{.*?\}\nfunction setView"
-          replacement=r'''async function renderProducts(){const c=document.getElementById('content');c.innerHTML='<div class="card empty">جاري تحميل المنتجات...</div>';try{const ps=await api({action:'branch_products'});const groups={};(ps||[]).forEach(p=>{const cat=p.products?.categories||{};const name=cat.name_ar||cat.name_en||'بدون فئة';(groups[name] ||= []).push(p)});const cats=Object.entries(groups);c.innerHTML='<div class="card"><h2 style="margin-top:0">توافر المنتجات</h2><p class="muted">التغيير يخص الفرع الحالي فقط.</p>'+(cats.length?cats.map(([cat,items])=>'<section style="margin:12px 0;border:1px solid #eee;border-radius:16px;overflow:hidden"><button type="button" class="btn white" style="width:100%;display:flex;align-items:center;justify-content:space-between;font-size:17px" onclick="this.parentElement.querySelector(\'.availabilityItems\').classList.toggle(\'hidden\');this.querySelector(\'.availabilityArrow\').textContent=this.parentElement.querySelector(\'.availabilityItems\').classList.contains(\'hidden\')?\'›\':\'⌄\'"><span>🥛 '+escapeHtml(cat)+' <small class="muted">('+items.length+')</small></span><b class="availabilityArrow">›</b></button><div class="availabilityItems hidden" style="padding:0 12px">'+items.map(p=>'<div class="product"><div class="productInfo"><b>'+escapeHtml(p.products?.name_ar||p.products?.name_en||'منتج')+'</b><div class="muted">'+money(p.price_override??p.products?.base_price)+'</div></div><button class="btn toggle '+(p.is_available?'green':'red')+'" onclick="toggleProduct(\''+p.product_id+'\','+(!p.is_available)+')">'+(p.is_available?'متاح 🟢':'غير متاح 🔴')+'</button></div>').join('')+'</div></section>').join(''):'<div class="empty">لا توجد منتجات مرتبطة بهذا الفرع</div>')+'</div>'}catch(e){c.innerHTML='<div class="card err" style="display:block">'+escapeHtml(e.message)+'</div>'}}
-function setView'''
-          ns,n=re.subn(pattern,replacement,s,count=1,flags=re.S)
-          if n!=1: raise SystemExit('renderProducts block not found')
-          p.write_text(ns,encoding='utf-8')
-          PY
-      - name: Restore workflow file before commit
-        run: |
-          cat > .github/workflows/attach-menu-availability.yml <<'EOF'
-name: Attach menu availability
-on:
-  push:
-    branches: [main]
-jobs:
-  patch-menu:
-    if: ${{ !contains(github.event.head_commit.message, '[menu-availability]') }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Attach menu scripts
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          p=Path('menu.html')
-          s=p.read_text(encoding='utf-8')
-          tags=['<script src="menu-availability.js"></script>','<script src="menu-branch-gps.js"></script>','<script src="menu-points.js"></script>','<link rel="stylesheet" href="customer-coupon.css?v=1">','<script src="dashboard/dashboard-customer-coupons-v2.js"></script>','<script src="customer-checkout-enhancements.js"></script>']
-          changed=False
-          old='<script src="dashboard/dashboard-customer-coupons.js"></script>'
-          if old in s:
-              s=s.replace(old,tags[4]);changed=True
-          for tag in tags:
-              if tag not in s:
-                  s=s.replace('</head>',tag+'</head>') if tag.startswith('<link') else s.replace('</body>',tag+'</body>')
-                  changed=True
-          if changed:
-              p.write_text(s,encoding='utf-8')
-          PY
-      - name: Patch shop prep deadline triple alerts
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-          p=Path('admin/index.html')
-          s=p.read_text(encoding='utf-8')
-          pattern=r'function prepAlertKey\(o\)\{.*?function updateTimers\(\)\{.*?setTimeout\(updateTimers,1000\)\}'
-          replacement="""function prepAlertKey(o){return 'af_prep_alert_'+o.id+'_'+String(o.prep_started_at||'')}\nfunction prepAlertState(o){try{return JSON.parse(localStorage.getItem(prepAlertKey(o))||'{}')}catch{return {}}}\nfunction savePrepAlertState(o,state){try{localStorage.setItem(prepAlertKey(o),JSON.stringify(state))}catch{}}\nfunction triplePrepBeep(){beep(560,.25);setTimeout(()=>beep(560,.25),350);setTimeout(()=>beep(560,.25),700)}\nfunction updateTimers(){orders.filter(o=>o.status==='preparing').forEach(o=>{const el=document.getElementById('timer-'+o.id);if(!el)return;el.textContent=timerText(o);el.classList.toggle('dangerTimer',o.prep_deadline_at&&new Date(o.prep_deadline_at).getTime()<=Date.now());const start=new Date(o.prep_started_at).getTime(),initial=start+Number(o.prep_initial_minutes||15)*60000,final=o.prep_deadline_at?new Date(o.prep_deadline_at).getTime():initial,now=Date.now();if(enabledSound&&now>=initial){const st=prepAlertState(o),minute=Math.floor((now-initial)/60000),deadlineKey=String(final);if(!st.initial){triplePrepBeep();st.initial=true;st.lastMinute=minute;st.lastFinalAlert=deadlineKey;savePrepAlertState(o,st)}else if(now>=final&&st.lastFinalAlert!==deadlineKey){triplePrepBeep();st.lastFinalAlert=deadlineKey;st.lastMinute=minute;savePrepAlertState(o,st)}else if(minute>0&&minute!==st.lastMinute){beep(420,.35);st.lastMinute=minute;savePrepAlertState(o,st)}}});setTimeout(updateTimers,1000)}"""
-          ns,n=re.subn(pattern,replacement,s,count=1,flags=re.S)
-          if n!=1: raise SystemExit('shop prep alert block not found')
-          p.write_text(ns,encoding='utf-8')
-          PY
       - name: Commit
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add menu.html admin/index.html
           git diff --cached --quiet || git commit -m 'Fix shop prep deadline triple alerts [menu-availability]'
-          git push
-EOF
-      - name: Commit
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add menu.html admin/index.html .github/workflows/attach-menu-availability.yml
-          git diff --cached --quiet || git commit -m 'Fix shop availability grouping [menu-availability]'
           git push
