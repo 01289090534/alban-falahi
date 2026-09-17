@@ -22,7 +22,7 @@ function startAlarm(order){if(!enabledSound)return;if(alarmOrder===order.id)retu
 function stopAlarm(){if(alarmTimer)clearInterval(alarmTimer);alarmTimer=null;alarmOrder=null}
 function syncPendingAlarm(){const pending=orders.find(o=>o.status==='pending');if(pending)startAlarm(pending);else if(alarmOrder)stopAlarm()}
 async function api(body){const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});const d=await r.json();if(!r.ok)throw Error(d.message||'حدث خطأ');return d}
-async function loadOrders(){try{orders=await api({action:'orders'});render();if(enabledSound)syncPendingAlarm()}catch(e){console.error('loadOrders',e)}}
+async function loadOrders(){try{orders=await api({action:'orders'});if(view==='orders'||view==='archive')render();if(enabledSound)syncPendingAlarm()}catch(e){console.error('loadOrders',e)}}
 function money(v){return Number(v||0).toFixed(2)+' ج'}
 function statusLabel(s){return ({pending:'جديد',confirmed:'مقبول',preparing:'جاري التجهيز',ready:'جاهز',assigned:'مع السائق',out_for_delivery:'خرج للتوصيل',delivered:'تم التسليم',cancelled:'ملغي',rejected:'مرفوض'})[s]||s}
 function fmtTime(x){if(!x)return '';return new Date(x).toLocaleTimeString('ar-EG',{hour:'2-digit',minute:'2-digit'})}
