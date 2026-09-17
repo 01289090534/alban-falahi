@@ -1,0 +1,1 @@
+(()=>{try{const key='alban_admin_session';const raw=localStorage.getItem(key);if(raw){try{JSON.parse(raw)}catch{localStorage.removeItem(key)}}}catch(e){try{localStorage.removeItem('alban_admin_session')}catch{}}})();
