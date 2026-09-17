@@ -56,19 +56,9 @@ body:has(#cats) .cart { border:1px solid #dbeaf5;box-shadow:0 12px 30px rgba(20,
 .global-old-price{display:inline-block;margin-inline-end:8px;color:#8a8f94;text-decoration:line-through;text-decoration-thickness:2px;font-weight:700;font-size:.9em;white-space:nowrap}.global-new-price{display:inline-block;padding:4px 8px;border-radius:8px;background:#e9f7ed;color:#18864b;font-weight:950;white-space:nowrap}.price.has-global-discount{display:flex;align-items:center;gap:4px;flex-wrap:wrap}.price.has-global-discount .global-new-price{box-shadow:inset 0 0 0 1px #ccebd7}@media(max-width:480px){.global-old-price{font-size:.82em;margin-inline-end:5px}.global-new-price{padding:3px 6px}}
 #globalMenuDiscountBanner{margin:12px 0 6px;padding:13px 16px;border:1px solid #d9b45b;border-radius:16px;background:linear-gradient(135deg,#0b4f83 0%,#1769aa 62%,#d9a928 140%);color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-weight:950;font-size:15px;line-height:1.6;box-shadow:0 8px 22px rgba(11,79,131,.24),inset 0 1px 0 rgba(255,255,255,.18);cursor:pointer;width:100%;font-family:inherit;transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}#globalMenuDiscountBanner:hover{filter:brightness(1.06);transform:translateY(-1px);box-shadow:0 11px 28px rgba(11,79,131,.3),inset 0 1px 0 rgba(255,255,255,.2)}#globalMenuDiscountBanner .gmd-text{flex:1;text-align:center}#globalMenuDiscountBanner .gmd-text u{margin-inline-start:5px;color:#ffe49a;text-underline-offset:3px}#globalMenuDiscountBanner .gmd-fire,#globalMenuDiscountBanner .gmd-heart{font-size:19px;flex:0 0 auto;filter:drop-shadow(0 1px 2px rgba(0,0,0,.18))}.gmd-modal-backdrop{display:none}
 #globalMenuDiscountModal{position:fixed;inset:0;z-index:9999;background:rgba(10,35,55,.48);display:grid;place-items:center;padding:18px}#globalMenuDiscountModal .gmd-modal-card{position:relative;width:min(440px,100%);background:#fff;border-radius:24px;padding:28px 22px 22px;text-align:center;box-shadow:0 18px 55px rgba(0,0,0,.22);border:1px solid #dcecf5;color:#17324d}#globalMenuDiscountModal .gmd-close{position:absolute;top:8px;left:10px;width:34px;height:34px;border:0;border-radius:50%;background:#eef6fb!important;color:#1769aa!important;font-size:25px;line-height:1;box-shadow:none}#globalMenuDiscountModal .gmd-modal-icon{font-size:42px}#globalMenuDiscountModal h3{margin:8px 0 14px;color:#0b4f83;font-size:22px}#globalMenuDiscountModal p{margin:10px 0;line-height:1.8}#globalMenuDiscountModal .gmd-modal-main{font-size:18px;font-weight:900;color:#1769aa}#globalMenuDiscountModal .gmd-modal-note{font-size:13px;color:#6b7f8f;border-top:1px solid #edf2f5;padding-top:12px}@media(max-width:480px){#globalMenuDiscountBanner{font-size:13px;padding:11px 11px;gap:5px}#globalMenuDiscountModal .gmd-modal-card{padding:26px 17px 18px}}
-
-/* Customer mobile header: compact info row. */
 @media(max-width:480px){body:has(#cats) .logo{font-size:16px!important;white-space:nowrap;overflow:hidden;text-overflow:clip;gap:4px;letter-spacing:-.2px;min-height:42px}body:has(#cats) #rating{font-size:14px;white-space:nowrap}body:has(#cats) .info{display:flex!important;flex-wrap:nowrap!important;gap:3px!important;white-space:nowrap!important;overflow:hidden!important}body:has(#cats) .info span{font-size:10px!important;padding:6px 4px!important;white-space:nowrap!important;flex:1 1 0;min-width:0;text-align:center}}
-
-/* Homepage product cards: image, name, price and add-to-cart only. */
-body:has(#cats) #products > .product .desc,
-body:has(#cats) #products > .product .description,
-body:has(#cats) #products > .product .product-description { display:none !important; }
-
-/* Customer product names: Arabic in a normal horizontal line, never one word/character per line. */
+body:has(#cats) #products > .product .desc,body:has(#cats) #products > .product .description,body:has(#cats) #products > .product .product-description { display:none !important; }
 body:has(#cats) .product .name { direction:rtl !important; text-align:right !important; white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important; display:block !important; width:100%; min-width:0; overflow:hidden; text-overflow:ellipsis; }
-
-/* Customer product card: image on the left, product information on the right. */
 body:has(#cats) #products .product { position:relative; display:grid !important; grid-template-columns:120px minmax(0,1fr); grid-template-rows:auto auto 1fr; column-gap:12px; min-height:145px; align-items:start; }
 body:has(#cats) #products .product > div:first-child { display:contents !important; }
 body:has(#cats) #products .product .pic { grid-column:1; grid-row:1 / span 3; width:120px; height:120px; margin:0; }
@@ -81,30 +71,20 @@ body:has(#cats) #products .product .bottom .qty { gap:3px; padding:3px; border-r
 body:has(#cats) #products .product .bottom .qty button { width:30px; height:30px; border-radius:9px; }
 body:has(#cats) #products .product .add { width:38px; height:38px; border-radius:50%; box-shadow:0 5px 14px rgba(23,105,170,.28); }
 @media(max-width:480px){body:has(#cats) #products .product{grid-template-columns:100px minmax(0,1fr);column-gap:10px;min-height:125px;padding:9px}body:has(#cats) #products .product .pic{width:100px;height:100px}body:has(#cats) #products .product .name{font-size:15px}body:has(#cats) #products .product .desc{font-size:11px;line-height:1.5;margin-top:4px}body:has(#cats) #products .product .bottom{margin-top:7px}body:has(#cats) #products .product .bottom > span:last-child{left:9px;bottom:9px}body:has(#cats) #products .product .add{width:36px;height:36px}}
+body:has(#cats) #products.repeat-layout,body:has(#cats) #products.picks-layout { display:flex !important; flex-direction:row !important; direction:rtl !important; flex-wrap:nowrap !important; overflow-x:auto !important; overflow-y:hidden !important; gap:11px !important; padding:2px 2px 12px !important; scroll-snap-type:x proximity !important; -webkit-overflow-scrolling:touch !important; scrollbar-width:none !important; }
+body:has(#cats) #products.repeat-layout::-webkit-scrollbar,body:has(#cats) #products.picks-layout::-webkit-scrollbar { display:none; }
+body:has(#cats) #products.repeat-layout .product,body:has(#cats) #products.picks-layout .product { flex:0 0 calc(50% - 5.5px) !important; max-width:calc(50% - 5.5px) !important; display:flex !important; flex-direction:column !important; gap:0 !important; padding:8px !important; min-height:0 !important; scroll-snap-align:start !important; }
+body:has(#cats) #products.repeat-layout .product > div:first-child,body:has(#cats) #products.picks-layout .product > div:first-child { display:flex !important; flex-direction:column !important; width:100% !important; }
+body:has(#cats) #products.repeat-layout .product .pic,body:has(#cats) #products.picks-layout .product .pic { order:1 !important; width:100% !important; height:150px !important; margin:0 !important; }
+body:has(#cats) #products.repeat-layout .product .name,body:has(#cats) #products.picks-layout .product .name { order:2 !important; width:100% !important; margin:8px 0 0 !important; text-align:center !important; font-size:15px !important; font-weight:900 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; }
+body:has(#cats) #products.repeat-layout .product .desc,body:has(#cats) #products.picks-layout .product .desc { display:none !important; }
+body:has(#cats) #products.repeat-layout .product .bottom,body:has(#cats) #products.picks-layout .product .bottom { display:block !important; width:100% !important; margin:5px 0 0 !important; padding:0 !important; text-align:center !important; }
+body:has(#cats) #products.repeat-layout .product .bottom > span:first-child,body:has(#cats) #products.picks-layout .product .bottom > span:first-child { display:block !important; margin:0 !important; }
+body:has(#cats) #products.repeat-layout .product .price,body:has(#cats) #products.picks-layout .product .price { display:block !important; margin:0 !important; text-align:center !important; font-size:15px !important; font-weight:900 !important; }
+body:has(#cats) #products.repeat-layout .product .bottom > span:last-child,body:has(#cats) #products.picks-layout .product .bottom > span:last-child { display:none !important; }
+@media(max-width:480px){body:has(#cats) #products.repeat-layout .product,body:has(#cats) #products.picks-layout .product { flex-basis:calc(50% - 5.5px) !important; max-width:calc(50% - 5.5px) !important; } body:has(#cats) #products.repeat-layout .product .pic,body:has(#cats) #products.picks-layout .product .pic { height:125px !important; } }
 
-/* Special sections: image, Arabic name, price only. Two cards per view with horizontal swipe. */
-body:has(#cats) #products.repeat-layout,
-body:has(#cats) #products.picks-layout { display:flex !important; flex-direction:row !important; direction:rtl !important; flex-wrap:nowrap !important; overflow-x:auto !important; overflow-y:hidden !important; gap:11px !important; padding:2px 2px 12px !important; scroll-snap-type:x proximity !important; -webkit-overflow-scrolling:touch !important; scrollbar-width:none !important; }
-body:has(#cats) #products.repeat-layout::-webkit-scrollbar,
-body:has(#cats) #products.picks-layout::-webkit-scrollbar { display:none; }
-body:has(#cats) #products.repeat-layout .product,
-body:has(#cats) #products.picks-layout .product { flex:0 0 calc(50% - 5.5px) !important; max-width:calc(50% - 5.5px) !important; display:flex !important; flex-direction:column !important; gap:0 !important; padding:8px !important; min-height:0 !important; scroll-snap-align:start !important; }
-body:has(#cats) #products.repeat-layout .product > div:first-child,
-body:has(#cats) #products.picks-layout .product > div:first-child { display:flex !important; flex-direction:column !important; width:100% !important; }
-body:has(#cats) #products.repeat-layout .product .pic,
-body:has(#cats) #products.picks-layout .product .pic { order:1 !important; width:100% !important; height:150px !important; margin:0 !important; }
-body:has(#cats) #products.repeat-layout .product .name,
-body:has(#cats) #products.picks-layout .product .name { order:2 !important; width:100% !important; margin:8px 0 0 !important; text-align:center !important; font-size:15px !important; font-weight:900 !important; white-space:nowrap !important; overflow:hidden !important; text-overflow:ellipsis !important; }
-body:has(#cats) #products.repeat-layout .product .desc,
-body:has(#cats) #products.picks-layout .product .desc { display:none !important; }
-body:has(#cats) #products.repeat-layout .product .bottom,
-body:has(#cats) #products.picks-layout .product .bottom { display:block !important; width:100% !important; margin:5px 0 0 !important; padding:0 !important; text-align:center !important; }
-body:has(#cats) #products.repeat-layout .product .bottom > span:first-child,
-body:has(#cats) #products.picks-layout .product .bottom > span:first-child { display:block !important; margin:0 !important; }
-body:has(#cats) #products.repeat-layout .product .price,
-body:has(#cats) #products.picks-layout .product .price { display:block !important; margin:0 !important; text-align:center !important; font-size:15px !important; font-weight:900 !important; }
-body:has(#cats) #products.repeat-layout .product .bottom > span:last-child,
-body:has(#cats) #products.picks-layout .product .bottom > span:last-child { display:none !important; }
-@media(max-width:480px){body:has(#cats) #products.repeat-layout .product,
-body:has(#cats) #products.picks-layout .product { flex-basis:calc(50% - 5.5px) !important; max-width:calc(50% - 5.5px) !important; } body:has(#cats) #products.repeat-layout .product .pic,
-body:has(#cats) #products.picks-layout .product .pic { height:125px !important; } }
+/* FIX: اختيارات على ذوقك = عمودان بالطول، 6 منتجات كحد أقصى، بدون سحب أفقي. */
+body:has(#cats) #products.picks-layout { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; flex-wrap:unset !important; overflow-x:visible !important; overflow-y:visible !important; direction:rtl !important; }
+body:has(#cats) #products.picks-layout .product { width:100% !important; max-width:none !important; min-width:0 !important; flex:none !important; }
+@media(max-width:480px){body:has(#cats) #products.picks-layout { grid-template-columns:repeat(2,minmax(0,1fr)) !important; }}
