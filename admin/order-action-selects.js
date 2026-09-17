@@ -48,10 +48,12 @@
       return;
     };
   }
+  window.transferOrder=function(id){const btn=[...document.querySelectorAll('button[onclick]')].find(b=>(b.getAttribute('onclick')||'').includes("transferOrder('"+id+"')"));if(btn)choose('branch',btn)};
+  window.assignDriver=function(id){const btn=[...document.querySelectorAll('button[onclick]')].find(b=>(b.getAttribute('onclick')||'').includes("assignDriver('"+id+"')"));if(btn)choose('driver',btn)};
   document.addEventListener('click',function(e){
     const el=e.target.closest('button'); if(!el)return;
     const text=(el.textContent||'').replace(/\s+/g,' ').trim();
     if(text.includes('تعيين سائق')&&!text.includes('إلغاء')){e.preventDefault();e.stopImmediatePropagation();choose('driver',el);return false}
-    if(text.includes('تحويل فرع')){e.preventDefault();e.stopImmediatePropagation();choose('branch',el);return false}
+    if(text.includes('تحويل')&&!text.includes('إلغاء')){e.preventDefault();e.stopImmediatePropagation();choose('branch',el);return false}
   },true);
 })();
