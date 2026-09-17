@@ -58,3 +58,8 @@ body:has(#cats) .cart { border:1px solid #dbeaf5;box-shadow:0 12px 30px rgba(20,
 
 /* Customer mobile header: compact info row. */
 @media(max-width:480px){body:has(#cats) .logo{font-size:16px!important;white-space:nowrap;overflow:hidden;text-overflow:clip;gap:4px;letter-spacing:-.2px;min-height:42px}body:has(#cats) #rating{font-size:14px;white-space:nowrap}body:has(#cats) .info{display:flex!important;flex-wrap:nowrap!important;gap:3px!important;white-space:nowrap!important;overflow:hidden!important}body:has(#cats) .info span{font-size:10px!important;padding:6px 4px!important;white-space:nowrap!important;flex:1 1 0;min-width:0;text-align:center}}
+
+/* Homepage product cards: image, name, price and add-to-cart only. */
+body:has(#cats) #products > .product .desc,
+body:has(#cats) #products > .product .description,
+body:has(#cats) #products > .product .product-description { display:none !important; }
