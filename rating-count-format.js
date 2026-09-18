@@ -1,13 +1,8 @@
-// تنسيق عدد التقييمات: يبدأ العرض من 1K عند أول 6 تقييمات، ثم يزيد مع كل تقييم جديد
+// عرض عدد التقييمات: يبدأ من 1000 عند أول 6 تقييمات، ويزيد رقمياً مع كل تقييم جديد
 (()=>{
   const BASE_REVIEWS=6;
   const BASE_DISPLAY=1000;
-  const formatCount=n=>{
-    const x=Math.max(0,Number(n)||0);
-    if(x<1000)return String(Math.floor(x));
-    const k=x/1000;
-    return (Math.round(k*10)/10).toFixed(1).replace('.0','')+'K';
-  };
+  const formatCount=n=>Math.max(0,Math.floor(Number(n)||0)).toLocaleString('en-US');
   const apply=()=>{
     const el=document.getElementById('rating');
     if(!el)return;
