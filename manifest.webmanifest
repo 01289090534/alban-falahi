@@ -14,7 +14,7 @@
   "theme_color": "#222222",
   "categories": ["shopping", "food", "business"],
   "icons": [{
-    "src": "https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/app-icon",
+    "src": "https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/app-icon.png",
     "sizes": "any",
     "type": "image/png",
     "purpose": "any maskable"
