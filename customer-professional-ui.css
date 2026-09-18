@@ -253,3 +253,60 @@ body:has(#cats) .afp-promo p{
   body:has(#cats) .afp-promos{gap:10px!important}
   body:has(#cats) .afp-promo{min-width:225px!important;min-height:105px!important}
 }
+
+/* مراجعة المسافات والترتيب على الموبايل */
+body:has(#cats){
+  background:#f6f6f6!important;
+  overflow-x:hidden!important;
+}
+body:has(#cats) .wrap{
+  width:min(1180px,100%)!important;
+  margin:0 auto!important;
+  padding-left:12px!important;padding-right:12px!important;
+}
+body:has(#cats) .box.header{
+  margin-top:8px!important;
+  border-radius:20px!important;
+  padding:14px!important;
+}
+body:has(#cats) section{
+  margin-bottom:18px!important;
+}
+body:has(#cats) .title{
+  margin:0 2px 10px!important;
+  font-size:19px!important;font-weight:950!important;
+}
+body:has(#cats) #cats{
+  padding-bottom:4px!important;
+}
+body:has(#cats) #products{
+  padding-bottom:6px!important;
+}
+body:has(#cats) #cart{
+  margin-top:8px!important;
+  border-radius:20px!important;
+}
+body:has(#cats) .info{
+  line-height:1.65!important;
+}
+body:has(#cats) .free{
+  border-radius:13px!important;
+  padding:9px 11px!important;
+  margin-top:10px!important;
+  font-weight:900!important;
+}
+@media(max-width:600px){
+  body:has(#cats) .wrap{
+    padding-left:10px!important;padding-right:10px!important;
+  }
+  body:has(#cats) .box.header{
+    margin-top:5px!important;padding:12px!important;
+    border-radius:18px!important;
+  }
+  body:has(#cats) section{margin-bottom:15px!important}
+  body:has(#cats) .title{
+    font-size:17px!important;margin-bottom:8px!important;
+  }
+  body:has(#cats) .info{font-size:12px!important}
+  body:has(#cats) .free{font-size:12px!important}
+}
