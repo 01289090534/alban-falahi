@@ -54,3 +54,45 @@ body:has(#cats) .afp-promo b,body:has(#cats) .afp-promo small{
   body:has(#cats) .cat{padding:9px 13px!important}
   body:has(#cats) .afp-promo{min-height:64px!important}
 }
+
+/* شاشة المنتج والسلة — طبقة تصميم فقط */
+body:has(#cats) #albanProductModal .alban-product-sheet,
+body:has(#cats) .cart{
+  box-shadow:0 -12px 38px rgba(0,0,0,.16)!important;
+}
+body:has(#cats) #albanProductModal .alban-product-info{
+  padding-top:12px!important;
+}
+body:has(#cats) #albanProductModal .alban-product-info h2{
+  font-weight:950!important;line-height:1.35!important;margin-bottom:7px!important;
+}
+body:has(#cats) #albanProductModal .alban-product-info p{
+  color:#777!important;line-height:1.65!important;
+}
+body:has(#cats) #albanProductModal .alban-product-actions{
+  display:flex!important;align-items:center!important;justify-content:center!important;gap:16px!important;
+  margin-top:15px!important;
+}
+body:has(#cats) #albanProductModal .alban-product-actions button{
+  box-shadow:0 5px 14px rgba(243,91,18,.22)!important;
+  font-weight:950!important;
+}
+body:has(#cats) .cartrow{
+  background:#fafafa!important;border:1px solid #eee!important;border-radius:14px!important;
+  margin-bottom:8px!important;padding:11px!important;
+}
+body:has(#cats) .cartqty button{
+  border:1px solid #ddd!important;background:#fff!important;
+  border-radius:50%!important;font-weight:900!important;
+}
+body:has(#cats) .sum{
+  background:#fafafa!important;border-radius:16px!important;padding:13px!important;
+  border:1px solid #eee!important;
+}
+body:has(#cats) .total{
+  color:var(--afp-orange)!important;border-top:1px solid #ddd!important;
+}
+body:has(#cats) .confirm{
+  min-height:52px!important;font-size:17px!important;
+  box-shadow:0 7px 18px rgba(243,91,18,.22)!important;
+}
