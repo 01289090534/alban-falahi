@@ -1,5 +1,5 @@
 /* ألبان فلاحي — واجهة العميل الاحترافية */
-:root{--afp-orange:#f35b12;--afp-orange-2:#ff7a24;--afp-ink:#202124;--afp-muted:#777;--afp-line:#e7e7e7;--afp-bg:#f7f7f7;--afp-card:#fff;--afp-green:#2d8a55}
+:root{--afp-blue:#0877b9;--afp-teal:#16b8b0;--afp-blue-dark:#075f95;--afp-orange:var(--afp-blue);--afp-orange-2:var(--afp-teal);--afp-ink:#17324a;--afp-muted:#71818a;--afp-line:#dceff2;--afp-bg:#f5fafb;--afp-card:#fff;--afp-green:#2d8a55}
 body:has(#cats){background:#f6f6f6!important;color:var(--afp-ink)!important;font-family:Arial,"Tajawal",sans-serif!important;padding-bottom:88px!important}
 body:has(#cats) .wrap{max-width:720px!important;padding:0 0 22px!important}
 body:has(#cats) .header{margin:0 12px!important;padding:0 16px 16px!important;border:0!important;border-radius:0 0 24px 24px!important;background:#fff!important;box-shadow:0 4px 18px rgba(0,0,0,.07)!important;overflow:visible!important}
