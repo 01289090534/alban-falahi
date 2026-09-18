@@ -680,3 +680,15 @@ body:has(#cats) #products .product .add{background:linear-gradient(135deg,#0877b
 body:has(#cats) #products .product .qty button{background:#0877b9!important;color:#fff!important}
 body:has(#cats) .bar{background:linear-gradient(135deg,#0877b9,#16b8b0)!important;box-shadow:0 10px 28px rgba(8,119,185,.22)!important}
 @media(max-width:600px){body:has(#cats) .title{font-size:20px!important;margin-top:17px!important}body:has(#cats) #products .product{padding:9px!important}body:has(#cats) #products .product .pic{border-radius:14px!important}body:has(#cats) #products .product .name{font-size:14px!important;line-height:1.45!important}body:has(#cats) #products .product .desc{font-size:11px!important;line-height:1.45!important}body:has(#cats) .bar{bottom:77px!important}}
+
+/* تشطيب تفاصيل المنتج — تجربة موبايل */
+#albanProductModal .alban-product-overlay{background:rgba(10,42,58,.58)!important;backdrop-filter:blur(3px)!important}
+#albanProductModal .alban-product-sheet{border:0!important;box-shadow:0 -12px 40px rgba(8,119,185,.18)!important}
+#albanProductModal .alban-product-image{position:relative!important;box-shadow:inset 0 0 0 1px #e1eff2!important}
+#albanProductModal .alban-product-info{padding-left:8px!important;padding-right:8px!important}
+#albanProductModal .alban-product-price{font-weight:950!important}
+#albanProductModal .alban-product-actions{box-shadow:0 5px 16px rgba(8,119,185,.08)!important}
+#albanProductModal .alban-product-actions button{transition:transform .15s ease,filter .15s ease!important}
+#albanProductModal .alban-product-actions button:active{transform:scale(.94)!important;filter:brightness(.96)!important}
+#albanProductModal .alban-product-close{font-weight:900!important;cursor:pointer!important}
+@media(max-width:600px){#albanProductModal .alban-product-overlay{padding:0!important}#albanProductModal .alban-product-sheet{width:100%!important;border-radius:26px 26px 0 0!important;padding:10px 14px 28px!important}#albanProductModal .alban-product-image{height:44vh!important;min-height:235px!important;max-height:430px!important;border-radius:20px!important}#albanProductModal .alban-product-info h2{font-size:22px!important;line-height:1.45!important;margin:13px 0 6px!important}#albanProductModal .alban-product-desc{font-size:14px!important;line-height:1.75!important}#albanProductModal .alban-product-price{font-size:25px!important;margin-top:12px!important}#albanProductModal .alban-product-actions{width:100%!important;min-width:0!important;gap:22px!important;margin-top:15px!important;padding:7px!important}#albanProductModal .alban-product-actions button{width:50px!important;height:50px!important;border-radius:14px!important}}
