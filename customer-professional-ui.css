@@ -241,3 +241,56 @@ body:has(#cats) .save{
   body:has(#cats) #products.normal-layout .product .bottom > span:last-child{top:123px!important}
   .afp-promo{flex-basis:84%;min-height:58px}
 }
+
+/* تحسينات المرحلة التالية */
+.afp-top-actions button,.afp-top-actions a{
+  text-decoration:none;color:#252525!important;cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+}
+.afp-logo-img{
+  width:34px;height:34px;object-fit:contain;border-radius:50%;
+  background:#fff;border:1px solid #eee;padding:2px;
+}
+.afp-brand-mini{white-space:nowrap}
+.afp-hero{
+  background-color:#dfeaec;
+  background-image:linear-gradient(120deg,#dfeaec 0%,#f7f3e9 48%,#e9e1d5 100%)!important;
+}
+.afp-hero::after{
+  content:"";position:absolute;left:-45px;top:-70px;width:190px;height:190px;
+  border-radius:50%;background:rgba(255,255,255,.30);
+}
+.afp-hero-copy{z-index:2}
+.afp-hero-copy::after{
+  content:"🥛  طعم بلدي من ألبان فلاحي";
+  display:block;margin-top:7px;font-size:12px;font-weight:700;opacity:.95;
+}
+body:has(#cats) #products .product{
+  overflow:hidden!important;padding:9px!important;
+}
+body:has(#cats) #products .product .pic{
+  height:150px!important;
+  border-radius:15px!important;
+}
+body:has(#cats) #products .product .name{
+  font-size:14px!important;line-height:1.45!important;
+  min-height:40px!important;
+}
+body:has(#cats) #products .product .desc{
+  color:#8a8a8a!important;font-size:11px!important;
+  line-height:1.45!important;min-height:31px!important;
+}
+body:has(#cats) #products .product .bottom{
+  border-top:1px solid #f0f0f0!important;padding-top:8px!important;
+}
+body:has(#cats) #products .product .price{font-size:15px!important}
+body:has(#cats) #products .product .add{
+  width:42px!important;height:42px!important;border-radius:50%!important;
+}
+body:has(#cats) .title{font-weight:950!important}
+@media(max-width:480px){
+  body:has(#cats) #products .product .pic{height:125px!important}
+  body:has(#cats) #products .product .name{font-size:13px!important}
+  body:has(#cats) #products .product .desc{font-size:10px!important}
+  .afp-logo-img{width:31px;height:31px}
+}
