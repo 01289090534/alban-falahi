@@ -95,7 +95,7 @@ async function productFormUpload(catId,id){
         let image=x.image_url||null;if(selectedBlob)image=await uploadCropped(selectedBlob);
         if(edit)await apiU('products?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({category_id:document.getElementById('puCategory').value,name_ar:ar,name_en:en,description_ar:da,description_en:de,base_price:price,image_url:image,updated_at:new Date().toISOString()})});
         else{const rows=await apiU('products?select=sort_order&order=sort_order.desc&limit=1');const sort=(rows[0]?.sort_order||0)+1;await apiU('products',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({category_id:catId,name_ar:ar,name_en:en,description_ar:da,description_en:de,base_price:price,image_url:image,is_active:false,sort_order:sort})})}
-        m.remove();if(typeof window.products==='function')window.products();
+        sessionStorage.setItem('alban_products_open_category',String(document.getElementById('puCategory').value));m.remove();if(typeof window.products==='function')window.products();
       }catch(e){b.disabled=false;b.textContent=edit?'💾 حفظ التعديل':'إضافة المنتج';alert(e.message||e)}
     };
   }catch(e){alert(e.message||e)}
