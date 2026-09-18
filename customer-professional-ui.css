@@ -420,3 +420,84 @@ body:has(#cats) #bar{
   body:has(#cats) #products .product{box-shadow:0 5px 14px rgba(8,119,185,.08)!important;border-color:#e2f0f3!important}
   body:has(#cats) .afp-promo{box-shadow:0 6px 16px rgba(8,119,185,.12)!important}
 }
+
+
+/* الواجهة الرئيسية — طبقة بصرية نهائية مع الحفاظ على الوظائف */
+body:has(#cats) .box.header{
+  background:#fff!important;
+  border:1px solid #e4f0f3!important;
+  box-shadow:0 7px 22px rgba(8,119,185,.08)!important;
+}
+body:has(#cats) .box.header .logo{
+  color:#0877b9!important;
+  display:flex!important;align-items:center!important;gap:7px!important;
+  font-weight:950!important;
+}
+body:has(#cats) .box.header #rating{
+  font-size:12px!important;color:#f2a900!important;
+  background:#fff9e8!important;border:1px solid #f4e3ae!important;
+  border-radius:999px!important;padding:5px 8px!important;
+}
+body:has(#cats) .box.header .points{
+  background:linear-gradient(135deg,#effcfb,#f4fbff)!important;
+  border:1px solid #ccecea!important;color:#0877b9!important;
+}
+body:has(#cats) .box.header .info span{
+  background:#f5fbfc!important;border:1px solid #e0f0f3!important;
+  color:#46606d!important;
+}
+body:has(#cats) .box.header .free{
+  background:linear-gradient(90deg,#effbff,#effcfb)!important;
+  border:1px solid #ccecea!important;color:#0877b9!important;
+}
+body:has(#cats) .title{
+  color:#17324a!important;
+}
+body:has(#cats) #cats .cat{
+  border:1px solid #dceff2!important;background:#fff!important;
+  color:#49616c!important;box-shadow:0 3px 10px rgba(8,119,185,.04)!important;
+}
+body:has(#cats) #cats .cat.active{
+  background:linear-gradient(135deg,#0877b9,#16b8b0)!important;
+  color:#fff!important;border-color:transparent!important;
+  box-shadow:0 5px 14px rgba(8,119,185,.18)!important;
+}
+body:has(#cats) #products .product{
+  padding:0!important;overflow:hidden!important;
+  border:1px solid #e4eef1!important;border-radius:18px!important;
+  box-shadow:0 6px 18px rgba(8,119,185,.07)!important;
+  background:#fff!important;
+}
+body:has(#cats) #products .product>div:first-child{padding:0!important}
+body:has(#cats) #products .product .pic{
+  height:auto!important;aspect-ratio:1/1!important;
+  border-radius:0!important;background:#f5fafb!important;
+}
+body:has(#cats) #products .product .name{
+  padding:0 11px!important;margin-top:10px!important;
+  color:#17324a!important;font-size:15px!important;line-height:1.45!important;
+}
+body:has(#cats) #products .product .desc{
+  padding:0 11px!important;margin-top:4px!important;
+  color:#71818a!important;line-height:1.5!important;
+}
+body:has(#cats) #products .product .bottom{
+  padding:0 11px 11px!important;margin-top:9px!important;
+}
+body:has(#cats) #products .product .price{
+  color:#0877b9!important;font-size:16px!important;font-weight:950!important;
+}
+body:has(#cats) #products .product .add,
+body:has(#cats) #products .product .qty button{
+  background:linear-gradient(135deg,#0877b9,#16b8b0)!important;
+  color:#fff!important;border:0!important;box-shadow:0 5px 12px rgba(8,119,185,.16)!important;
+}
+body:has(#cats) #products .product .qty b{color:#0877b9!important;font-weight:950!important}
+@media(max-width:600px){
+  body:has(#cats) .box.header{padding:12px!important}
+  body:has(#cats) .box.header .logo{font-size:20px!important}
+  body:has(#cats) #products .product{border-radius:16px!important}
+  body:has(#cats) #products .product .name{font-size:14px!important}
+  body:has(#cats) #products .product .desc{font-size:11px!important}
+  body:has(#cats) #products .product .bottom{padding-bottom:9px!important}
+}
