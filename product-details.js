@@ -10,3 +10,13 @@
 }
 #albanProductModal .alban-product-actions strong{color:#0877b9!important}
 `;document.head.appendChild(style)};const bind=()=>{document.querySelectorAll('.product [onclick*="openModal"]').forEach(el=>{const attr=el.getAttribute('onclick')||'';const m=attr.match(/openModal\(['"]([^'"]+)['"]\)/);if(!m)return;el.onclick=e=>{e.preventDefault();e.stopPropagation();open(m[1])}})};window.openModal=open;window.openProductDetails=open;bind();new MutationObserver(bind).observe(document.getElementById('products')||document.body,{childList:true,subtree:true});window.addEventListener('keydown',e=>{if(e.key==='Escape')close()})})();
+/* تفاصيل المنتج — هوية ألبان فلاحي */
+#albanProductModal .alban-product-sheet{background:#fff!important;border:1px solid #e4f0f3!important}
+#albanProductModal .alban-product-image{background:#f5fbfc!important;border:1px solid #e0f0f3!important}
+#albanProductModal .alban-product-info h2{color:#17324a!important;font-weight:950!important}
+#albanProductModal .alban-product-desc{color:#71818a!important}
+#albanProductModal .alban-product-price{color:#0877b9!important;font-size:26px!important}
+#albanProductModal .alban-product-actions{background:#f5fbfc!important;border:1px solid #e0f0f3!important;border-radius:18px!important;padding:8px!important;width:max-content!important;min-width:190px!important}
+#albanProductModal .alban-product-actions button{background:linear-gradient(135deg,#0877b9,#16b8b0)!important;border-radius:14px!important}
+#albanProductModal .alban-product-actions strong{color:#0877b9!important}
+@media(max-width:600px){#albanProductModal .alban-product-sheet{padding:10px 12px 24px!important}#albanProductModal .alban-product-image{height:46vh!important;min-height:240px!important}#albanProductModal .alban-product-info h2{font-size:21px!important}#albanProductModal .alban-product-actions{margin-top:14px!important}}
