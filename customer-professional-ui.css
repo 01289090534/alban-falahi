@@ -692,3 +692,15 @@ body:has(#cats) .bar{background:linear-gradient(135deg,#0877b9,#16b8b0)!importan
 #albanProductModal .alban-product-actions button:active{transform:scale(.94)!important;filter:brightness(.96)!important}
 #albanProductModal .alban-product-close{font-weight:900!important;cursor:pointer!important}
 @media(max-width:600px){#albanProductModal .alban-product-overlay{padding:0!important}#albanProductModal .alban-product-sheet{width:100%!important;border-radius:26px 26px 0 0!important;padding:10px 14px 28px!important}#albanProductModal .alban-product-image{height:44vh!important;min-height:235px!important;max-height:430px!important;border-radius:20px!important}#albanProductModal .alban-product-info h2{font-size:22px!important;line-height:1.45!important;margin:13px 0 6px!important}#albanProductModal .alban-product-desc{font-size:14px!important;line-height:1.75!important}#albanProductModal .alban-product-price{font-size:25px!important;margin-top:12px!important}#albanProductModal .alban-product-actions{width:100%!important;min-width:0!important;gap:22px!important;margin-top:15px!important;padding:7px!important}#albanProductModal .alban-product-actions button{width:50px!important;height:50px!important;border-radius:14px!important}}
+
+/* التشطيب النهائي للسلة والدفع — ألبان فلاحي */
+body:has(#cats) #cart .section-title,body:has(#cats) #cart h3{color:#17324a!important;font-weight:950!important}
+body:has(#cats) #cart .addr{transition:border-color .15s ease,box-shadow .15s ease!important}
+body:has(#cats) #cart .addr.active{border-color:#16b8b0!important;box-shadow:0 5px 15px rgba(22,184,176,.10)!important;background:#f4fffe!important}
+body:has(#cats) #cart .input,body:has(#cats) #cart .select,body:has(#cats) #cart .textarea{background:#fff!important;color:#17324a!important;border-color:#d8ecef!important}
+body:has(#cats) #cart .input:focus,body:has(#cats) #cart .select:focus,body:has(#cats) #cart .textarea:focus{border-color:#16b8b0!important;box-shadow:0 0 0 3px rgba(22,184,176,.10)!important}
+body:has(#cats) #cart .bonus{background:linear-gradient(135deg,#fbffff,#f4fffe)!important;border-color:#cfeeed!important}
+body:has(#cats) #cart .discount{font-weight:950!important;color:#168b72!important}
+body:has(#cats) #cart .confirm{width:100%!important;font-weight:950!important;letter-spacing:.1px!important}
+body:has(#cats) #cart .save{font-weight:900!important}
+@media(max-width:600px){body:has(#cats) #cart .cartrow{grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important}body:has(#cats) #cart .cartqty{gap:6px!important}body:has(#cats) #cart .cartqty button{width:34px!important;height:34px!important}body:has(#cats) #cart .form{padding-top:13px!important}body:has(#cats) #cart .label{margin-top:12px!important}body:has(#cats) #cart .confirm{min-height:52px!important;border-radius:15px!important;font-size:16px!important}body:has(#cats) #cart .save{min-height:46px!important;border-radius:14px!important}}
