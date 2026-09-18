@@ -5,7 +5,7 @@
 
   const top=document.createElement('div');
   top.className='afp-topbar';
-  top.innerHTML='<div class="afp-top-actions"><div class="afp-circle" aria-hidden="true">⌕</div><div class="afp-circle" aria-hidden="true">♥</div></div><div class="afp-brand-mini"><span class="afp-milk">🥛</span><span>ألبان فلاحي</span></div><div class="afp-top-actions"><div class="afp-circle afp-back" aria-hidden="true">→</div></div>';
+  top.innerHTML='<div class="afp-top-actions"><button class="afp-circle" type="button" onclick="toggleCart()" aria-label="السلة">🛒</button><a class="afp-circle" href="account.html" aria-label="حسابك">👤</a></div><div class="afp-brand-mini"><img src="favicon.svg" alt="" class="afp-logo-img"><span>ألبان فلاحي</span></div><div class="afp-top-actions"><a class="afp-circle afp-back" href="orders.html" aria-label="طلباتك">→</a></div>';
   document.body.insertBefore(top,document.querySelector('main.wrap'));
 
   const hero=document.createElement('div');
