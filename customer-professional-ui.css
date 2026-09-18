@@ -585,3 +585,80 @@ body:has(#cats) .nav a,body:has(#cats) .nav button{font-weight:800!important}
     min-height:52px!important;border-radius:15px!important;font-size:17px!important;font-weight:950!important;
   }
 }
+
+
+/* اللمسات النهائية — بطاقات المنتجات والتنقل بالموبايل */
+body:has(#cats) #products .product{
+  position:relative!important;
+  cursor:pointer!important;
+  transition:transform .18s ease,box-shadow .18s ease!important;
+}
+body:has(#cats) #products .product:hover{
+  transform:translateY(-2px)!important;
+  box-shadow:0 10px 24px rgba(8,119,185,.11)!important;
+}
+body:has(#cats) #products .product .pic{
+  position:relative!important;
+}
+body:has(#cats) #products .product .pic:after{
+  content:''!important;
+  position:absolute!important;
+  inset:auto 0 0!important;
+  height:28%!important;
+  background:linear-gradient(transparent,rgba(8,119,185,.05))!important;
+  pointer-events:none!important;
+}
+body:has(#cats) #products .product .name{
+  min-height:42px!important;
+  display:-webkit-box!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+  overflow:hidden!important;
+}
+body:has(#cats) #products .product .desc{
+  display:-webkit-box!important;
+  -webkit-line-clamp:2!important;
+  -webkit-box-orient:vertical!important;
+  overflow:hidden!important;
+}
+body:has(#cats) #products .product .bottom{
+  min-height:42px!important;
+  align-items:center!important;
+}
+body:has(#cats) .nav{
+  height:76px!important;
+  background:rgba(255,255,255,.96)!important;
+}
+body:has(#cats) .navin{
+  max-width:520px!important;
+}
+body:has(#cats) .nav a{
+  position:relative!important;
+  color:#71818a!important;
+  transition:color .15s ease,transform .15s ease!important;
+}
+body:has(#cats) .nav a.active{
+  color:#0877b9!important;
+}
+body:has(#cats) .nav a.active:before{
+  content:''!important;
+  position:absolute!important;
+  top:8px!important;
+  width:34px!important;
+  height:3px!important;
+  border-radius:99px!important;
+  background:linear-gradient(90deg,#0877b9,#16b8b0)!important;
+}
+@media(max-width:600px){
+  body:has(#cats) #products{gap:10px!important}
+  body:has(#cats) #products .product{border-radius:17px!important}
+  body:has(#cats) #products .product .pic{aspect-ratio:1/1!important}
+  body:has(#cats) #products .product .bottom{gap:6px!important}
+  body:has(#cats) #products .product .price{font-size:15px!important}
+  body:has(#cats) #products .product .add{
+    width:40px!important;height:40px!important;border-radius:12px!important;
+    font-size:23px!important;
+  }
+  body:has(#cats) .nav{height:72px!important}
+  body:has(#cats) .nav a{font-size:11px!important}
+}
