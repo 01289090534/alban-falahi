@@ -501,3 +501,23 @@ body:has(#cats) #products .product .qty b{color:#0877b9!important;font-weight:95
   body:has(#cats) #products .product .desc{font-size:11px!important}
   body:has(#cats) #products .product .bottom{padding-bottom:9px!important}
 }
+
+/* السلة — تصميم تطبيق طلبات حديث بهوية ألبان فلاحي */
+body:has(#cats) #cart{background:#fff!important;border:1px solid #dfeff2!important;box-shadow:0 10px 28px rgba(8,119,185,.09)!important}
+body:has(#cats) #cart .title{font-size:21px!important;font-weight:950!important}
+body:has(#cats) #cart .cartrow{background:#fbfefe!important;border:1px solid #e4f0f3!important;border-radius:15px!important;padding:12px!important;margin-bottom:8px!important}
+body:has(#cats) #cart .cartqty{background:#effbfc!important;border-color:#d7eeee!important}
+body:has(#cats) #cart .cartqty button{color:#0877b9!important;border-color:#cfe7eb!important;background:#fff!important}
+body:has(#cats) #cart .sum{background:linear-gradient(135deg,#f7fcfd,#f2fbfa)!important;border:1px solid #dceff2!important;border-radius:16px!important}
+body:has(#cats) #cart .sum .total{color:#0877b9!important;border-top-color:#bde2e5!important}
+body:has(#cats) #cart .form{border-top-color:#e4f0f3!important}
+body:has(#cats) #cart .label{color:#17324a!important;font-weight:900!important}
+body:has(#cats) #cart .pay button,
+body:has(#cats) #cart .tip button,
+body:has(#cats) #cart .bonusBtn{border-color:#dcebef!important;color:#49616c!important;background:#fff!important}
+body:has(#cats) #cart .pay button.active,
+body:has(#cats) #cart .tip button.active,
+body:has(#cats) #cart .bonusBtn.active{background:linear-gradient(135deg,#0877b9,#16b8b0)!important;color:#fff!important}
+body:has(#cats) #cart .confirm{background:linear-gradient(135deg,#0877b9,#16b8b0)!important;border:0!important;box-shadow:0 8px 20px rgba(8,119,185,.2)!important}
+body:has(#cats) #cart .save{background:#0877b9!important;border:0!important}
+@media(max-width:600px){body:has(#cats) #cart{margin:10px!important;padding:13px!important;border-radius:19px!important}body:has(#cats) #cart .title{font-size:19px!important}}
