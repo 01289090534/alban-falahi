@@ -10,8 +10,8 @@
   "display": "standalone",
   "display_override": ["standalone"],
   "orientation": "portrait-primary",
-  "background_color": "#f8f5ef",
-  "theme_color": "#222222",
+  "background_color": "#f5fbfc",
+  "theme_color": "#0877b9",
   "categories": ["shopping", "food", "business"],
   "icons": [{
     "src": "https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/app-icon.png",
