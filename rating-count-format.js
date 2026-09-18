@@ -1,4 +1,4 @@
-// تنسيق عدد التقييمات: الـ6 تقييمات الحالية = بداية 1K، وبعدها نحسب التقييمات الجديدة
+// تنسيق عدد التقييمات: يبدأ العرض من 1K عند أول 6 تقييمات، ثم يزيد مع كل تقييم جديد
 (()=>{
   const BASE_REVIEWS=6;
   const BASE_DISPLAY=1000;
@@ -11,11 +11,11 @@
   const apply=()=>{
     const el=document.getElementById('rating');
     if(!el)return;
-    const m=el.textContent.match(/\((\d+)\s*تقييم\)/);
+    const m=el.textContent.match(/\\((\\d+)\\s*تقييم\\)/);
     if(!m)return;
     const realCount=Number(m[1])||0;
     const displayCount=BASE_DISPLAY+Math.max(0,realCount-BASE_REVIEWS);
-    el.textContent=el.textContent.replace(/\(\d+\s*تقييم\)/,'('+formatCount(displayCount)+' تقييم)');
+    el.textContent=el.textContent.replace(/\\(\\d+\\s*تقييم\\)/,'('+formatCount(displayCount)+' تقييم)');
   };
   apply();
   new MutationObserver(apply).observe(document.body,{subtree:true,childList:true,characterData:true});
