@@ -72,7 +72,7 @@ async function productFormUpload(catId,id){
   const old=document.getElementById('prodUploadModal');if(old)old.remove();
   const edit=!!id;
   try{
-    const cat=(await apiU('categories?id=eq.'+encodeURIComponent(catId)))[0];if(!cat)return;
+    const cat=(await apiU('categories?id=eq.'+encodeURIComponent(catId)))[0];if(!cat)return;const allCats=await apiU('categories?select=id,name_ar,name_en&order=sort_order.asc');
     let x={name_ar:'',name_en:'',description_ar:'',description_en:'',base_price:0,image_url:''};
     if(edit){x=(await apiU('products?id=eq.'+encodeURIComponent(id)))[0];if(!x)return}
     const m=document.createElement('div');m.id='prodUploadModal';m.className='cat-modal-back';
