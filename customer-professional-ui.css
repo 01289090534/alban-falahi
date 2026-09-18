@@ -202,3 +202,54 @@ body:has(#cats) #products .prod button{
   body:has(#cats) #products .prod b{font-size:14px!important}
   body:has(#cats) #products .prod .price{font-size:15px!important}
 }
+
+/* الهيرو والعروض — توحيد بصري */
+body:has(#cats) .afp-hero{
+  position:relative!important;overflow:hidden!important;
+  min-height:190px!important;border-radius:22px!important;
+  margin:12px 0 16px!important;
+  box-shadow:0 10px 28px rgba(0,0,0,.14)!important;
+  background-position:center!important;background-size:cover!important;
+}
+body:has(#cats) .afp-hero:after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(90deg,rgba(0,0,0,.58),rgba(0,0,0,.18),rgba(0,0,0,.03));
+}
+body:has(#cats) .afp-hero > *{
+  position:relative!important;z-index:1!important;
+}
+body:has(#cats) .afp-hero h1{
+  font-size:28px!important;font-weight:950!important;line-height:1.25!important;
+  text-shadow:0 2px 10px rgba(0,0,0,.25)!important;
+}
+body:has(#cats) .afp-hero p{
+  font-size:14px!important;line-height:1.7!important;
+}
+body:has(#cats) .afp-promos{
+  display:flex!important;gap:12px!important;overflow-x:auto!important;
+  padding:2px 2px 8px!important;scroll-snap-type:x mandatory!important;
+  scrollbar-width:none!important;
+}
+body:has(#cats) .afp-promos::-webkit-scrollbar{display:none!important}
+body:has(#cats) .afp-promo{
+  min-width:250px!important;min-height:112px!important;
+  border-radius:18px!important;padding:16px!important;
+  scroll-snap-align:start!important;overflow:hidden!important;
+  border:1px solid rgba(0,0,0,.05)!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.08)!important;
+}
+body:has(#cats) .afp-promo h3{
+  font-size:17px!important;font-weight:950!important;
+  margin:0 0 6px!important;
+}
+body:has(#cats) .afp-promo p{
+  font-size:12px!important;line-height:1.6!important;
+}
+@media(max-width:600px){
+  body:has(#cats) .afp-hero{
+    min-height:175px!important;border-radius:19px!important;
+  }
+  body:has(#cats) .afp-hero h1{font-size:23px!important}
+  body:has(#cats) .afp-promos{gap:10px!important}
+  body:has(#cats) .afp-promo{min-width:225px!important;min-height:105px!important}
+}
