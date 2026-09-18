@@ -662,3 +662,21 @@ body:has(#cats) .nav a.active:before{
   body:has(#cats) .nav{height:72px!important}
   body:has(#cats) .nav a{font-size:11px!important}
 }
+
+/* تشطيب المنيو للموبايل — ألبان فلاحي */
+body:has(#cats){background:linear-gradient(180deg,#f5fafb 0%,#f8fcfd 42%,#f3fafb 100%)!important}
+body:has(#cats) .wrap{padding-top:8px!important}
+body:has(#cats) .header{border:1px solid #dceff2!important;box-shadow:0 8px 24px rgba(8,119,185,.07)!important}
+body:has(#cats) .cats{scrollbar-width:none!important}
+body:has(#cats) .cats::-webkit-scrollbar{display:none!important}
+body:has(#cats) .cat{border-color:#d8ecef!important;background:#fff!important;color:#17324a!important}
+body:has(#cats) .cat.active{background:linear-gradient(135deg,#0877b9,#16b8b0)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 6px 14px rgba(8,119,185,.16)!important}
+body:has(#cats) #products .product{background:#fff!important;border:1px solid #e1eff2!important;box-shadow:0 5px 16px rgba(8,119,185,.055)!important;overflow:hidden!important}
+body:has(#cats) #products .product .pic{background:#f7fcfd!important}
+body:has(#cats) #products .product .name{color:#17324a!important}
+body:has(#cats) #products .product .desc{color:#71818a!important}
+body:has(#cats) #products .product .price{color:#0877b9!important;font-weight:950!important}
+body:has(#cats) #products .product .add{background:linear-gradient(135deg,#0877b9,#16b8b0)!important;color:#fff!important;box-shadow:0 5px 12px rgba(8,119,185,.18)!important}
+body:has(#cats) #products .product .qty button{background:#0877b9!important;color:#fff!important}
+body:has(#cats) .bar{background:linear-gradient(135deg,#0877b9,#16b8b0)!important;box-shadow:0 10px 28px rgba(8,119,185,.22)!important}
+@media(max-width:600px){body:has(#cats) .title{font-size:20px!important;margin-top:17px!important}body:has(#cats) #products .product{padding:9px!important}body:has(#cats) #products .product .pic{border-radius:14px!important}body:has(#cats) #products .product .name{font-size:14px!important;line-height:1.45!important}body:has(#cats) #products .product .desc{font-size:11px!important;line-height:1.45!important}body:has(#cats) .bar{bottom:77px!important}}
