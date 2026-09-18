@@ -96,3 +96,60 @@ body:has(#cats) .confirm{
   min-height:52px!important;font-size:17px!important;
   box-shadow:0 7px 18px rgba(243,91,18,.22)!important;
 }
+
+/* توحيد الهيدر والتنقل السفلي — تصميم فقط */
+body:has(#cats) .afp-topbar{
+  position:sticky!important;top:0!important;z-index:100!important;
+  min-height:62px!important;padding:9px 12px!important;
+  background:rgba(255,255,255,.94)!important;
+  backdrop-filter:blur(14px)!important;-webkit-backdrop-filter:blur(14px)!important;
+  border-bottom:1px solid rgba(0,0,0,.06)!important;
+}
+body:has(#cats) .afp-brand-mini{
+  font-size:18px!important;font-weight:950!important;gap:8px!important;
+}
+body:has(#cats) .afp-logo-img{
+  width:34px!important;height:34px!important;object-fit:contain!important;
+}
+body:has(#cats) .afp-circle{
+  width:42px!important;height:42px!important;border-radius:50%!important;
+  background:#fff!important;border:1px solid #eee!important;
+  box-shadow:0 4px 13px rgba(0,0,0,.08)!important;
+  display:grid!important;place-items:center!important;
+  font-size:18px!important;
+}
+body:has(#cats) .afp-circle:active{
+  transform:scale(.94)!important;
+}
+body:has(#cats) .afp-back{
+  font-size:20px!important;font-weight:900!important;
+}
+body:has(#cats) .nav{
+  position:fixed!important;left:10px!important;right:10px!important;bottom:10px!important;
+  z-index:120!important;height:62px!important;padding:6px 8px!important;
+  border-radius:20px!important;background:rgba(255,255,255,.95)!important;
+  backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;
+  border:1px solid rgba(0,0,0,.07)!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.15)!important;
+}
+body:has(#cats) .nav a,body:has(#cats) .nav button{
+  border-radius:14px!important;min-height:50px!important;
+  font-weight:800!important;transition:transform .15s ease,background .15s ease!important;
+}
+body:has(#cats) .nav a:active,body:has(#cats) .nav button:active{
+  transform:scale(.94)!important;
+}
+body:has(#cats) .bar{
+  bottom:82px!important;border-radius:17px!important;
+  box-shadow:0 9px 24px rgba(0,0,0,.18)!important;
+}
+body:has(#cats) .wrap{
+  padding-bottom:94px!important;
+}
+@media(max-width:600px){
+  body:has(#cats) .afp-topbar{min-height:58px!important}
+  body:has(#cats) .afp-brand-mini{font-size:16px!important}
+  body:has(#cats) .afp-circle{width:38px!important;height:38px!important}
+  body:has(#cats) .nav{height:60px!important;bottom:8px!important;left:8px!important;right:8px!important}
+  body:has(#cats) .bar{bottom:76px!important}
+}
