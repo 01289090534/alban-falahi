@@ -46,7 +46,7 @@
   };
   setHero();
   window.addEventListener('alban:productsRendered',()=>{setHero();applyFilter()});
-  new MutationObserver(()=>{setHero();applyFilter()}).observe(document.getElementById('products')||document.body,{childList:true,subtree:true});
+  // الأداء: نستخدم حدث productsRendered بدل مراقبة DOM بالكامل.
 
   const style=document.createElement('style');
   style.textContent=`
