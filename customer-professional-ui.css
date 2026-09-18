@@ -354,3 +354,58 @@ body:has(#cats) .nav button.active{
 body:has(#cats) .afp-circle{
   color:var(--afp-blue)!important;
 }
+
+/* السلة والدفع — هوية ألبان فلاحي */
+body:has(#cats) #cart .title{
+  color:#0877b9!important;
+}
+body:has(#cats) #cart .cartrow strong{
+  color:#17324a!important;
+}
+body:has(#cats) #cart .cartqty{
+  gap:7px!important;
+}
+body:has(#cats) #cart .cartqty button{
+  color:#0877b9!important;
+  border:1px solid #d8edf3!important;
+  background:#f4fbfd!important;
+}
+body:has(#cats) #cart .select:focus,
+body:has(#cats) #cart .input:focus,
+body:has(#cats) #cart .textarea:focus{
+  outline:none!important;
+  border-color:#16b8b0!important;
+  box-shadow:0 0 0 3px rgba(22,184,176,.12)!important;
+}
+body:has(#cats) #cart .pay button.active,
+body:has(#cats) #cart .tip button.active,
+body:has(#cats) #cart .bonusBtn.active{
+  background:linear-gradient(135deg,#0877b9,#16b8b0)!important;
+  border-color:transparent!important;
+  color:#fff!important;
+}
+body:has(#cats) #cart .addr.active{
+  border-color:#16b8b0!important;
+  background:#effcfb!important;
+}
+body:has(#cats) #cart .save{
+  background:#0877b9!important;
+  color:#fff!important;
+}
+body:has(#cats) #cart .bonus{
+  border-color:#bde9e6!important;
+  background:#f7fffe!important;
+}
+body:has(#cats) #cart .discount{
+  color:#0877b9!important;
+}
+body:has(#cats) #cart .confirm{
+  background:linear-gradient(135deg,#0877b9,#16b8b0)!important;
+}
+body:has(#cats) #cart #promoMsg,
+body:has(#cats) #cart .bonusHint{
+  color:#6d7f88!important;
+}
+body:has(#cats) #bar{
+  background:linear-gradient(135deg,#0877b9,#16b8b0)!important;
+}
