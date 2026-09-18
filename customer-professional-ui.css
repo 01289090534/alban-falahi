@@ -310,3 +310,47 @@ body:has(#cats) .free{
   body:has(#cats) .info{font-size:12px!important}
   body:has(#cats) .free{font-size:12px!important}
 }
+
+/* ألوان الهوية البصرية لألبان فلاحي: أزرق + تركواز */
+:root{
+  --afp-blue:#0877b9;
+  --afp-teal:#16b8b0;
+  --afp-blue-dark:#075f95;
+  --afp-teal-light:#e8fbfa;
+  --afp-orange:var(--afp-blue)!important;
+}
+body:has(#cats) .afp-hero{
+  background-color:var(--afp-blue)!important;
+}
+body:has(#cats) .afp-promo{
+  background:linear-gradient(135deg,#0877b9,#16b8b0)!important;
+  color:#fff!important;
+}
+body:has(#cats) .afp-promo p,
+body:has(#cats) .afp-promo h3{color:#fff!important}
+body:has(#cats) .price,
+body:has(#cats) .total{
+  color:var(--afp-blue)!important;
+}
+body:has(#cats) .confirm,
+body:has(#cats) .afp-product-actions button{
+  background:linear-gradient(135deg,var(--afp-blue),var(--afp-teal))!important;
+  border-color:transparent!important;color:#fff!important;
+}
+body:has(#cats) .free{
+  color:var(--afp-blue)!important;
+  background:var(--afp-teal-light)!important;
+  border:1px solid rgba(22,184,176,.22)!important;
+}
+body:has(#cats) .cats .active,
+body:has(#cats) .cat.active{
+  background:linear-gradient(135deg,var(--afp-blue),var(--afp-teal))!important;
+  color:#fff!important;
+}
+body:has(#cats) .nav a.active,
+body:has(#cats) .nav button.active{
+  color:var(--afp-blue)!important;
+}
+body:has(#cats) .afp-circle{
+  color:var(--afp-blue)!important;
+}
