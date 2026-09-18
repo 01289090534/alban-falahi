@@ -18,3 +18,39 @@ body:has(#cats) .cart{margin:16px 12px 0!important;padding:16px!important;border
 body:has(#cats) .cart.show{animation:afpCartIn .22s ease-out both} @keyframes afpCartIn{from{opacity:.6;transform:translateY(8px)}to{opacity:1;transform:none}}
 body:has(#cats) .cart .cartrow{display:grid!important;grid-template-columns:1fr auto!important;gap:10px!important;padding:13px 0!important;border-bottom:1px solid #f0f0f0!important;align-items:center!important}.cartrow>div:first-child{font-weight:900!important;line-height:1.45!important}.cartqty{background:#f7f7f7!important;border:1px solid #e7e7e7!important;border-radius:12px!important;padding:4px!important;gap:7px!important}.cartqty button{background:#fff!important;border:1px solid #ddd!important;border-radius:9px!important;width:32px!important;height:32px!important;font-weight:900!important;color:#222!important}.cartqty b{min-width:22px!important;text-align:center!important}.sum{margin-top:14px!important;padding-top:12px!important;border-top:1px dashed #ddd!important}.sum div{margin:10px 0!important;color:#666!important}.sum .total{color:#222!important;font-size:23px!important;border-top:2px solid #222!important;padding-top:13px!important}.form{margin-top:16px!important;padding-top:16px!important;border-top:1px solid #eee!important}.label{font-size:14px!important;color:#333!important;margin:14px 0 7px!important}.input,.select,.textarea{border:1px solid #ddd!important;border-radius:13px!important;box-shadow:0 1px 3px rgba(0,0,0,.025)!important}.input:focus,.select:focus,.textarea:focus{outline:none!important;border-color:var(--afp-orange)!important;box-shadow:0 0 0 3px rgba(243,91,18,.10)!important}.addr{border:1px solid #e3e3e3!important;border-radius:14px!important;padding:12px!important;background:#fff!important}.addr.active{border:2px solid var(--afp-orange)!important;background:#fff8f3!important}.pay button,.tip button,.bonusBtn{min-height:44px!important;border-radius:12px!important;background:#fff!important}.pay .active,.tip .active,.bonusBtn.active{background:#222!important;color:#fff!important}.bonus{margin-top:14px!important;border:1px solid #f0d98a!important;border-radius:16px!important;background:#fffdf5!important}.bonusLine{padding:1px!important}.bonusBtn{background:#fff!important}.discount{color:var(--afp-green)!important}.confirm{font-size:17px!important;min-height:50px!important;box-shadow:0 6px 16px rgba(243,91,18,.22)!important}.save{min-height:46px!important}.error{border:1px solid #f2caca!important}.success{border-radius:22px!important;box-shadow:0 5px 18px rgba(0,0,0,.07)!important}
 @media(max-width:480px){.afp-topbar{height:58px;padding:7px 11px}.afp-circle{width:40px;height:40px;font-size:19px}.afp-brand-mini{font-size:15px}.afp-logo-img{width:31px;height:31px}.afp-hero{height:160px}.afp-hero-copy{right:16px;bottom:47px}.afp-hero-copy b{font-size:22px}body:has(#cats) .header{margin:0 9px!important;padding:0 13px 13px!important}body:has(#cats) .logo{font-size:20px!important}body:has(#cats) #products{padding:0 9px!important;gap:8px!important}body:has(#cats) #products.normal-layout .product{min-height:165px!important}body:has(#cats) #products .product .pic{height:125px!important}body:has(#cats) #products .product .name{font-size:13px!important}body:has(#cats) #products .product .desc{font-size:10px!important}.afp-promo{flex-basis:84%;min-height:58px}body:has(#cats) .cart{margin:12px 9px 0!important;padding:14px!important}.sum .total{font-size:21px!important}.pay,.tip{gap:6px!important}.pay button,.tip button{min-height:42px!important}}
+
+/* بطاقات أقسام وعروض — تحسين بصري فقط */
+body:has(#cats) .cats{
+  gap:10px!important;
+  scrollbar-width:none!important;
+}
+body:has(#cats) .cats::-webkit-scrollbar{display:none}
+body:has(#cats) .cat{
+  position:relative!important;
+  min-width:max-content!important;
+  box-shadow:0 2px 8px rgba(0,0,0,.045)!important;
+  font-weight:900!important;
+}
+body:has(#cats) .cat.active{
+  transform:translateY(-1px)!important;
+}
+body:has(#cats) .afp-promos{
+  padding:12px 14px 5px!important;
+}
+body:has(#cats) .afp-promo{
+  position:relative!important;
+  overflow:hidden!important;
+  box-shadow:0 5px 16px rgba(0,0,0,.055)!important;
+}
+body:has(#cats) .afp-promo::after{
+  content:"";position:absolute;left:-25px;bottom:-45px;width:105px;height:105px;
+  border-radius:50%;background:rgba(255,255,255,.38);
+}
+body:has(#cats) .afp-promo-icon{position:relative;z-index:1}
+body:has(#cats) .afp-promo b,body:has(#cats) .afp-promo small{
+  position:relative;z-index:1;
+}
+@media(max-width:480px){
+  body:has(#cats) .cat{padding:9px 13px!important}
+  body:has(#cats) .afp-promo{min-height:64px!important}
+}
