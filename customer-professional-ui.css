@@ -409,3 +409,14 @@ body:has(#cats) #cart .bonusHint{
 body:has(#cats) #bar{
   background:linear-gradient(135deg,#0877b9,#16b8b0)!important;
 }
+
+/* اللمسات النهائية للموبايل — ألبان فلاحي */
+@media(max-width:600px){
+  body:has(#cats) .afp-hero{margin-top:8px!important;box-shadow:0 8px 22px rgba(8,119,185,.12)!important}
+  body:has(#cats) .afp-hero:after{background:linear-gradient(90deg,rgba(8,119,185,.62),rgba(22,184,176,.18),rgba(0,0,0,.02))!important}
+  body:has(#cats) .afp-search-wrap{box-shadow:0 5px 16px rgba(8,119,185,.08)!important;border-color:#dceff2!important}
+  body:has(#cats) .cats .cat{border:1px solid #dceff2!important;background:#fff!important;color:#17324a!important}
+  body:has(#cats) .cats .cat.active{border-color:transparent!important;color:#fff!important}
+  body:has(#cats) #products .product{box-shadow:0 5px 14px rgba(8,119,185,.08)!important;border-color:#e2f0f3!important}
+  body:has(#cats) .afp-promo{box-shadow:0 6px 16px rgba(8,119,185,.12)!important}
+}
