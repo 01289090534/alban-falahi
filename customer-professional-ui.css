@@ -540,3 +540,14 @@ body:has(#cats) .nav a,body:has(#cats) .nav button{font-weight:800!important}
  body:has(#cats) .afp-brand-mini .afp-logo-img{width:34px!important;height:34px!important}
  body:has(#cats) .afp-search-wrap{margin-left:11px!important;margin-right:11px!important}
 }
+
+/* شاشة تفاصيل المنتج — لمسة نهائية */
+#albanProductModal .alban-product-sheet{background:#fff!important;border:1px solid #e4f0f3!important}
+#albanProductModal .alban-product-image{background:#f5fbfc!important;border:1px solid #e0f0f3!important}
+#albanProductModal .alban-product-info h2{color:#17324a!important;font-weight:950!important}
+#albanProductModal .alban-product-desc{color:#71818a!important}
+#albanProductModal .alban-product-price{color:#0877b9!important;font-size:26px!important}
+#albanProductModal .alban-product-actions{background:#f5fbfc!important;border:1px solid #e0f0f3!important;border-radius:18px!important;padding:8px!important;width:max-content!important;min-width:190px!important}
+#albanProductModal .alban-product-actions button{background:linear-gradient(135deg,#0877b9,#16b8b0)!important;border-radius:14px!important}
+#albanProductModal .alban-product-actions strong{color:#0877b9!important}
+@media(max-width:600px){#albanProductModal .alban-product-sheet{padding:10px 12px 24px!important}#albanProductModal .alban-product-image{height:46vh!important;min-height:240px!important}#albanProductModal .alban-product-info h2{font-size:21px!important}#albanProductModal .alban-product-actions{margin-top:14px!important}}
