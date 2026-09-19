@@ -1,18 +1,24 @@
 {
-  "id": "/menu.html?app=customer",
+  "id": "/",
   "name": "ألبان فلاحي | طلبات العملاء",
   "short_name": "ألبان فلاحي",
   "description": "برنامج طلبات ألبان فلاحي للعملاء",
   "lang": "ar",
   "dir": "rtl",
-  "start_url": "/menu.html?app=customer",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["standalone"],
+  "display_override": [
+    "standalone"
+  ],
   "orientation": "portrait-primary",
   "background_color": "#f5fbfc",
   "theme_color": "#0877b9",
-  "categories": ["shopping", "food", "business"],
+  "categories": [
+    "shopping",
+    "food",
+    "business"
+  ],
   "icons": [
     {
       "src": "https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/logo-1789649767844-766cb413-5329-412c-b6ce-cbe417806311.jpg?v=20260919-1300",
