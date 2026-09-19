@@ -22,7 +22,7 @@
  el.innerHTML=ids.map(id=>{
    const g=names[id]||{name_ar:'قسم',name_en:'Section'};
    const img=g.image_url?'<img src="'+g.image_url+'" alt="">':'<span>🥛</span>';
-   return '<button class="main-group" onclick="selectHomeMainGroup(\\''+id+'\\')"><div class="main-group-img">'+img+'</div><b>'+(lang==='en'?(g.name_en||g.name_ar):(g.name_ar||g.name_en))+'</b><small>'+groups[id].length+' فئة</small></button>';
+   return '<button class="main-group" onclick="selectHomeMainGroup(&quot;'+id+'&quot;)"><div class="main-group-img">'+img+'</div><b>'+(lang==='en'?(g.name_en||g.name_ar):(g.name_ar||g.name_en))+'</b><small>'+groups[id].length+' فئة</small></button>';
  }).join('');
 }
 async function loadHomeMainGroupLinks(){try{const r=await fetch(U+'/rest/v1/categories?select=id,category_group_id&is_active=eq.true',{headers:{apikey:K,Authorization:'Bearer '+K,'Cache-Control':'no-cache'}});if(!r.ok)return;const rows=await r.json();const links={};(rows||[]).forEach(x=>{links[String(x.id)]=x.category_group_id||null});(window.homeCategories||[]).forEach(c=>{c.category_group_id=links[String(c.id)]||null});renderHomeMainGroups()}catch(e){}}
