@@ -106,7 +106,7 @@ if(!window.__albanCartClickBound){
   const quick=e.target.closest('[data-af-quick-cart]');
   if(quick){
    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
-   quickChangeCardQty(Number(quick.dataset.productId),Number(quick.dataset.cartDelta));
+   quickChangeCardQty(quick.dataset.productId,Number(quick.dataset.cartDelta));
    return;
   }
   const cartBtn=e.target.closest('[data-cart-index][data-cart-delta]');
