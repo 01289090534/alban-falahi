@@ -43,18 +43,57 @@ label{display:block;font-size:12px;font-weight:900;margin:11px 0 6px}.field{widt
 const U='https://qxwvuxkbcghbkztjrzon.supabase.co';
 const API=U+'/functions/v1/customer-auth';
 let lang=localStorage.getItem('alban_lang')||'ar';
+let registerMode=false;
+function toggleMode(){registerMode=!registerMode;document.getElementById('err').style.display='none';apply()}
 function apply(){
  document.documentElement.lang=lang;document.documentElement.dir=lang==='en'?'ltr':'rtl';
  document.getElementById('langBtn').textContent=lang==='en'?'العربية':'English';
- document.getElementById('title').textContent=lang==='en'?'Customer Login':'دخول العميل';
- document.getElementById('sub').textContent=lang==='en'?'Enter your mobile number and PIN to continue to the home page':'ادخل رقم الموبايل والـPIN للمتابعة إلى الصفحة الرئيسية';
+ document.getElementById('title').textContent=lang==='en'?(registerMode?'Create Customer Account':'Customer Login'):(registerMode?'إنشاء حساب عميل جديد':'دخول العميل');
+ document.getElementById('sub').textContent=lang==='en'?(registerMode?'Enter your name, mobile number and PIN':'Enter your mobile number and PIN to continue to the home page'):(registerMode?'ادخل اسمك ورقم الموبايل والـPIN':'ادخل رقم الموبايل والـPIN للمتابعة إلى الصفحة الرئيسية');
  document.getElementById('mobileLabel').textContent=lang==='en'?'Mobile number':'رقم الموبايل';
  document.getElementById('pinLabel').textContent=lang==='en'?'PIN (6 digits)':'الـPIN (6 أرقام)';
- document.getElementById('loginBtn').textContent=lang==='en'?'Enter Alban Falahi':'دخول إلى ألبان فلاحي';
- document.getElementById('note').textContent=lang==='en'?'After login, you will be redirected automatically to the home page':'بعد تسجيل الدخول هتنتقل تلقائيًا إلى الصفحة الرئيسية';
+ document.getElementById('nameLabel').textContent=lang==='en'?'Name':'الاسم';
+ document.getElementById('confirmLabel').textContent=lang==='en'?'Confirm PIN':'تأكيد الـPIN';
+ document.getElementById('loginBtn').textContent=lang==='en'?(registerMode?'Create Account':'Enter Alban Falahi'):(registerMode?'إنشاء الحساب':'دخول إلى ألبان فلاحي');
+ document.getElementById('switchBtn').textContent=lang==='en'?(registerMode?'I already have an account':'Create new customer'):(registerMode?'عندي حساب بالفعل':'إنشاء عميل جديد');
+ document.getElementById('nameField').style.display=registerMode?'block':'none';
+ document.getElementById('confirmField').style.display=registerMode?'block':'none';
+ document.getElementById('note').textContent=lang==='en'?(registerMode?'After creating your account, you will enter the home page':'After login, you will be redirected automatically to the home page'):(registerMode?'بعد إنشاء الحساب هتدخل تلقائيًا للصفحة الرئيسية':'بعد تسجيل الدخول هتنتقل تلقائيًا إلى الصفحة الرئيسية');
 }
 function toggleLanguage(){lang=lang==='en'?'ar':'en';localStorage.setItem('alban_lang',lang);apply()}
 function normalizePhone(v){let p=String(v||'').replace(/\D/g,'');if(p.startsWith('20')&&p.length===12)p='0'+p.slice(2);return p}
+async function submitAuth(){
+ const mobile=normalizePhone(document.getElementById('mobile').value),pin=document.getElementById('pin').value.trim(),err=document.getElementById('err'),btn=document.getElementById('loginBtn');
+ const name=document.getElementById('name').value.trim(),confirmPin=document.getElementById('confirmPin').value.trim();
+ err.style.display='none';
+ if(registerMode&&!name){err.textContent=lang==='en'?'Enter your name':'اكتب اسمك';err.style.display='block';return}
+ if(!/^01[0125]\d{8}$/.test(mobile)||!/^[0-9]{6}$/.test(pin)){err.textContent=lang==='en'?'Check your mobile number and 6-digit PIN':'راجع رقم الموبايل والـPIN المكون من 6 أرقام';err.style.display='block';return}
+ if(registerMode&&pin!==confirmPin){err.textContent=lang==='en'?'PINs do not match':'تأكيد الـPIN غير مطابق';err.style.display='block';return}
+ btn.disabled=true;
+ try{
+  const body=registerMode?{action:'register',full_name:name,phone:mobile,pin}:{action:'login',phone:mobile,pin};
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const d=await r.json();
+  if(!r.ok||!d.success)throw Error(d.error||'تعذر إتمام العملية');
+  if(registerMode){
+   const lr=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'login',phone:mobile,pin})});
+   const ld=await lr.json();
+   if(!lr.ok||!ld.success)throw Error(ld.error||'تم إنشاء الحساب لكن تعذر تسجيل الدخول تلقائيًا');
+   localStorage.setItem('alban_auth_session',JSON.stringify(ld.session));
+   localStorage.setItem('alban_customer_id',ld.customer.id);
+   localStorage.setItem('alban_customer_name',ld.customer.full_name||name);
+   localStorage.setItem('alban_customer_phone',ld.customer.phone||mobile);
+  }else{
+   localStorage.setItem('alban_auth_session',JSON.stringify(d.session));
+   localStorage.setItem('alban_customer_id',d.customer.id);
+   localStorage.setItem('alban_customer_name',d.customer.full_name||'');
+   localStorage.setItem('alban_customer_phone',d.customer.phone||mobile);
+  }
+  location.replace('index.html');
+ }catch(e){err.textContent=e.message;err.style.display='block'}
+ finally{btn.disabled=false;apply()}
+}
+
 async function login(){
  const mobile=normalizePhone(document.getElementById('mobile').value),pin=document.getElementById('pin').value.trim(),err=document.getElementById('err'),btn=document.getElementById('loginBtn');
  err.style.display='none';
