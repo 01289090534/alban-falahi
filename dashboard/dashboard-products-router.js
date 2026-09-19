@@ -1,1 +1,2 @@
-(()=>{document.addEventListener('click',e=>{const b=e.target.closest?.('[data-page="products"]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();const run=async()=>{try{if(typeof window.products==='function'){await window.products();return}if(typeof window.go==='function')await window.go('products')}catch(err){console.error(err)}};setTimeout(run,0)},true);})();
+// Products routing is handled by dashboard-v2-fixed.js via window.products.
+// This file remains intentionally inert to avoid competing click handlers.
