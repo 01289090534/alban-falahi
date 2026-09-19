@@ -21,9 +21,9 @@
   ],
   "icons": [
     {
-      "src": "favicon.svg",
+      "src": "https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/logo-1789649767844-766cb413-5329-412c-b6ce-cbe417806311.jpg",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
