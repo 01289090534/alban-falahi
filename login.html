@@ -27,13 +27,16 @@ label{display:block;font-size:12px;font-weight:900;margin:11px 0 6px}.field{widt
 <section class="card">
 <h1 id="title">دخول العميل</h1>
 <p id="sub">ادخل رقم الموبايل والـPIN للمتابعة إلى الصفحة الرئيسية</p>
+<div id="nameField" style="display:none"><label id="nameLabel">الاسم</label><input id="name" class="field" autocomplete="name" placeholder="الاسم"></div>
 <label id="mobileLabel">رقم الموبايل</label>
 <input id="mobile" class="field" inputmode="tel" autocomplete="tel" placeholder="01xxxxxxxxx">
 <label id="pinLabel">الـPIN (6 أرقام)</label>
 <input id="pin" class="field" type="password" inputmode="numeric" maxlength="6" autocomplete="current-password" placeholder="••••••">
 <div id="err" class="err"></div>
-<button id="loginBtn" class="go" type="button" onclick="login()">دخول إلى ألبان فلاحي</button>
+<button id="loginBtn" class="go" type="button" onclick="submitAuth()">دخول إلى ألبان فلاحي</button>
+<button id="switchBtn" type="button" style="width:100%;height:46px;border:1px solid #dcecef;border-radius:15px;background:#fff;color:var(--b);font-weight:900;font-size:13px;margin-top:10px;cursor:pointer" onclick="toggleMode()">إنشاء عميل جديد</button>
 <div class="note" id="note">بعد تسجيل الدخول هتنتقل تلقائيًا إلى الصفحة الرئيسية</div>
+<div id="confirmField" style="display:none"><label id="confirmLabel">تأكيد الـPIN</label><input id="confirmPin" class="field" type="password" inputmode="numeric" maxlength="6" autocomplete="new-password" placeholder="••••••"></div>
 </section>
 </main>
 <script>
