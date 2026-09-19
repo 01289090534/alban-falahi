@@ -52,7 +52,12 @@ function selectHomeMainGroup(id){
  el.querySelectorAll('.cat').forEach(b=>b.classList.remove('active'));
  el.querySelectorAll('.cat').forEach(b=>{if(b.dataset.cat!=='all')b.style.display='none';});
  cats.forEach(c=>{const b=el.querySelector('[data-cat="'+c.id+'"]');if(b)b.style.display=''});
- if(cats.length){const b=el.querySelector('[data-cat="'+cats[0].id+'"]');if(b){b.classList.add('active');renderHomeProducts(cats[0].id);}}
+ const all=el.querySelector('.cat[data-cat="all"]');
+ if(all){all.style.display='';all.classList.add('active');}
+ if(cats.length){
+   window.homeActiveGroup=id;
+   renderHomeProducts('all');
+ }
  el.scrollIntoView({behavior:'smooth',block:'center'});
 }
 function showAllHomeCategories(){
