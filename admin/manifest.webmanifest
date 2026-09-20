@@ -8,15 +8,22 @@
   "start_url": "/admin/?role=branch_employee",
   "scope": "/admin/",
   "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "orientation": "portrait-primary",
   "background_color": "#f5f1e9",
   "theme_color": "#0877b9",
   "categories": ["business", "food", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
     {
-      "src": "https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/logo-1789649767844-766cb413-5329-412c-b6ce-cbe417806311.jpg?v=20260919-1300",
-      "sizes": "any",
+      "src": "https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/logo-1789649767844-766cb413-5329-412c-b6ce-cbe417806311.jpg?v=20260920",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any"
+    },
+    {
+      "src": "https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/logo-1789649767844-766cb413-5329-412c-b6ce-cbe417806311.jpg?v=20260920",
+      "sizes": "512x512",
       "type": "image/jpeg",
       "purpose": "any maskable"
     }
