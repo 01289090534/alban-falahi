@@ -50,4 +50,4 @@ function logout(){clearInterval(alarmTimer);if(liveChannel)sb.removeChannel(live
 async function initRealtime(){try{if(liveChannel)sb.removeChannel(liveChannel);liveChannel=sb.channel('shop-orders-'+(me.branch_id||'main')).on('postgres_changes',{event:'*',schema:'public',table:'orders'},()=>loadOrders()).subscribe(s=>{if(s==='CHANNEL_ERROR'){clearTimeout(liveRetry);liveRetry=setTimeout(initRealtime,5000)}})}catch(e){console.warn('realtime',e)}}
 function init(){document.getElementById('modal').classList.remove('hidden');if(!session||!me){showLogin();return}render();loadOrders();initRealtime();updatePrintSettingsUI();registerShopPush(false)}
 init();
-</script><script src="/admin/products-categories.js?v=20260920-11"></script></body></html>
+</script><script src="/admin/products-categories.js?v=20260920-11"></script><script src="/admin/products-categories.js?v=1"></script></body></html>
