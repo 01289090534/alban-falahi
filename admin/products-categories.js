@@ -1,0 +1,58 @@
+(function(){
+  if(window.__AF_PRODUCTS_CATEGORIES_V1)return;
+  window.__AF_PRODUCTS_CATEGORIES_V1=true;
+  const state={products:[],categories:[],open:new Set(),query:''};
+  const style=document.createElement('style');
+  style.textContent='.afCatToolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.afCatSearch{flex:1;min-width:220px;padding:13px 15px;border:1px solid #ddd;border-radius:13px;font-size:16px;background:#fff}.afCat{background:#fff;border-radius:18px;margin-bottom:10px;overflow:hidden;box-shadow:0 3px 14px #0000000b;border:1px solid #eee}.afCatHead{width:100%;border:0;background:#fff;padding:15px 16px;display:flex;align-items:center;gap:10px;text-align:right;cursor:pointer;font:inherit}.afCatArrow{font-size:18px;width:24px}.afCatName{font-weight:900;flex:1}.afCatCount{font-size:12px;color:#777;background:#f3f3f3;border-radius:999px;padding:5px 9px}.afCatAvail{font-size:12px;color:#176b3b;background:#e8f8ee;border-radius:999px;padding:5px 9px}.afCatBody{padding:0 16px 12px;border-top:1px solid #eee}.afCatProduct{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #eee}.afCatProduct:last-child{border-bottom:0}.afCatProductInfo{flex:1;min-width:0}.afCatProductName{font-weight:800}.afCatPrice{color:#555;font-size:13px;margin-top:3px}.afCatToggle{min-width:105px}.afCatEmpty{padding:18px;color:#777;text-align:center}.afCatMuted{color:#777;font-size:13px}';
+  document.head.appendChild(style);
+  window.afShopCategoryState=state;
+  window.renderProducts=function(){
+    const c=document.getElementById('content');
+    if(!c)return;
+    const cats=state.categories.slice().sort((a,b)=>(a.sort_order??9999)-(b.sort_order??9999));
+    const q=state.query.trim().toLowerCase();
+    const filtered=state.products.filter(p=>!q||String(p.name_ar||'').toLowerCase().includes(q)||String(p.name_en||'').toLowerCase().includes(q));
+    const byCat=new Map();
+    filtered.forEach(p=>{const key=p.category_id||'__none__';if(!byCat.has(key))byCat.set(key,[]);byCat.get(key).push(p)});
+    const ordered=cats.filter(x=>byCat.has(x.id));
+    if(byCat.has('__none__'))ordered.push({id:'__none__',name_ar:'غير مصنف',name_en:'Uncategorized',sort_order:999999});
+    const cards=ordered.map(cat=>{
+      const items=byCat.get(cat.id)||[];
+      const available=items.filter(p=>p.available).length;
+      const open=state.open.has(cat.id);
+      return '<div class="afCat"><button class="afCatHead" onclick="window.afToggleCategory(\''+cat.id+'\')"><span class="afCatArrow">'+(open?'⌄':'‹')+'</span><span class="afCatName">'+escapeHtml(cat.name_ar||cat.name_en||'قسم')+'</span><span class="afCatAvail">متاح '+available+'</span><span class="afCatCount">'+items.length+' منتج</span></button>'+(open?'<div class="afCatBody">'+items.map(p=>'<div class="afCatProduct"><div class="afCatProductInfo"><div class="afCatProductName">'+escapeHtml(p.name_ar||p.name_en||'منتج')+'</div><div class="afCatPrice">'+money(p.price)+'</div></div><button class="btn afCatToggle '+(p.available?'green':'red')+'" onclick="window.afToggleProductFromCategories(\''+p.id+'\','+(p.available?'false':'true')+')">'+(p.available?'متاح':'غير متاح')+'</button></div>').join('')+'</div>':'')+'</div>';
+    }).join('');
+    c.innerHTML='<div class="card"><h3 style="margin-top:0">🟢🔴 توفر المنتجات حسب الأقسام</h3><p class="afCatMuted">اضغط على اسم القسم لفتح المنتجات أو إغلاقها. التوفر يتغير لنفس الفرع.</p><div class="afCatToolbar"><input class="afCatSearch" id="afCatSearch" placeholder="🔎 ابحث عن منتج..." value="'+escapeHtml(state.query)+'"><button class="btn white" onclick="window.afOpenAllCategories()">فتح الكل</button><button class="btn white" onclick="window.afCloseAllCategories()">إغلاق الكل</button></div></div><div>'+(cards||'<div class="card afCatEmpty">لا توجد منتجات مطابقة.</div>')+'</div>';
+    const search=document.getElementById('afCatSearch');
+    if(search){search.oninput=function(){state.query=this.value;renderProducts()};}
+  };
+  window.afToggleCategory=function(id){state.open.has(id)?state.open.delete(id):state.open.add(id);renderProducts()};
+  window.afOpenAllCategories=function(){state.categories.forEach(c=>state.open.add(c.id));if(state.products.some(p=>!p.category_id))state.open.add('__none__');renderProducts()};
+  window.afCloseAllCategories=function(){state.open.clear();renderProducts()};
+  window.afToggleProductFromCategories=async function(id,available){
+    try{
+      const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({action:'toggle_product',branch_id:me.branch_id,product_id:id,available})});
+      const d=await r.json();
+      if(!r.ok||!d.success)throw Error(d.error||'تعذر تحديث التوفر');
+      const p=state.products.find(x=>x.id===id);if(p)p.available=available;
+      renderProducts();
+    }catch(e){alert(e.message)}
+  };
+  window.loadProducts=async function(){
+    try{
+      const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({action:'products',branch_id:me.branch_id})});
+      const d=await r.json();
+      if(!r.ok||!d.success)throw Error(d.error||'تعذر تحميل المنتجات');
+      state.products=Array.isArray(d.products)?d.products:[];
+      try{
+        const cr=await sb.from('categories').select('id,name_ar,name_en,sort_order,is_active').eq('is_active',true).order('sort_order',{ascending:true});
+        if(cr.error)throw cr.error;
+        state.categories=cr.data||[];
+      }catch(catErr){
+        const ids=[...new Set(state.products.map(p=>p.category_id).filter(Boolean))];
+        state.categories=ids.map((id,i)=>({id,name_ar:'قسم '+(i+1),name_en:'Category '+(i+1),sort_order:i+1}));
+      }
+      renderProducts();
+    }catch(e){document.getElementById('content').innerHTML='<div class="card err" style="display:block">'+escapeHtml(e.message)+'</div>'}
+  };
+})();
