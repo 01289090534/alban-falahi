@@ -152,6 +152,8 @@ if(!window.__albanCartClickBound){
    changeCartQty(Number(cartBtn.dataset.cartIndex),Number(cartBtn.dataset.cartDelta));
    return;
   }
+  const alertBtn=e.target.closest('[data-alert-product]');
+  if(alertBtn)return;
   const unavailable=e.target.closest('.product.af-unavailable');
   if(unavailable){
    e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();
