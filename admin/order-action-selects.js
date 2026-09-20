@@ -1,4 +1,11 @@
 (function(){
+  try{
+    if(!document.querySelector('link[rel="manifest"]')){const l=document.createElement('link');l.rel='manifest';l.href='/admin/manifest.webmanifest?v=20260920';document.head.appendChild(l)}
+    if(!document.querySelector('meta[name="theme-color"]')){const m=document.createElement('meta');m.name='theme-color';m.content='#0877b9';document.head.appendChild(m)}
+    if('serviceWorker' in navigator)navigator.serviceWorker.register('/shop-push-sw.js',{scope:'/admin/'}).catch(()=>{});
+  }catch(e){}
+})();
+(function(){
   if(window.__afOrderSelectsLoaded)return; window.__afOrderSelectsLoaded=true;
   const style=document.createElement('style');
   style.textContent='.af-select-modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}.af-select-box{background:#fff;border-radius:22px;max-width:430px;width:100%;padding:22px;box-shadow:0 20px 70px #0005}.af-select-box h3{margin:0 0 14px}.af-select-box select{width:100%;padding:14px;border:1px solid #ddd;border-radius:12px;font-size:17px;background:#fff}.af-select-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}.af-select-actions button{border:0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer}.af-select-cancel{background:#fff;border:1px solid #ddd!important}.af-select-ok{background:#198754;color:#fff}.af-select-empty{padding:12px;background:#fff7df;border-radius:12px;color:#8a5b00;font-weight:700}.af-confirm-text{font-size:16px;line-height:1.8;margin:4px 0 12px}.af-confirm-name{font-weight:900}';
@@ -41,10 +48,7 @@
       }
       const confirmed=await confirmChoice('🏪 تأكيد تحويل الطلب','هل تريد تحويل الطلب إلى فرع <span class="af-confirm-name">'+String(name).replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>؟');
       if(!confirmed)return;
-      try{
-        await api({action:'transfer',order_id:m[2],to_branch_id:value});
-        if(typeof loadOrders==='function')await loadOrders();
-      }catch(e){alert(e.message||'تعذر تحويل الطلب')}
+      try{await api({action:'transfer',order_id:m[2],to_branch_id:value});if(typeof loadOrders==='function')await loadOrders()}catch(e){alert(e.message||'تعذر تحويل الطلب')}
       return;
     };
   }
