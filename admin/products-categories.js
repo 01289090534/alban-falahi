@@ -1,4 +1,13 @@
 (function(){
+  if(window.__AF_ADMIN_PWA_V1)return;
+  window.__AF_ADMIN_PWA_V1=true;
+  try{
+    if(!document.querySelector('link[rel="manifest"]')){
+      const l=document.createElement('link');l.rel='manifest';l.href='/admin/manifest.webmanifest?v=20260920';document.head.appendChild(l);
+    }
+    document.querySelector('meta[name="theme-color"]')||(()=>{const m=document.createElement('meta');m.name='theme-color';m.content='#0877b9';document.head.appendChild(m)})();
+    if('serviceWorker' in navigator){navigator.serviceWorker.register('/shop-push-sw.js',{scope:'/admin/'}).catch(e=>console.warn('admin PWA service worker',e));}
+  }catch(e){console.warn('admin PWA setup',e)}
   if(window.__AF_PRODUCTS_CATEGORIES_V1)return;
   window.__AF_PRODUCTS_CATEGORIES_V1=true;
   const state={products:[],categories:[],open:new Set(),query:''};
