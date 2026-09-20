@@ -1,12 +1,19 @@
 (function(){
-  if(window.__AF_ADMIN_PWA_V1)return;
-  window.__AF_ADMIN_PWA_V1=true;
+  if(window.__AF_ADMIN_PWA_V2)return;
+  window.__AF_ADMIN_PWA_V2=true;
   try{
     if(!document.querySelector('link[rel="manifest"]')){
-      const l=document.createElement('link');l.rel='manifest';l.href='/admin/manifest.webmanifest?v=20260920';document.head.appendChild(l);
+      const l=document.createElement('link');l.rel='manifest';l.href='/admin/manifest.webmanifest?v=20260920-2';document.head.appendChild(l);
     }
-    document.querySelector('meta[name="theme-color"]')||(()=>{const m=document.createElement('meta');m.name='theme-color';m.content='#0877b9';document.head.appendChild(m)})();
-    if('serviceWorker' in navigator){navigator.serviceWorker.register('/shop-push-sw.js',{scope:'/admin/'}).catch(e=>console.warn('admin PWA service worker',e));}
+    if(!document.querySelector('meta[name="theme-color"]')){const m=document.createElement('meta');m.name='theme-color';m.content='#0877b9';document.head.appendChild(m)}
+    if('serviceWorker' in navigator){navigator.serviceWorker.register('/shop-push-sw.js',{scope:'/admin/'}).then(()=>console.log('Alban Falahi admin PWA service worker ready')).catch(e=>console.warn('admin PWA service worker',e));}
+    let deferredInstall=null;
+    window.addEventListener('beforeinstallprompt',e=>{
+      e.preventDefault(); deferredInstall=e;
+      let b=document.getElementById('afInstallAppBtn');
+      if(!b){b=document.createElement('button');b.id='afInstallAppBtn';b.className='btn primary';b.textContent='📲 تثبيت التطبيق';b.style.cssText='position:fixed;bottom:18px;left:18px;z-index:9999;border-radius:999px;padding:13px 18px;box-shadow:0 8px 25px #0003';b.onclick=async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;b.remove()};document.body.appendChild(b)}
+    });
+    window.addEventListener('appinstalled',()=>{deferredInstall=null;document.getElementById('afInstallAppBtn')?.remove()});
   }catch(e){console.warn('admin PWA setup',e)}
   if(window.__AF_PRODUCTS_CATEGORIES_V1)return;
   window.__AF_PRODUCTS_CATEGORIES_V1=true;
