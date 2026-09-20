@@ -1,11 +1,24 @@
-const CACHE='alban-pwa-v3';
+const CACHE='alban-pwa-v4';
 self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('push',e=>{
-  let d={};try{d=e.data?.json()||{}}catch{try{d={body:e.data?.text()||''}}catch{}}
-  const title=d.title||'ألبان فلاحي';
-  const options={body:d.body||'لديك إشعار جديد ❤️',icon:d.icon||'/favicon.svg',badge:d.badge||'/favicon.svg',tag:d.tag||'alban-notification',data:{url:d.url||'/orders.html'}};
-  e.waitUntil(self.registration.showNotification(title,options));
+  e.waitUntil((async()=>{
+    let d={};
+    try{d=e.data?.json()||{}}catch{try{d={body:e.data?.text()||''}}catch{}}
+    const title=d.title||'ألبان فلاحي';
+    const options={
+      body:d.body||'لديك إشعار جديد ❤️',
+      icon:d.icon||'/favicon.svg',
+      badge:d.badge||'/favicon.svg',
+      tag:d.tag||'alban-notification',
+      renotify:true,
+      requireInteraction:true,
+      silent:false,
+      timestamp:Date.now(),
+      data:{url:d.url||'/orders.html'}
+    };
+    await self.registration.showNotification(title,options);
+  })());
 });
 self.addEventListener('notificationclick',e=>{
   e.notification.close();
