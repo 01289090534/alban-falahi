@@ -1,0 +1,24 @@
+{
+  "id": "/admin/",
+  "name": "ألبان فلاحي — برنامج المحل",
+  "short_name": "ألبان فلاحي",
+  "description": "برنامج المحل وإدارة الطلبات والتوفر لفروع ألبان فلاحي",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/admin/?role=branch_employee",
+  "scope": "/admin/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#f5f1e9",
+  "theme_color": "#0877b9",
+  "categories": ["business", "food", "productivity"],
+  "icons": [
+    {
+      "src": "https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/logo-1789649767844-766cb413-5329-412c-b6ce-cbe417806311.jpg?v=20260919-1300",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
