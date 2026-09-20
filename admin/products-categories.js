@@ -1,20 +1,49 @@
 (function(){
-  if(window.__AF_ADMIN_PWA_V2)return;
-  window.__AF_ADMIN_PWA_V2=true;
+  if(window.__AF_ADMIN_PWA_V3)return;
+  window.__AF_ADMIN_PWA_V3=true;
   try{
     if(!document.querySelector('link[rel="manifest"]')){
-      const l=document.createElement('link');l.rel='manifest';l.href='/admin/manifest.webmanifest?v=20260920-2';document.head.appendChild(l);
+      const l=document.createElement('link');l.rel='manifest';l.href='/admin/manifest.webmanifest?v=20260920-3';document.head.appendChild(l);
     }
     if(!document.querySelector('meta[name="theme-color"]')){const m=document.createElement('meta');m.name='theme-color';m.content='#0877b9';document.head.appendChild(m)}
     if('serviceWorker' in navigator){navigator.serviceWorker.register('/shop-push-sw.js',{scope:'/admin/'}).then(()=>console.log('Alban Falahi admin PWA service worker ready')).catch(e=>console.warn('admin PWA service worker',e));}
+
     let deferredInstall=null;
+    let installBox=null;
+    const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+    const removeInstallBox=()=>{if(installBox){installBox.remove();installBox=null}};
+    const installNow=async()=>{
+      if(deferredInstall){
+        try{deferredInstall.prompt();await deferredInstall.userChoice}catch(e){console.warn('PWA install prompt',e)}
+        deferredInstall=null;
+        return;
+      }
+      alert('لتثبيت برنامج المحل على Android: افتح قائمة Chrome ⋮ ثم اختر «إضافة إلى الشاشة الرئيسية» أو «تثبيت التطبيق».');
+    };
+    const showInstallBox=(ready=false)=>{
+      if(isStandalone())return;
+      removeInstallBox();
+      installBox=document.createElement('div');
+      installBox.id='afInstallAppBox';
+      installBox.dir='rtl';
+      installBox.style.cssText='position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;padding:20px;z-index:100000;font-family:Arial,Tahoma,sans-serif';
+      installBox.innerHTML='<div style="background:#fff;border-radius:24px;max-width:420px;width:100%;padding:26px;box-shadow:0 20px 70px #0006;text-align:center"><div style="font-size:52px">📲</div><h2 style="margin:8px 0">تثبيت برنامج المحل</h2><p style="color:#666;line-height:1.8;margin:8px 0 18px">ثبّت «ألبان فلاحي — برنامج المحل» على موبايل Android ليظهر كتطبيق مستقل وسهل الفتح.</p><button id="afInstallNow" style="width:100%;border:0;border-radius:13px;padding:15px;background:#198754;color:#fff;font-size:17px;font-weight:900;cursor:pointer">📲 تثبيت التطبيق</button><button id="afInstallLater" style="width:100%;border:1px solid #ddd;border-radius:13px;padding:13px;background:#fff;color:#333;font-size:15px;font-weight:800;cursor:pointer;margin-top:9px">فتح البرنامج بدون تثبيت</button><div id="afInstallHint" style="font-size:12px;color:#888;margin-top:12px">'+(ready?'سيظهر طلب التثبيت من Chrome الآن.':'إذا لم يظهر طلب التثبيت، سيظهر لك شرح إضافة البرنامج للشاشة الرئيسية.')+'</div></div>';
+      document.body.appendChild(installBox);
+      document.getElementById('afInstallNow').onclick=installNow;
+      document.getElementById('afInstallLater').onclick=removeInstallBox;
+    };
     window.addEventListener('beforeinstallprompt',e=>{
-      e.preventDefault(); deferredInstall=e;
-      let b=document.getElementById('afInstallAppBtn');
-      if(!b){b=document.createElement('button');b.id='afInstallAppBtn';b.className='btn primary';b.textContent='📲 تثبيت التطبيق';b.style.cssText='position:fixed;bottom:18px;left:18px;z-index:9999;border-radius:999px;padding:13px 18px;box-shadow:0 8px 25px #0003';b.onclick=async()=>{if(!deferredInstall)return;deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null;b.remove()};document.body.appendChild(b)}
+      e.preventDefault();
+      deferredInstall=e;
+      if(installBox){
+        const h=document.getElementById('afInstallHint');
+        if(h)h.textContent='التطبيق جاهز للتثبيت من Chrome.';
+      }else showInstallBox(true);
     });
-    window.addEventListener('appinstalled',()=>{deferredInstall=null;document.getElementById('afInstallAppBtn')?.remove()});
+    window.addEventListener('appinstalled',()=>{deferredInstall=null;removeInstallBox()});
+    window.setTimeout(()=>showInstallBox(!!deferredInstall),700);
   }catch(e){console.warn('admin PWA setup',e)}
+
   if(window.__AF_PRODUCTS_CATEGORIES_V1)return;
   window.__AF_PRODUCTS_CATEGORIES_V1=true;
   const state={products:[],categories:[],open:new Set(),query:''};
