@@ -106,3 +106,4 @@
     };
   };
 })();
+(()=>{if(window.__AF_ORDER_ADD_ITEMS_LOADER)return;window.__AF_ORDER_ADD_ITEMS_LOADER=true;const s=document.createElement('script');s.src='/admin/order-add-items.js?v=20260921-1';s.defer=true;document.head.appendChild(s)})();
