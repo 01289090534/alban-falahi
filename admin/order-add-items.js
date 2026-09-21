@@ -1,0 +1,28 @@
+/* Added order items flow: shop can add products to an existing unpaid order after customer phone confirmation. */
+(function(){
+  if(window.__afOrderAddItemsLoaded)return;window.__afOrderAddItemsLoaded=true;
+  const API_ADD='https://qxwvuxkbcghbkztjrzon.supabase.co/functions/v1/shop-add-items';
+  const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const money=n=>(Number(n)||0).toFixed(2)+' ج';
+  async function token(){try{const r=await sb.auth.getSession();if(r.data?.session){session=r.data.session;localStorage.setItem('af_shop_session',JSON.stringify(session));return r.data.session.access_token}}catch{}return window.__afShopAccessToken||session?.access_token||''}
+  async function api(payload){const t=await token();if(!t)throw Error('جلسة الموظف غير موجودة');const r=await fetch(API_ADD,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify(payload)});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||d.error||'تعذر تنفيذ الإضافة');return d}
+  async function products(){const t=await token();const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({action:'products'})});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.message||'تعذر تحميل المنتجات');return d.products||[]}
+  function close(m){m.remove()}
+  window.addOrderItems=async function(id){
+    const o=(orders||[]).find(x=>String(x.id)===String(id));if(!o)return alert('الطلب غير موجود');
+    if(['delivered','cancelled','rejected'].includes(o.status))return alert('لا يمكن تعديل طلب مكتمل أو ملغي');
+    if(o.payment_status==='paid')return alert('لا يمكن تعديل طلب مدفوع إلكترونيًا');
+    let ps=[];try{ps=await products()}catch(e){return alert(e.message)}
+    ps=ps.filter(p=>p.available!==false);
+    const modal=document.createElement('div');modal.style.cssText='position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;z-index:120;padding:16px';
+    modal.innerHTML='<div style="background:#fff;border-radius:22px;max-width:620px;width:100%;max-height:90vh;overflow:auto;padding:20px"><h2 style="margin-top:0">➕ إضافة منتجات للطلب #'+esc(o.order_number)+'</h2><div style="background:#eaf8ef;color:#176b3b;padding:11px;border-radius:12px;font-size:13px;margin-bottom:12px">الإضافة تتم بناءً على طلب العميل عبر الهاتف.</div><div id="afAddRows"></div><label style="display:block;font-weight:900;margin-top:14px">ملاحظات التعديل</label><input id="afAddReason" value="بناءً على طلب العميل" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:11px;font-size:15px"><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button id="afAddCancel" style="border:1px solid #ddd;background:#fff;border-radius:12px;padding:11px 16px;font-weight:800">إلغاء</button><button id="afAddSave" style="border:0;background:#198754;color:#fff;border-radius:12px;padding:11px 16px;font-weight:800">تأكيد الإضافة</button></div></div>';
+    document.body.appendChild(modal);const rows=modal.querySelector('#afAddRows');
+    rows.innerHTML=ps.map(p=>'<div data-pid="'+esc(p.id)+'" style="display:grid;grid-template-columns:1fr 90px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #eee"><div><b>'+esc(p.name_ar||p.name_en||'منتج')+'</b><div style="font-size:12px;color:#777;margin-top:3px">'+money(p.price)+'</div></div><input class="afAddQty" type="number" min="0" max="50" step="1" value="0" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:10px;text-align:center"></div>').join('');
+    modal.querySelector('#afAddCancel').onclick=()=>close(modal);
+    modal.querySelector('#afAddSave').onclick=async()=>{const items=[];rows.querySelectorAll('[data-pid]').forEach(r=>{const q=Math.floor(Number(r.querySelector('.afAddQty').value||0));if(q>0)items.push({product_id:r.dataset.pid,quantity:q})});if(!items.length)return alert('اختر صنفًا واحدًا على الأقل');const btn=modal.querySelector('#afAddSave');btn.disabled=true;btn.textContent='جاري الحفظ...';try{const d=await api({order_id:o.id,items,reason:modal.querySelector('#afAddReason').value});close(modal);await loadOrders();alert('تمت إضافة المنتجات بنجاح ✅\nالإجمالي الجديد: '+money(d.adjustment?.new_total));}catch(e){btn.disabled=false;btn.textContent='تأكيد الإضافة';alert(e.message)}};
+  };
+  const original=window.renderOrders;
+  // Add the action button after cards render without replacing existing rendering logic.
+  const inject=()=>{document.querySelectorAll('[data-order-id]').forEach(card=>{if(card.querySelector('.af-add-items-btn'))return;const id=card.getAttribute('data-order-id');if(!id)return;const actions=card.querySelector('.actions');if(!actions)return;const b=document.createElement('button');b.className='btn gold af-add-items-btn';b.textContent='➕ إضافة منتجات';b.onclick=()=>addOrderItems(id);actions.appendChild(b)})};
+  const mo=new MutationObserver(()=>inject());mo.observe(document.body,{childList:true,subtree:true});setTimeout(inject,300);
+})();
