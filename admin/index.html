@@ -45,7 +45,7 @@ async function updateOrder(id,status,extra={}){try{const r=await fetch(API,{meth
 function acceptOrder(id){const o=orders.find(x=>x.id===id);updateOrder(id,'preparing',{prep_initial_minutes:15,prep_deadline_at:new Date(Date.now()+15*60000).toISOString()}).then(()=>{if(getPrintSettings().autoPrint&&o)printPreparation(o)})}
 function rejectOrder(id){if(confirm('تأكيد رفض الطلب؟'))updateOrder(id,'rejected')}
 function readyOrder(id){updateOrder(id,'ready')}
-function extendOrder(id){const o=orders.find(x=>x.id===id);if(!o)return;const current=new Date(o.prep_deadline_at||Date.now()).getTime();updateOrder(id,'preparing',{prep_deadline_at:new Date(current+10*60000).toISOString()})}
+async function extendOrder(id){const o=orders.find(x=>x.id===id);if(!o)return;const current=new Date(o.prep_deadline_at||Date.now()).getTime();try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({action:'extend_prep',order_id:id,minutes:10})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.success)throw Error(d.error||d.message||'تعذر إضافة الوقت');await loadOrders()}catch(e){alert(e.message)}}
 async function transferOrder(id){const name=prompt('اكتب كود الفرع أو branch_id للتحويل');if(name)updateOrder(id,'pending',{transfer_to:name})}
 async function assignDriver(id){const name=prompt('اكتب رقم السائق أو اسمه');if(name)updateOrder(id,'ready',{driver:name})}
 function logout(){clearInterval(alarmTimer);if(liveChannel)sb.removeChannel(liveChannel);session=null;me=null;localStorage.removeItem('af_shop_session');localStorage.removeItem('af_shop_user');showLogin()}
