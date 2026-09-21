@@ -1,8 +1,5 @@
 name: One-time shop session patch
-on:
-  push:
-    paths:
-      - .github/workflows/one-time-shop-session-fix.yml
+on: push
 permissions:
   contents: write
 jobs:
