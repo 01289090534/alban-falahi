@@ -1,12 +1,13 @@
 /* Alban Falahi — Smart preparation timer (feature branch only)
- * Does not touch orders, Supabase, Push, login, or UI rendering.
- * Host app decides when to start/extend/stop a timer and when to play sound.
+ * Branch-safe timer core. The host app remains responsible for order status,
+ * persistence to Supabase, UI rendering, and actual audio playback.
  */
 (function (global) {
   'use strict';
-  const STORAGE_KEY = 'alban_falahi_smart_prep_v1';
+  const STORAGE_KEY = 'alban_falahi_smart_prep_v2';
   const DEFAULT_MINUTES = 15;
   const WARNING_MINUTES = 5;
+  const REMINDER_INTERVAL_MS = 60 * 1000;
 
   function read() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); }
@@ -20,15 +21,18 @@
   function start(orderId, minutes = DEFAULT_MINUTES, now = Date.now()) {
     const all = read();
     const id = String(orderId);
-    const totalMs = Math.max(0, Number(minutes) || 0) * 60000;
+    const totalMinutes = Math.max(0, Number(minutes) || 0);
+    const totalMs = totalMinutes * 60000;
     all[id] = {
       orderId: id,
       startedAt: now,
       deadlineAt: now + totalMs,
       totalMs,
-      warningAt: now + Math.max(0, Number(minutes) - WARNING_MINUTES) * 60000,
+      warningAt: now + Math.max(0, totalMinutes - WARNING_MINUTES) * 60000,
       overdue: false,
-      acknowledged: false
+      acknowledged: false,
+      lastAlertAt: null,
+      version: 2
     };
     write(all);
     return all[id];
@@ -46,6 +50,8 @@
     current.warningAt = Math.max(now, current.deadlineAt - WARNING_MINUTES * 60000);
     current.overdue = false;
     current.acknowledged = false;
+    current.lastAlertAt = null;
+    current.version = 2;
     write(all);
     return current;
   }
@@ -53,15 +59,31 @@
   function snapshot(orderId, now = Date.now()) {
     const item = get(orderId);
     if (!item) return null;
-    const remainingMs = Math.max(0, Number(item.deadlineAt) - now);
+    const deadlineAt = Number(item.deadlineAt) || now;
+    const remainingMs = Math.max(0, deadlineAt - now);
+    const overdue = now >= deadlineAt;
+    const warning = !overdue && now >= Number(item.warningAt || deadlineAt);
+    const lastAlertAt = Number(item.lastAlertAt || 0);
+    const canReminder = overdue && !item.acknowledged && (now - lastAlertAt >= REMINDER_INTERVAL_MS);
     return {
       ...item,
       remainingMs,
       remainingMinutes: Math.ceil(remainingMs / 60000),
-      warning: remainingMs > 0 && now >= Number(item.warningAt),
-      overdue: now >= Number(item.deadlineAt),
-      overdueMs: Math.max(0, now - Number(item.deadlineAt))
+      warning,
+      overdue,
+      overdueMs: Math.max(0, now - deadlineAt),
+      phase: overdue ? 'overdue' : warning ? 'warning' : 'running',
+      canReminder
     };
+  }
+
+  function markAlert(orderId, now = Date.now()) {
+    const all = read();
+    const id = String(orderId);
+    if (!all[id]) return false;
+    all[id].lastAlertAt = now;
+    write(all);
+    return true;
   }
 
   function acknowledge(orderId) {
@@ -79,5 +101,7 @@
     write(all);
   }
 
-  global.AlbanFalahiSmartPrep = { start, extend, snapshot, acknowledge, stop, get };
+  global.AlbanFalahiSmartPrep = {
+    start, extend, snapshot, acknowledge, stop, get, markAlert
+  };
 })(window);
