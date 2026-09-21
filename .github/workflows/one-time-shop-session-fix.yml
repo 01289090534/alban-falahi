@@ -1,0 +1,92 @@
+name: One-time shop session patch
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch shop session handling
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('admin/index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '/* AF_SESSION_REFRESH_PATCH_V1 */'
+          if marker in s:
+              raise SystemExit(0)
+          old_login = """async function login(){const phone=normalize(document.getElementById('phone').value),password=document.getElementById('password').value,err=document.getElementById('loginErr');err.style.display='none';try{const r=await fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password})});const d=await r.json();if(!r.ok||!d.success)throw Error(d.error||'تعذر تسجيل الدخول');session=d.session;me=d.user;localStorage.removeItem('af_shop_session');localStorage.removeItem('af_shop_user');localStorage.setItem('af_shop_session',JSON.stringify(session));localStorage.setItem('af_shop_user',JSON.stringify(me));location.href='/admin/index.html?role='+encodeURIComponent(me.role||'')}catch(e){err.textContent=e.message;err.style.display='block'}}"""
+          new_login = """async function login(){const phone=normalize(document.getElementById('phone').value),password=document.getElementById('password').value,err=document.getElementById('loginErr');err.style.display='none';try{const r=await fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,password})});const d=await r.json();if(!r.ok||!d.success)throw Error(d.error||'تعذر تسجيل الدخول');session=d.session;me=d.user;await sb.auth.setSession({access_token:session.access_token,refresh_token:session.refresh_token});const fresh=await sb.auth.getSession();if(fresh.data?.session)session=fresh.data.session;localStorage.setItem('af_shop_session',JSON.stringify(session));localStorage.setItem('af_shop_user',JSON.stringify(me));location.href='/admin/index.html?role='+encodeURIComponent(me.role||'')}catch(e){err.textContent=e.message;err.style.display='block'}}"""
+          if old_login not in s:
+              raise SystemExit('login block not found; no changes made')
+          s = s.replace(old_login, new_login, 1)
+          anchor = 'function pushKeyBytes(base64){'
+          patch = r'''/* AF_SESSION_REFRESH_PATCH_V1 */
+(async function(){
+  try{
+    if(session?.access_token&&session?.refresh_token){
+      const restored=await sb.auth.setSession({access_token:session.access_token,refresh_token:session.refresh_token});
+      if(restored.error) throw restored.error;
+      if(restored.data?.session) session=restored.data.session;
+      localStorage.setItem('af_shop_session',JSON.stringify(session));
+    }
+  }catch(e){
+    console.warn('shop session restore/refresh failed',e);
+  }
+  sb.auth.onAuthStateChange((event,next)=>{
+    if(next?.access_token){
+      session=next;
+      localStorage.setItem('af_shop_session',JSON.stringify(next));
+    }
+  });
+  const nativeFetch=window.fetch.bind(window);
+  window.fetch=async function(input,init={}){
+    const url=typeof input==='string'?input:(input?.url||'');
+    if(url.startsWith(API)){
+      try{
+        const got=await sb.auth.getSession();
+        if(got.data?.session){
+          session=got.data.session;
+          localStorage.setItem('af_shop_session',JSON.stringify(session));
+          const headers=new Headers(init.headers||{});
+          headers.set('Authorization','Bearer '+session.access_token);
+          init={...init,headers};
+        }
+      }catch(e){console.warn('shop api session refresh',e)}
+    }
+    let res=await nativeFetch(input,init);
+    if(url.startsWith(API)&&res.status===401){
+      try{
+        const refreshed=await sb.auth.refreshSession();
+        if(refreshed.data?.session){
+          session=refreshed.data.session;
+          localStorage.setItem('af_shop_session',JSON.stringify(session));
+          const headers=new Headers(init.headers||{});
+          headers.set('Authorization','Bearer '+session.access_token);
+          res=await nativeFetch(input,{...init,headers});
+        }
+      }catch(e){console.warn('shop api 401 refresh failed',e)}
+    }
+    return res;
+  };
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)sb.auth.startAutoRefresh().catch(()=>{})});
+})();
+
+'''
+          if anchor not in s:
+              raise SystemExit('anchor not found; no changes made')
+          s=s.replace(anchor,patch+anchor,1)
+          p.write_text(s,encoding='utf-8')
+      - name: Commit patch and remove one-time workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add admin/index.html
+          git commit -m 'Fix shop session refresh'
+          rm -f .github/workflows/one-time-shop-session-fix.yml
+          git add -A
+          git commit -m 'Remove one-time shop session patch workflow'
+          git push
