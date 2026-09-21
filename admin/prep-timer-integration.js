@@ -1,28 +1,62 @@
 /* Alban Falahi — Smart Prep Timer integration (branch-only).
  * Safe adapter: does not mutate order state, Supabase, or existing UI.
- * Exposes a tiny API so the existing app can opt in later.
+ * The timer core/localStorage is the source of truth; no in-memory Map is used.
  */
-(function(){
+(function () {
   'use strict';
+
   const Timer = window.AlbanFalahiSmartPrep;
-  if(!Timer) return;
-  const timers = new Map();
-  function start(orderId, minutes=15){
-    const id=String(orderId);
+  if (!Timer) return;
+
+  function idOf(orderId) {
+    return String(orderId);
+  }
+
+  function start(orderId, minutes = 15) {
+    const id = idOf(orderId);
     Timer.start(id, minutes);
-    timers.set(id,true);
     return Timer.snapshot(id);
   }
-  function extend(orderId, minutes){
-    const id=String(orderId);
-    const result=Timer.extend(id, minutes);
-    return result;
+
+  function extend(orderId, minutes = 5) {
+    return Timer.extend(idOf(orderId), minutes);
   }
-  function stop(orderId){
-    const id=String(orderId);
-    timers.delete(id);
-    return Timer.stop(id);
+
+  function stop(orderId) {
+    return Timer.stop(idOf(orderId));
   }
-  function get(orderId){return Timer.snapshot(String(orderId));}
-  window.AlbanFalahiPrepTimerIntegration={start,extend,stop,get,active:()=>[...timers.keys()]};
+
+  function get(orderId) {
+    return Timer.snapshot(idOf(orderId));
+  }
+
+  function acknowledge(orderId) {
+    return Timer.acknowledge(idOf(orderId));
+  }
+
+  function markAlert(orderId) {
+    return Timer.markAlert(idOf(orderId));
+  }
+
+  function active() {
+    // Rebuild the active list from persistent timer state so a page refresh
+    // does not lose the timers that are still running/overdue.
+    try {
+      const raw = localStorage.getItem('alban_falahi_smart_prep_v2');
+      const all = JSON.parse(raw || '{}');
+      return Object.keys(all).filter((id) => Timer.snapshot(id));
+    } catch (_) {
+      return [];
+    }
+  }
+
+  window.AlbanFalahiPrepTimerIntegration = {
+    start,
+    extend,
+    stop,
+    get,
+    acknowledge,
+    markAlert,
+    active
+  };
 })();
