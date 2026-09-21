@@ -12,8 +12,7 @@
     const o=(orders||[]).find(x=>String(x.id)===String(id));if(!o)return alert('الطلب غير موجود');
     if(['delivered','cancelled','rejected'].includes(o.status))return alert('لا يمكن تعديل طلب مكتمل أو ملغي');
     if(o.payment_status==='paid')return alert('لا يمكن تعديل طلب مدفوع إلكترونيًا');
-    let ps=[];try{ps=await products()}catch(e){return alert(e.message)}
-    ps=ps.filter(p=>p.available!==false);
+    let ps=[];try{ps=await products()}catch(e){return alert(e.message)} ps=ps.filter(p=>p.available!==false);
     const modal=document.createElement('div');modal.style.cssText='position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;z-index:120;padding:16px';
     modal.innerHTML='<div style="background:#fff;border-radius:22px;max-width:620px;width:100%;max-height:90vh;overflow:auto;padding:20px"><h2 style="margin-top:0">➕ إضافة منتجات للطلب #'+esc(o.order_number)+'</h2><div style="background:#eaf8ef;color:#176b3b;padding:11px;border-radius:12px;font-size:13px;margin-bottom:12px">الإضافة تتم بناءً على طلب العميل عبر الهاتف.</div><div id="afAddRows"></div><label style="display:block;font-weight:900;margin-top:14px">ملاحظات التعديل</label><input id="afAddReason" value="بناءً على طلب العميل" style="width:100%;padding:12px;border:1px solid #ddd;border-radius:11px;font-size:15px"><div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px"><button id="afAddCancel" style="border:1px solid #ddd;background:#fff;border-radius:12px;padding:11px 16px;font-weight:800">إلغاء</button><button id="afAddSave" style="border:0;background:#198754;color:#fff;border-radius:12px;padding:11px 16px;font-weight:800">تأكيد الإضافة</button></div></div>';
     document.body.appendChild(modal);const rows=modal.querySelector('#afAddRows');
@@ -21,8 +20,6 @@
     modal.querySelector('#afAddCancel').onclick=()=>close(modal);
     modal.querySelector('#afAddSave').onclick=async()=>{const items=[];rows.querySelectorAll('[data-pid]').forEach(r=>{const q=Math.floor(Number(r.querySelector('.afAddQty').value||0));if(q>0)items.push({product_id:r.dataset.pid,quantity:q})});if(!items.length)return alert('اختر صنفًا واحدًا على الأقل');const btn=modal.querySelector('#afAddSave');btn.disabled=true;btn.textContent='جاري الحفظ...';try{const d=await api({order_id:o.id,items,reason:modal.querySelector('#afAddReason').value});close(modal);await loadOrders();alert('تمت إضافة المنتجات بنجاح ✅\nالإجمالي الجديد: '+money(d.adjustment?.new_total));}catch(e){btn.disabled=false;btn.textContent='تأكيد الإضافة';alert(e.message)}};
   };
-  const original=window.renderOrders;
-  // Add the action button after cards render without replacing existing rendering logic.
-  const inject=()=>{document.querySelectorAll('[data-order-id]').forEach(card=>{if(card.querySelector('.af-add-items-btn'))return;const id=card.getAttribute('data-order-id');if(!id)return;const actions=card.querySelector('.actions');if(!actions)return;const b=document.createElement('button');b.className='btn gold af-add-items-btn';b.textContent='➕ إضافة منتجات';b.onclick=()=>addOrderItems(id);actions.appendChild(b)})};
-  const mo=new MutationObserver(()=>inject());mo.observe(document.body,{childList:true,subtree:true});setTimeout(inject,300);
+  const inject=()=>{document.querySelectorAll('.card').forEach(card=>{if(card.querySelector('.af-add-items-btn'))return;const actions=card.querySelector('.actions');const num=card.querySelector('.num');if(!actions||!num)return;const orderNumber=String(num.textContent||'').replace('#','').trim();const o=(orders||[]).find(x=>String(x.order_number)===orderNumber);if(!o)return;const b=document.createElement('button');b.className='btn gold af-add-items-btn';b.textContent='➕ إضافة منتجات';b.onclick=()=>addOrderItems(o.id);actions.appendChild(b)})};
+  new MutationObserver(inject).observe(document.body,{childList:true,subtree:true});setTimeout(inject,500);
 })();
