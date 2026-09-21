@@ -70,3 +70,39 @@
     if(text.includes('تحويل')&&!text.includes('إلغاء')){e.preventDefault();e.stopImmediatePropagation();choose('branch',el);return false}
   },true);
 })();
+(function(){
+  if(window.__afOrderEditLoaded)return; window.__afOrderEditLoaded=true;
+  const style=document.createElement('style');
+  style.textContent='.af-edit-modal{position:fixed;inset:0;background:#0008;display:flex;align-items:center;justify-content:center;z-index:110;padding:16px}.af-edit-box{background:#fff;border-radius:22px;max-width:620px;width:100%;max-height:90vh;overflow:auto;padding:20px;box-shadow:0 20px 70px #0005}.af-edit-row{display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid #eee}.af-edit-name{font-weight:900}.af-edit-meta{font-size:12px;color:#777;margin-top:4px}.af-edit-row input{width:100%;padding:11px;border:1px solid #ddd;border-radius:11px;font-size:17px;text-align:center}.af-edit-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}.af-edit-actions button{border:0;border-radius:12px;padding:11px 16px;font-weight:800;cursor:pointer}.af-edit-cancel{background:#fff;border:1px solid #ddd!important}.af-edit-ok{background:#198754;color:#fff}.af-edit-reason{width:100%;padding:12px;border:1px solid #ddd;border-radius:11px;font-size:15px;margin-top:8px}';
+  document.head.appendChild(style);
+  function api(payload){
+    const token=window.__afShopAccessToken||((typeof session!=='undefined'&&session?.access_token)||'');
+    const url=window.__afShopApiUrl||((typeof API!=='undefined'&&API)||'https://qxwvuxkbcghbkztjrzon.supabase.co/functions/v1/shop-api');
+    if(!token)return Promise.reject(Error('جلسة الموظف غير موجودة'));
+    return fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload)}).then(async r=>{const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||d.message||'تعذر تنفيذ العملية');return d});
+  }
+  const digits=v=>String(v??'').replace(/[٠-٩]/g,d=>String('٠١٢٣٤٥٦٧٨٩'.indexOf(d))).replace(/٫/g,'.');
+  function close(m){m.remove()}
+  window.editOrderItems=async function(id){
+    const o=(typeof orders!=='undefined'?(orders||[]).find(x=>String(x.id)===String(id)):null);
+    if(!o)return alert('الطلب غير موجود');
+    if(['delivered','cancelled','rejected'].includes(o.status))return alert('لا يمكن تعديل طلب مكتمل أو ملغي');
+    if(o.payment_status==='paid')return alert('لا يمكن تعديل طلب مدفوع إلكترونيًا قبل تنفيذ الاسترداد المالي');
+    const items=(o.order_items||[]).filter(i=>Number(i.quantity||0)>0);
+    if(!items.length)return alert('لا توجد أصناف قابلة للتعديل');
+    const modal=document.createElement('div');modal.className='af-edit-modal';
+    modal.innerHTML='<div class="af-edit-box"><h2 style="margin-top:0">✏️ تعديل أصناف الطلب #'+String(o.order_number||'').replace(/[<>]/g,'')+'</h2><div style="background:#fff7df;color:#8a5b00;padding:10px;border-radius:11px;font-size:13px">اكتب الكمية التي سيتم تسليمها. لا يمكن زيادة الكمية عن المطلوبة.</div><div style="margin-top:10px">'+items.map(i=>'<div class="af-edit-row" data-item-id="'+i.id+'"><div><div class="af-edit-name">'+String(i.product_name_ar||i.product_name_en||'صنف').replace(/[<>]/g,'')+'</div><div class="af-edit-meta">المطلوب: '+i.quantity+' — سعر الوحدة: '+Number(i.unit_price||0).toFixed(2)+' ج</div></div><input class="af-edit-qty" type="number" min="0" max="'+Number(i.quantity||0)+'" step="1" value="'+Number(i.quantity||0)+'"></div>').join('')+'</div><label style="display:block;font-weight:900;margin-top:14px">سبب التعديل</label><select class="af-edit-reason"><option>المنتج غير متوفر</option><option>الكمية المتاحة أقل</option><option>المنتج غير مطابق للجودة المطلوبة</option><option>سبب آخر</option></select><div class="af-edit-actions"><button class="af-edit-cancel">إلغاء</button><button class="af-edit-ok">تأكيد التعديل</button></div></div>';
+    document.body.appendChild(modal);
+    modal.querySelector('.af-edit-cancel').onclick=()=>close(modal);
+    modal.querySelector('.af-edit-ok').onclick=async()=>{
+      const changes=[];
+      modal.querySelectorAll('.af-edit-row').forEach(row=>{const item=items.find(x=>String(x.id)===String(row.dataset.itemId));const input=row.querySelector('.af-edit-qty');const q=Math.max(0,Math.min(Number(item.quantity||0),Number(digits(input.value))));if(q!==Number(item.quantity||0))changes.push({item_id:item.id,new_quantity:q})});
+      if(!changes.length)return alert('لم يتم تغيير أي كمية');
+      const reason=modal.querySelector('.af-edit-reason').value;
+      const removedText=changes.map(ch=>{const it=items.find(x=>String(x.id)===String(ch.item_id));return (it.product_name_ar||it.product_name_en||'صنف')+': '+it.quantity+' → '+ch.new_quantity}).join('\n');
+      if(!confirm('تأكيد تعديل الأصناف؟\n\n'+removedText))return;
+      const btn=modal.querySelector('.af-edit-ok');btn.disabled=true;btn.textContent='جاري الحفظ...';
+      try{const d=await api({action:'adjust_items',order_id:o.id,changes,reason});close(modal);await loadOrders();alert('تم تعديل الطلب بنجاح ✅\nالإجمالي الجديد: '+Number(d.adjustment?.new_total||0).toFixed(2)+' ج');}catch(e){btn.disabled=false;btn.textContent='تأكيد التعديل';alert(e.message||'تعذر تعديل الطلب')}
+    };
+  };
+})();
