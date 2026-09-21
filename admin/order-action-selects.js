@@ -20,6 +20,15 @@
       modal.querySelector('.af-select-ok').onclick=()=>{close(modal);resolve(true)};
     });
   }
+  async function api(payload){
+    const token=window.__afShopAccessToken||((typeof session!=='undefined'&&session?.access_token)||'');
+    const url=window.__afShopApiUrl||((typeof API!=='undefined'&&API)||'https://qxwvuxkbcghbkztjrzon.supabase.co/functions/v1/shop-api');
+    if(!token)throw Error('جلسة الموظف غير موجودة');
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify(payload)});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok)throw Error(d.error||d.message||'تعذر تنفيذ العملية');
+    return d;
+  }
   async function choose(type,el){
     const onclick=el.getAttribute('onclick'); if(!onclick)return;
     let list=[];
