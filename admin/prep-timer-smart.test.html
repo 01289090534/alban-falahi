@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Smart Prep Timer Test</title>
+<style>
+body{font-family:Arial;background:#f6f3ed;padding:18px;max-width:720px;margin:auto}
+.card{background:#fff;border-radius:18px;padding:18px;margin:12px 0;box-shadow:0 3px 14px #0001}
+button{border:0;border-radius:10px;padding:11px 14px;margin:4px;font-weight:800;cursor:pointer}
+.green{background:#198754;color:#fff}.red{background:#c62828;color:#fff}.gold{background:#d69b25;color:#fff}
+.timer{font-size:42px;font-weight:900;text-align:center;padding:16px}.over{background:#ffe0e0;color:#a00000}.warn{background:#fff1c7;color:#805400}
+.pass{color:#126b3b;font-weight:800}.fail{color:#a00000;font-weight:800}pre{white-space:pre-wrap}
+</style>
+<script src="./prep-timer-smart.js"></script>
+<script src="./prep-timer-integration.js"></script>
+<body>
+<h2>اختبار Smart Prep Timer — Branch فقط</h2>
+<div class="card">
+  <b>اختبار Core + Integration</b>
+  <p>في هذا الاختبار الدقيقة = ثانية، حتى نختبر دورة التنبيه بدون انتظار 15 دقيقة.</p>
+  <button class="green" id="start">ابدأ 15 ثانية</button>
+  <button class="gold" id="plus5">+5 ثواني</button>
+  <button id="ack">تأكيد التنبيه</button>
+  <button id="alert">تسجيل التنبيه</button>
+  <button class="red" id="stop">إيقاف</button>
+  <button id="sound">🔊 اختبار الصوت</button>
+</div>
+<div class="card">
+  <div id="timer" class="timer">15</div>
+  <div id="status">جاهز</div>
+  <pre id="log"></pre>
+</div>
+<script>
+(function(){
+  const T=AlbanFalahiSmartPrep;
+  const I=AlbanFalahiPrepTimerIntegration;
+  const id='BROWSER_INTEGRATION_TEST';
+  let fakeNow=Date.now(),running=false,extra=0,audio=null;
+  const $=x=>document.getElementById(x);
+  function line(s,ok=true){$('log').textContent+=(ok?'✅ ':'❌ ')+s+'\n'}
+  function beep(){try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=880;g.gain.value=.12;o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+.25)}catch(e){line('الصوت غير متاح: '+e.message,false)}}
+  function render(){
+    const s=I.get(id);
+    if(!s){$('timer').textContent='15';$('status').textContent='جاهز';return}
+    const sec=Math.ceil(s.remainingMs/1000);
+    $('timer').textContent=sec+' ث';
+    $('timer').className='timer '+(s.overdue?'over':(s.warning?'warn':''));
+    $('status').textContent=s.overdue?'🔴 انتهى الوقت — التنبيه يعمل':(s.warning?'🟡 باقي وقت قليل':'🟢 الطلب داخل الوقت');
+  }
+  function tick(){
+    if(!running)return;
+    fakeNow+=1000;
+    const s=T.snapshot(id,fakeNow);
+    if(s&&s.overdue&&!extra){beep();line('انتهى الوقت وبدأ التنبيه');extra=1}
+    render();setTimeout(tick,1000);
+  }
+  $('start').onclick=()=>{
+    I.start(id,15/60); // real storage timestamp
+    // Test clock remains separate from the stored timer for the browser demo.
+    fakeNow=Date.now();running=true;extra=0;
+    line('بدأ المؤقت عبر Integration');
+    line('active() = '+JSON.stringify(I.active()));
+    render();tick();
+  };
+  $('plus5').onclick=()=>{
+    const s=I.extend(id,5/60);
+    if(s){extra=0;line('تمت إضافة 5 ثوانٍ عبر Integration');render()}
+    else line('لا يوجد مؤقت لإضافة وقت له',false);
+  };
+  $('ack').onclick=()=>line(I.acknowledge(id)?'تم تأكيد التنبيه':'فشل تأكيد التنبيه',I.acknowledge(id));
+  $('alert').onclick=()=>line(I.markAlert(id)?'تم تسجيل وقت التنبيه':'فشل تسجيل التنبيه',I.markAlert(id));
+  $('stop').onclick=()=>{running=false;I.stop(id);line('تم إيقاف وتنظيف المؤقت');line('active() = '+JSON.stringify(I.active()));render()};
+  $('sound').onclick=()=>{beep();line('اختبار الصوت تم تشغيله — إذا سمعت النغمة فصوت المتصفح يعمل')};
+  render();
+  line('اختبار Integration محمل بنجاح');
+})();
+</script>
+</body>
+</html>
