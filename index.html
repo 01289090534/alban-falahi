@@ -133,6 +133,29 @@ function quickChangeCardQty(id,d){
     if(cart[i].quantity<=0)cart.splice(i,1);
   }
   localStorage.setItem('alban_cart_v1',JSON.stringify(cart));
+  if(d>0){
+    const p=(window.homeProducts||[]).find(x=>String(x.id)===String(id));
+    if(p){
+      try{
+        const eventParams={
+          content_ids:[String(p.id)],
+          content_name:lang==='en'?(p.name_en||p.name_ar||''):(p.name_ar||p.name_en||''),
+          content_type:'product',
+          value:Number(homeDiscountPrice(p.base_price).discounted)||0,
+          currency:'EGP'
+        };
+        const eventId=crypto.randomUUID();
+        if(typeof window.fbq==='function'){
+          window.fbq('track','AddToCart',eventParams,{eventID:eventId});
+          console.log('[Meta] Home Quick AddToCart sent',eventParams,eventId)
+        }else{
+          console.warn('[Meta] fbq not ready for Home Quick AddToCart',eventParams)
+        }
+      }catch(metaErr){
+        console.warn('[Meta] Home Quick AddToCart error',metaErr)
+      }
+    }
+  }
   updateCartIndicator(true);
   renderHomeProducts(document.querySelector('.cats .active')?.dataset.cat||'all');
   if(typeof renderHomeCart==='function')renderHomeCart();
