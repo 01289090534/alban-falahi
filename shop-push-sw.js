@@ -2,3 +2,13 @@ self.addEventListener('install',()=>self.skipWaiting());
 self.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));
 self.addEventListener('push',event=>{let data={};try{data=event.data?event.data.json():{}}catch{data={body:event.data?.text()||'وصل طلب جديد'}};const orderId=String(data.order_id||'');const tag=data.tag||('alban-falahi-order-'+(orderId||Date.now()));const title=data.title||'🥛 طلب جديد - ألبان فلاحي';const options={body:data.body||'وصل طلب جديد للفرع',tag,renotify:true,requireInteraction:true,silent:false,vibrate:[300,100,300,100,500],data:{url:data.url||'/admin/',order_id:orderId}};event.waitUntil(self.registration.showNotification(title,options))});
 self.addEventListener('notificationclick',event=>{const url=event.notification.data?.url||'/admin/';event.notification.close();event.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(list=>{for(const c of list){if('focus' in c){try{c.navigate(url)}catch{}return c}}return clients.openWindow(url)}))});
+
+const AF_PWA_CACHE='alban-shop-pwa-v1';
+self.addEventListener('fetch',event=>{
+  const u=new URL(event.request.url);
+  if(u.origin!==self.location.origin || event.request.method!=='GET') return;
+  event.respondWith(fetch(event.request).then(response=>{
+    if(response.ok){const copy=response.clone();caches.open(AF_PWA_CACHE).then(cache=>cache.put(event.request,copy)).catch(()=>{});}
+    return response;
+  }).catch(()=>caches.match(event.request)));
+});
