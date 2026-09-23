@@ -2,6 +2,11 @@ const U='https://qxwvuxkbcghbkztjrzon.supabase.co';
 const K='sb_publishable_JI9lC4YPTCQ8CwMxzvHNIA_C24ULpWH';
 let albanDeliveryOpen=true;
 let albanDeliveryTimer=null;
+
+// PREVIEW TEST ONLY: close delivery at 20:00 so the closed-state UI can be tested now.
+// Remove this override before merging; production hours remain 10:00 -> 01:00.
+const ALBAN_PREVIEW_TEST_END='20:00';
+
 function albanMinutes(v){
   const m=String(v||'').slice(0,5).split(':').map(Number);
   return Number.isFinite(m[0])&&Number.isFinite(m[1])?m[0]*60+m[1]:null;
@@ -35,7 +40,9 @@ function albanDeliveryApply(start,end){
 async function albanLoadDeliveryHours(){
   try{
     const r=await fetch(U+'/rest/v1/store_settings?select=delivery_start,delivery_end&id=eq.true',{headers:{apikey:K,Authorization:'Bearer '+K},cache:'no-store'});
-    const rows=await r.json(); const s=rows?.[0]?.delivery_start||'10:00:00',e=rows?.[0]?.delivery_end||'01:00:00';
+    const rows=await r.json();
+    const s=rows?.[0]?.delivery_start||'10:00:00';
+    const e=ALBAN_PREVIEW_TEST_END;
     albanDeliveryApply(s,e);
     if(albanDeliveryTimer)clearInterval(albanDeliveryTimer);
     albanDeliveryTimer=setInterval(()=>albanDeliveryApply(s,e),30000);
