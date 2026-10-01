@@ -41,3 +41,4 @@ export default function EmployeeReview(){
  {edit&&<div className="modal-backdrop"><div className="modal"><h3>تعديل الحضور — {edit.work_date}</h3><div className="form-grid"><label>الحضور<input type="time" value={edit.in} onChange={e=>setEdit({...edit,in:e.target.value})}/></label><label>الانصراف<input type="time" value={edit.out} onChange={e=>setEdit({...edit,out:e.target.value})}/></label></div><div style={{display:'flex',gap:8,justifyContent:'flex-end',marginTop:16}}><button className="secondary" onClick={()=>setEdit(null)}>إلغاء</button><button className="primary" onClick={saveEdit} disabled={!!busy}>حفظ</button></div></div></div>}
  </>;
 }
+// deployment trigger: approved-period reopen fix
