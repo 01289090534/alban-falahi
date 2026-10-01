@@ -39,7 +39,7 @@ export default function Payroll({profile}:{profile:Profile}){
  async function statement(v:any,send:boolean){
   const emp=e.find(x=>x.id===v.employee_id);
   let official=v;
-  if(emp&&v.pay_type!=='delivery'&&!v.total_paid_hours){
+  if(emp&&v.total_hours===undefined&&!v.total_paid_hours){
    const{data:c}=await supabase!.rpc('hr_v2_calc_payroll',{p_employee:emp.id,p_start:v.period_start,p_end:v.period_end});
    if(c)official={...v,...c};
   }
