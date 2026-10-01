@@ -89,7 +89,7 @@ async function submitAuth(){
    localStorage.setItem('alban_customer_name',d.customer.full_name||'');
    localStorage.setItem('alban_customer_phone',d.customer.phone||mobile);
   }
-  location.replace('index.html');
+  location.replace('account.html?push_required=1&return='+encodeURIComponent('index.html'));
  }catch(e){err.textContent=e.message;err.style.display='block'}
  finally{btn.disabled=false;apply()}
 }
@@ -107,7 +107,7 @@ async function login(){
   localStorage.setItem('alban_customer_id',d.customer.id);
   localStorage.setItem('alban_customer_name',d.customer.full_name||'');
   localStorage.setItem('alban_customer_phone',d.customer.phone||mobile);
-  location.replace('index.html');
+  location.replace('account.html?push_required=1&return='+encodeURIComponent('index.html'));
  }catch(e){err.textContent=e.message;err.style.display='block'}
  finally{btn.disabled=false;apply()}
 }
