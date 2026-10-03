@@ -12,7 +12,7 @@ api('siwa_product_selections?select=product_id,enabled,sort_order,category_id'),
 api('global_menu_discounts?select=id,title_ar,discount_type,discount_value,min_order_amount,max_discount,starts_at,ends_at,is_active,priority&order=priority.desc,id.desc'),
 api('siwa_shipping_zones?select=id,governorate,area,fee,free_delivery_threshold,enabled,sort_order&order=sort_order.asc,governorate.asc,area.asc'),
 api('siwa_orders?select=id,order_number,customer_name,customer_phone,governorate,area,address,subtotal,discount,shipping_fee,total,status,created_at&order=created_at.desc&limit=300'),
-api('siwa_categories?select=id,name_ar,name_en,sort_order,enabled&order=sort_order.asc,id.asc')
+fetch(SUPA+'/rest/v1/siwa_categories?select=id,name_ar,name_en,sort_order,enabled&order=sort_order.asc,id.asc',{headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,Accept:'application/json'}}).then(async r=>{const d=await r.json().catch(()=>null);if(!r.ok)throw Error(d?.message||'تعذر تحميل فئات سيوة');return d})
 ]);
 const sm=new Map((selections||[]).map(x=>[x.product_id,x]));const cats=Array.isArray(siwaCategories)?siwaCategories:[];
 const now=Date.now();
