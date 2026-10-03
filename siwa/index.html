@@ -41,13 +41,23 @@ const money=n=>Number(n||0).toLocaleString('ar-EG',{minimumFractionDigits:2,maxi
 const num=v=>Number(String(v??'').replace(/[^0-9.]/g,''))||0;
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 async function load(){
+ const status=document.getElementById('status');
  try{
-  const [fr,sr]=await Promise.all([fetch(FEED),fetch(SHIPPING)]);
-  if(!fr.ok)throw Error('تعذر تحميل منتجات سيوة');
-  const csv=await fr.text();products=parseCSV(csv);
-  if(sr.ok){const j=await sr.json();zones=j.zones||[]}
-  document.getElementById('status').remove();drawProducts();fillGovernors();
- }catch(e){document.getElementById('status').textContent=e.message}
+  status.textContent='جارٍ الاتصال ببيانات سيوة...';
+  const fr=await fetch(FEED,{method:'GET',cache:'no-store',headers:{'Accept':'text/csv'}});
+  if(!fr.ok)throw Error('تعذر تحميل المنتجات ('+fr.status+')');
+  const csv=await fr.text();
+  products=parseCSV(csv);
+  if(!products.length)throw Error('تم الاتصال لكن لم تصل منتجات سيوة.');
+  try{
+   const sr=await fetch(SHIPPING,{method:'GET',cache:'no-store',headers:{'Accept':'application/json'}});
+   if(sr.ok){const j=await sr.json();zones=Array.isArray(j.zones)?j.zones:[]}
+  }catch(e){console.warn('تعذر تحميل مناطق الشحن:',e)}
+  status.remove();drawProducts();fillGovernors();
+ }catch(e){
+  console.error('Siwa storefront load error:',e);
+  status.innerHTML='تعذر تحميل منتجات سيوة حاليًا.<br><small>'+esc(e.message||'خطأ غير معروف')+'</small><br><button onclick="load()" style="margin-top:12px">إعادة المحاولة</button>';
+ }
 }
 function parseCSV(s){const lines=s.trim().split(/\r?\n/);if(lines.length<2)return[];const parse=l=>{let a=[],v='',q=false;for(let i=0;i<l.length;i++){const c=l[i];if(c==='"'){if(q&&l[i+1]==='"'){v+='"';i++}else q=!q}else if(c===','&&!q){a.push(v);v=''}else v+=c}a.push(v);return a};const h=parse(lines[0]);return lines.slice(1).map(l=>{const a=parse(l),o={};h.forEach((k,i)=>o[k]=a[i]||'');return o})}
 function drawProducts(){document.getElementById('products').innerHTML=products.map(p=>{const sale=num(p.sale_price),price=num(p.price),save=Math.max(0,price-sale);return '<article class="card"><img src="'+esc(p.image_link)+'" alt="'+esc(p.title)+'"><div class="body"><div class="name">'+esc(p.title)+'</div><div class="price">'+(sale&&sale<price?'<span class="old">'+money(price)+'</span>':'')+money(sale||price)+'</div>'+(save>0?'<div class="saved">🎁 وفرت '+money(save)+'</div>':'')+'<button class="add" onclick="add(\''+esc(p.id)+'\')">إضافة للسلة</button></div></article>'}).join('')}
