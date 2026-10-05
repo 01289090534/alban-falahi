@@ -43,7 +43,7 @@ label{display:block;font-size:12px;font-weight:900;margin:11px 0 6px}.field{widt
 const U='https://qxwvuxkbcghbkztjrzon.supabase.co';
 const API=U+'/functions/v1/customer-auth';
 let lang=localStorage.getItem('alban_lang')||'ar';
-let registerMode=false;
+let registerMode=new URLSearchParams(location.search).get('mode')==='register';
 function toggleMode(){registerMode=!registerMode;document.getElementById('err').style.display='none';apply()}
 function apply(){
  document.documentElement.lang=lang;document.documentElement.dir=lang==='en'?'ltr':'rtl';
