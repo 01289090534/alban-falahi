@@ -78,6 +78,18 @@
     document.body.appendChild(gate);
     document.getElementById('albanForceInstallButton').addEventListener('click',async function(){
       var hint=document.getElementById('albanForceInstallHint');
+      if(!deferredPrompt){
+        hint.textContent='جاري تجهيز نافذة التثبيت...';
+        await new Promise(function(resolve){
+          var timer=setTimeout(resolve,2500);
+          window.addEventListener('beforeinstallprompt',function(e){
+            e.preventDefault();
+            deferredPrompt=e;
+            clearTimeout(timer);
+            resolve();
+          },{once:true});
+        });
+      }
       if(deferredPrompt){
         try{
           var promptEvent=deferredPrompt; deferredPrompt=null;
@@ -89,7 +101,7 @@
           hint.textContent='افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';
         }
       }else{
-        hint.textContent='لتثبيت البرنامج: افتح قائمة Chrome (⋮) أعلى المتصفح، ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». لو الخيار غير موجود، جرّب فتح الرابط في Chrome مباشرة.';
+        hint.textContent='لم يجهّز Chrome نافذة التثبيت المباشر هذه المرة. افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';
       }
     });
   }
