@@ -66,44 +66,30 @@
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
     deferredPrompt = e;
-    window.__albanDeferredInstallPrompt = e;
   });
   var style = document.createElement('style');
-  style.textContent = '#albanForceInstallScreen{position:fixed;inset:0;z-index:2147483000;background:rgba(8,25,38,.88);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Arial,sans-serif;direction:rtl}#albanForceInstallCard{position:relative;width:min(430px,100%);background:#fff;border-radius:24px;padding:30px 20px 26px;text-align:center;box-shadow:0 20px 70px #0007;color:#17324a}#albanForceInstallClose{position:absolute;top:9px;left:10px;width:36px;height:36px;border:0;border-radius:50%;background:#eef4f6;color:#17324a;font-size:26px;line-height:1;cursor:pointer;display:grid;place-items:center}#albanForceInstallClose:focus-visible{outline:3px solid #0877b9;outline-offset:2px}#albanForceInstallCard h2{font-size:24px;margin:0 0 12px;color:#0877b9}#albanForceInstallCard p{font-size:15px;line-height:1.9;margin:0 0 18px}#albanForceInstallButton{width:100%;border:0;border-radius:14px;background:#0877b9;color:white;padding:16px 12px;font-size:17px;font-weight:900}#albanForceInstallHint{font-size:12px;color:#657780;margin-top:13px;line-height:1.8}';
+  style.textContent = '#albanForceInstallScreen{position:fixed;inset:0;z-index:2147483000;background:rgba(8,25,38,.88);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Arial,sans-serif;direction:rtl}#albanForceInstallCard{width:min(430px,100%);background:#fff;border-radius:24px;padding:26px 20px;text-align:center;box-shadow:0 20px 70px #0007;color:#17324a}#albanForceInstallCard h2{font-size:24px;margin:0 0 12px;color:#0877b9}#albanForceInstallCard p{font-size:15px;line-height:1.9;margin:0 0 18px}#albanForceInstallButton{width:100%;border:0;border-radius:14px;background:#0877b9;color:white;padding:16px 12px;font-size:17px;font-weight:900}#albanForceInstallHint{font-size:12px;color:#657780;margin-top:13px;line-height:1.8}';
   document.head.appendChild(style);
   function showGate(){
     if(isInstalled() || document.getElementById('albanForceInstallScreen')) return;
     var gate=document.createElement('div');
     gate.id='albanForceInstallScreen';
-    gate.innerHTML='<div id="albanForceInstallCard"><button id="albanForceInstallClose" type="button" aria-label="إغلاق شاشة التثبيت" title="إغلاق">×</button><div style="font-size:44px;margin-bottom:10px">🥛</div><h2>ثبّت برنامج ألبان فلاحي</h2><p>ثبّت البرنامج على موبايلك عشان تفتح المنيو وتطلب بسهولة في أي وقت.</p><button id="albanForceInstallButton" type="button">تثبيت البرنامج</button><div id="albanForceInstallHint">خطوة واحدة للوصول السريع لطلباتك ❤️</div></div>';
-    gate.querySelector("#albanForceInstallClose").addEventListener("click",function(){gate.remove();});
+    gate.innerHTML='<div id="albanForceInstallCard"><div style="font-size:44px;margin-bottom:10px">🥛</div><h2>ثبّت برنامج ألبان فلاحي</h2><p>ثبّت البرنامج على موبايلك عشان تفتح المنيو وتطلب بسهولة في أي وقت.</p><button id="albanForceInstallButton" type="button">تثبيت البرنامج</button><div id="albanForceInstallHint">خطوة واحدة للوصول السريع لطلباتك ❤️</div></div>';
     document.body.appendChild(gate);
     document.getElementById('albanForceInstallButton').addEventListener('click',async function(){
       var hint=document.getElementById('albanForceInstallHint');
-      var availablePrompt = deferredPrompt || window.__albanDeferredInstallPrompt;
-      if(!availablePrompt){
-        hint.textContent='جاري تجهيز التثبيت...';
-        availablePrompt = await new Promise(function(resolve){
-          var done=false;
-          function finish(value){if(done)return;done=true;window.removeEventListener('beforeinstallprompt',onPrompt);clearTimeout(timer);resolve(value);}
-          function onPrompt(e){e.preventDefault();deferredPrompt=e;window.__albanDeferredInstallPrompt=e;finish(e);}
-          var timer=setTimeout(function(){finish(deferredPrompt || window.__albanDeferredInstallPrompt || null);},2500);
-          window.addEventListener('beforeinstallprompt',onPrompt);
-        });
-      }
-      if(availablePrompt){
+      if(deferredPrompt){
         try{
-          var promptEvent=availablePrompt; deferredPrompt=null; window.__albanDeferredInstallPrompt=null;
+          var promptEvent=deferredPrompt; deferredPrompt=null;
           await promptEvent.prompt();
           var choice=await promptEvent.userChoice;
           if(choice && choice.outcome==='accepted'){gate.remove();return;}
-          hint.textContent='لم يتم تأكيد التثبيت. جرّب الزر مرة أخرى.';
+          hint.textContent='لو لم تظهر نافذة التثبيت، افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';
         }catch(err){
-          hint.textContent='لم تكتمل محاولة التثبيت. جرّب الزر مرة أخرى.';
+          hint.textContent='افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';
         }
       }else{
-        hint.textContent='لإكمال التثبيت الآن: اضغط على ⋮ أعلى Chrome ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';
-        document.getElementById('albanForceInstallButton').textContent='طريقة التثبيت';
+        hint.textContent='لتثبيت البرنامج: افتح قائمة Chrome (⋮) أعلى المتصفح، ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». لو الخيار غير موجود، جرّب فتح الرابط في Chrome مباشرة.';
       }
     });
   }
