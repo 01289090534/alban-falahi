@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0877b9">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="customer-manifest.json?v=20261010-png-icons"><script src="pwa-install.js?v=20261010-install-fix7"></script>
+<link rel="manifest" href="customer-manifest.json?v=20261010-png-icons"><script src="pwa-install.js?v=20261010-install-fix8"></script>
 <link rel="icon" href="https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/logo-1789649767844-766cb413-5329-412c-b6ce-cbe417806311.jpg" type="image/jpeg">
 <link rel="apple-touch-icon" href="https://qxwvuxkbcghbkztjrzon.supabase.co/storage/v1/object/public/product-images/customer-branding/logo-1789649767844-766cb413-5329-412c-b6ce-cbe417806311.jpg">
 <link rel="stylesheet" href="brand.css">
@@ -80,18 +80,28 @@
     document.getElementById('albanForceInstallButton').addEventListener('click',async function(){
       var hint=document.getElementById('albanForceInstallHint');
       var availablePrompt = deferredPrompt || window.__albanDeferredInstallPrompt;
+      if(!availablePrompt){
+        hint.textContent='جاري تجهيز التثبيت...';
+        availablePrompt = await new Promise(function(resolve){
+          var done=false;
+          function finish(value){if(done)return;done=true;window.removeEventListener('beforeinstallprompt',onPrompt);clearTimeout(timer);resolve(value);}
+          function onPrompt(e){e.preventDefault();deferredPrompt=e;window.__albanDeferredInstallPrompt=e;finish(e);}
+          var timer=setTimeout(function(){finish(deferredPrompt || window.__albanDeferredInstallPrompt || null);},2500);
+          window.addEventListener('beforeinstallprompt',onPrompt);
+        });
+      }
       if(availablePrompt){
         try{
           var promptEvent=availablePrompt; deferredPrompt=null; window.__albanDeferredInstallPrompt=null;
           await promptEvent.prompt();
           var choice=await promptEvent.userChoice;
           if(choice && choice.outcome==='accepted'){gate.remove();return;}
-          hint.textContent='لم تظهر نافذة التثبيت. حدّث الصفحة وحاول مرة أخرى.';
+          hint.textContent='لم يتم تأكيد التثبيت. جرّب الزر مرة أخرى.';
         }catch(err){
-          hint.textContent='لم تكتمل محاولة التثبيت. حدّث الصفحة وحاول مرة أخرى.';
+          hint.textContent='لم تكتمل محاولة التثبيت. جرّب الزر مرة أخرى.';
         }
       }else{
-        hint.textContent='التثبيت المباشر غير متاح الآن. حدّث الصفحة وحاول مرة أخرى.';
+        hint.textContent='Chrome لم يوفّر نافذة التثبيت للزر في هذه المحاولة. افتح القائمة ⋮ واختر تثبيت التطبيق.';
       }
     });
   }
