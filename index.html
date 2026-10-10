@@ -59,8 +59,7 @@
 (function(){
  function installed(){return (window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;}
  if(installed())return;
- let installPrompt=null;
- window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();installPrompt=e;});
+ window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.albanFalahiInstallPrompt=e;});
  function show(){
   if(installed()||document.getElementById('albanForceInstallScreen'))return;
   const style=document.createElement('style');
@@ -71,7 +70,7 @@
   document.body.appendChild(gate);
   document.getElementById('albanForceInstallButton').addEventListener('click',async function(){
    const hint=document.getElementById('albanForceInstallHint');
-   if(installPrompt){try{const event=installPrompt;installPrompt=null;await event.prompt();const choice=await event.userChoice;if(choice&&choice.outcome==='accepted'){gate.remove();return;}hint.textContent='لو لم تظهر النافذة، افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';}catch(e){hint.textContent='افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';}}
+   if(window.albanFalahiInstallPrompt){try{const event=window.albanFalahiInstallPrompt;window.albanFalahiInstallPrompt=null;await event.prompt();const choice=await event.userChoice;if(choice&&choice.outcome==='accepted'){gate.remove();return;}hint.textContent='لو لم تظهر النافذة، افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';}catch(e){hint.textContent='افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';}}
    else{hint.textContent='لتثبيت البرنامج: افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». لو الخيار غير موجود، جرّب فتح الرابط في Chrome مباشرة.';}
   });
  }
