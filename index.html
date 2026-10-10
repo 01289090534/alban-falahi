@@ -76,31 +76,31 @@
     gate.id='albanForceInstallScreen';
     gate.innerHTML='<div id="albanForceInstallCard"><div style="font-size:44px;margin-bottom:10px">🥛</div><h2>ثبّت برنامج ألبان فلاحي</h2><p>ثبّت البرنامج على موبايلك عشان تفتح المنيو وتطلب بسهولة في أي وقت.</p><button id="albanForceInstallButton" type="button">تثبيت البرنامج</button><div id="albanForceInstallHint">خطوة واحدة للوصول السريع لطلباتك ❤️</div></div>';
     document.body.appendChild(gate);
-    document.getElementById('albanForceInstallButton').addEventListener('click',async function(){
+    document.getElementById('albanForceInstallButton').addEventListener('click',function(){
       var hint=document.getElementById('albanForceInstallHint');
       var availablePrompt = deferredPrompt || window.__albanDeferredInstallPrompt;
       if(!availablePrompt){
-        hint.textContent='جاري تجهيز التثبيت...';
-        availablePrompt = await new Promise(function(resolve){
-          var done=false;
-          function finish(value){if(done)return;done=true;window.removeEventListener('beforeinstallprompt',onPrompt);clearTimeout(timer);resolve(value);}
-          function onPrompt(e){e.preventDefault();deferredPrompt=e;window.__albanDeferredInstallPrompt=e;finish(e);}
-          var timer=setTimeout(function(){finish(deferredPrompt || window.__albanDeferredInstallPrompt || null);},2500);
-          window.addEventListener('beforeinstallprompt',onPrompt);
-        });
+        hint.textContent='التثبيت التلقائي غير متاح في هذه اللحظة. اضغط قائمة Chrome (⋮) أعلى الشاشة، ثم «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». بعد التثبيت افتح ألبان فلاحي من الأيقونة الجديدة.';
+        return;
       }
-      if(availablePrompt){
-        try{
-          var promptEvent=availablePrompt; deferredPrompt=null; window.__albanDeferredInstallPrompt=null;
-          await promptEvent.prompt();
-          var choice=await promptEvent.userChoice;
-          if(choice && choice.outcome==='accepted'){gate.remove();return;}
-          hint.textContent='لو لم تظهر نافذة التثبيت، افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';
-        }catch(err){
+      try{
+        var promptEvent=availablePrompt;
+        deferredPrompt=null;
+        window.__albanDeferredInstallPrompt=null;
+        var promptResult=promptEvent.prompt();
+        Promise.resolve(promptResult).then(function(){
+          return promptEvent.userChoice;
+        }).then(function(choice){
+          if(choice && choice.outcome==='accepted'){
+            hint.textContent='تم قبول التثبيت. بعد اكتماله افتح ألبان فلاحي من الأيقونة الجديدة.';
+          }else{
+            hint.textContent='لم يكتمل التثبيت. اضغط الزر مرة أخرى أو افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق».';
+          }
+        }).catch(function(){
           hint.textContent='افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';
-        }
-      }else{
-        hint.textContent='Chrome لم يُظهر نافذة التثبيت التلقائية لهذا الرابط. لتثبيت البرنامج الآن: افتح قائمة Chrome (⋮)، ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». ستظل المنيو مقفولة لحد ما تثبّت البرنامج.';
+        });
+      }catch(err){
+        hint.textContent='افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';
       }
     });
   }
