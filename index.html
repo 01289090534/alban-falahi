@@ -69,9 +69,29 @@
   gate.innerHTML='<div id="albanForceInstallCard"><div style="font-size:42px;margin-bottom:8px">📲</div><h2>ثبّت برنامج ألبان فلاحي</h2><p>ثبّت البرنامج على موبايلك عشان تفتح المنيو وتطلب بسهولة في أي وقت.</p><button id="albanForceInstallButton" type="button">تثبيت البرنامج</button><div id="albanForceInstallHint">خطوة واحدة للوصول السريع لطلباتك ❤️</div></div>';
   document.body.appendChild(gate);
   document.getElementById('albanForceInstallButton').addEventListener('click',async function(){
-   const hint=document.getElementById('albanForceInstallHint');
-   if(window.albanFalahiInstallPrompt){try{const event=window.albanFalahiInstallPrompt;window.albanFalahiInstallPrompt=null;await event.prompt();const choice=await event.userChoice;if(choice&&choice.outcome==='accepted'){gate.remove();return;}hint.textContent='لو لم تظهر النافذة، افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';}catch(e){hint.textContent='افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».';}}
-   else{hint.textContent='لتثبيت البرنامج: افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». لو الخيار غير موجود، جرّب فتح الرابط في Chrome مباشرة.';}
+   const btn=this, hint=document.getElementById('albanForceInstallHint');
+   btn.disabled=true;btn.textContent='جاري تجهيز التثبيت...';hint.textContent='بنجهّز نافذة التثبيت، لحظة واحدة.';
+   let event=window.albanFalahiInstallPrompt||null;
+   if(!event){
+    event=await new Promise(resolve=>{
+     let done=false;
+     const finish=value=>{if(done)return;done=true;clearTimeout(timer);window.removeEventListener('beforeinstallprompt',onPrompt);resolve(value)};
+     const onPrompt=e=>{e.preventDefault();window.albanFalahiInstallPrompt=e;finish(e)};
+     const timer=setTimeout(()=>finish(window.albanFalahiInstallPrompt||null),5000);
+     window.addEventListener('beforeinstallprompt',onPrompt);
+     if(window.albanFalahiInstallPrompt)finish(window.albanFalahiInstallPrompt);
+    });
+   }
+   if(!event){btn.disabled=false;btn.textContent='تثبيت البرنامج';hint.textContent='Chrome لم يجهّز نافذة التثبيت التلقائي بعد. افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق».';return;}
+   try{
+    window.albanFalahiInstallPrompt=null;
+    await event.prompt();
+    const choice=await event.userChoice;
+    if(choice&&choice.outcome==='accepted'){gate.remove();return;}
+    btn.disabled=false;btn.textContent='حاول التثبيت مرة أخرى';hint.textContent='لم يتم تأكيد التثبيت. اضغط الزر للمحاولة مرة أخرى.';
+   }catch(e){
+    btn.disabled=false;btn.textContent='تثبيت البرنامج';hint.textContent='تعذّر فتح نافذة التثبيت الآن. افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق».';
+   }
   });
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',show,{once:true});else show();
