@@ -75,7 +75,8 @@
     if(isInstalled() || document.getElementById('albanForceInstallScreen')) return;
     var gate=document.createElement('div');
     gate.id='albanForceInstallScreen';
-    gate.innerHTML='<div id="albanForceInstallCard"><button id="albanForceInstallClose" type="button" aria-label="إغلاق شاشة التثبيت" title="إغلاق">×</button><div style="font-size:44px;margin-bottom:10px">🥛</div><h2>ثبّت برنامج ألبان فلاحي</h2><p>ثبّت البرنامج على موبايلك عشان تفتح المنيو وتطلب بسهولة في أي وقت.</p><button id="albanForceInstallButton" type="button">تثبيت البرنامج</button><div id="albanForceInstallHint">خطوة واحدة للوصول السريع لطلباتك ❤️</div></div>';\n    document.getElementById("albanForceInstallClose").addEventListener("click",function(){gate.remove();});
+    gate.innerHTML='<div id="albanForceInstallCard"><button id="albanForceInstallClose" type="button" aria-label="إغلاق شاشة التثبيت" title="إغلاق">×</button><div style="font-size:44px;margin-bottom:10px">🥛</div><h2>ثبّت برنامج ألبان فلاحي</h2><p>ثبّت البرنامج على موبايلك عشان تفتح المنيو وتطلب بسهولة في أي وقت.</p><button id="albanForceInstallButton" type="button">تثبيت البرنامج</button><div id="albanForceInstallHint">خطوة واحدة للوصول السريع لطلباتك ❤️</div></div>';
+    document.getElementById("albanForceInstallClose").addEventListener("click",function(){gate.remove();});
     document.body.appendChild(gate);
     document.getElementById('albanForceInstallButton').addEventListener('click',async function(){
       var hint=document.getElementById('albanForceInstallHint');
