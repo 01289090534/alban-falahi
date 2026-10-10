@@ -66,6 +66,7 @@
   window.addEventListener('beforeinstallprompt', function(e){
     e.preventDefault();
     deferredPrompt = e;
+    window.__albanDeferredInstallPrompt = e;
   });
   var style = document.createElement('style');
   style.textContent = '#albanForceInstallScreen{position:fixed;inset:0;z-index:2147483000;background:rgba(8,25,38,.88);display:flex;align-items:center;justify-content:center;padding:20px;font-family:Arial,sans-serif;direction:rtl}#albanForceInstallCard{width:min(430px,100%);background:#fff;border-radius:24px;padding:26px 20px;text-align:center;box-shadow:0 20px 70px #0007;color:#17324a}#albanForceInstallCard h2{font-size:24px;margin:0 0 12px;color:#0877b9}#albanForceInstallCard p{font-size:15px;line-height:1.9;margin:0 0 18px}#albanForceInstallButton{width:100%;border:0;border-radius:14px;background:#0877b9;color:white;padding:16px 12px;font-size:17px;font-weight:900}#albanForceInstallHint{font-size:12px;color:#657780;margin-top:13px;line-height:1.8}';
@@ -78,9 +79,10 @@
     document.body.appendChild(gate);
     document.getElementById('albanForceInstallButton').addEventListener('click',async function(){
       var hint=document.getElementById('albanForceInstallHint');
-      if(deferredPrompt){
+      var availablePrompt = deferredPrompt || window.__albanDeferredInstallPrompt;
+      if(availablePrompt){
         try{
-          var promptEvent=deferredPrompt; deferredPrompt=null;
+          var promptEvent=availablePrompt; deferredPrompt=null; window.__albanDeferredInstallPrompt=null;
           await promptEvent.prompt();
           var choice=await promptEvent.userChoice;
           if(choice && choice.outcome==='accepted'){gate.remove();return;}
