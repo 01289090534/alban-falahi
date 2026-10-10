@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0877b9">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="customer-manifest.json?v=20261010-png-icons">
+<script src="pwa-install.js?v=20261010-install-fix5"></script>
 <title>ألبان فلاحي | دخول العميل</title>
 <link rel="stylesheet" href="brand.css">
 <script src="customer-branding.js?v=20260919-1245"></script>
@@ -117,5 +121,32 @@ try{
 }catch(e){localStorage.removeItem('alban_auth_session')}
 apply();
 </script>
+
+<div id="albanForceInstallScreen" dir="rtl" style="position:fixed;inset:0;z-index:2147483000;background:rgba(8,35,52,.78);display:flex;align-items:center;justify-content:center;padding:18px;font-family:Arial,sans-serif">
+ <div style="width:100%;max-width:420px;background:#fff;border-radius:22px;padding:24px 20px;text-align:center;box-shadow:0 18px 55px #0005;color:#17324a">
+  <div style="font-size:42px;margin-bottom:8px">📲</div>
+  <h2 style="margin:0 0 10px;color:#0877b9;font-size:23px">ثبّت برنامج ألبان فلاحي</h2>
+  <p style="font-size:15px;line-height:1.8;margin:0 0 18px">ثبّت البرنامج على موبايلك علشان تفتحه بسهولة وتطلب منتجاتك بسرعة ❤️</p>
+  <button id="albanForceInstallBtn" type="button" style="width:100%;border:0;border-radius:13px;padding:14px;background:#0877b9;color:white;font-weight:900;font-size:16px">تثبيت البرنامج</button>
+  <p id="albanForceInstallHelp" style="display:none;font-size:14px;line-height:1.9;text-align:right;background:#eef8fb;border-radius:12px;padding:12px;margin:14px 0 0">لتثبيت البرنامج: افتح قائمة Chrome (⋮) واختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»، ثم اتبع التعليمات.</p>
+ </div>
+</div>
+<script>
+(function(){
+ const screen=document.getElementById('albanForceInstallScreen');
+ const btn=document.getElementById('albanForceInstallBtn');
+ const help=document.getElementById('albanForceInstallHelp');
+ let installPrompt=null;
+ if(window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true){screen.remove();return;}
+ window.addEventListener('beforeinstallprompt',function(event){event.preventDefault();installPrompt=event;});
+ btn.addEventListener('click',async function(){
+  if(installPrompt){
+   try{await installPrompt.prompt();const choice=await installPrompt.userChoice;if(choice&&choice.outcome==='accepted'){screen.remove();return;}help.style.display='block';}
+   catch(e){help.style.display='block';}
+  }else{help.style.display='block';}
+ });
+})();
+</script>
+
 </body>
 </html>
