@@ -1,4 +1,4 @@
-const CACHE='alban-pwa-v5';
+const CACHE='alban-pwa-v4';
 self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('push',e=>{
@@ -28,20 +28,4 @@ self.addEventListener('notificationclick',e=>{
     if(clients.openWindow)return clients.openWindow(url);
   }));
 });
-// Handle document navigations with network-first behavior, then use a cached copy offline.
-// This also gives Chromium a real navigation response path for PWA install heuristics.
-self.addEventListener('fetch',e=>{
-  const u=new URL(e.request.url);
-  if(u.origin!==location.origin||e.request.method!=='GET')return;
-  if(e.request.mode==='navigate'||e.request.destination==='document'){
-    e.respondWith(fetch(e.request).then(r=>{
-      if(r.ok&&r.type==='basic')caches.open(CACHE).then(c=>c.put(e.request,r.clone())).catch(()=>{});
-      return r;
-    }).catch(()=>caches.match(e.request).then(r=>r||Response.error())));
-    return;
-  }
-  e.respondWith(fetch(e.request).then(r=>{
-    if(r.ok)caches.open(CACHE).then(c=>c.put(e.request,r.clone())).catch(()=>{});
-    return r;
-  }).catch(()=>caches.match(e.request)));
-});
+self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.origin!==location.origin||e.request.method!=='GET')return;if(e.request.destination==='document')return;e.respondWith(fetch(e.request).then(r=>{if(r.ok)caches.open(CACHE).then(c=>c.put(e.request,r.clone())).catch(()=>{});return r}).catch(()=>caches.match(e.request)))});
