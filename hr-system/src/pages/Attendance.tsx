@@ -28,8 +28,9 @@ export default function Attendance(){
    if(ae){setError(ae.message);setRows([]);setEmployees([]);setBranches([]);setLoading(false);return}
    const pending=(a||[]).filter((r:any)=>r.schedule_exception_approved!==true&&r.schedule_exception_required===true&&r.check_in);
    const ids=[...new Set(pending.map((r:any)=>r.employee_id).filter(Boolean))];
-   const[{data:e},{data:b}]=await Promise.all([ids.length?supabase.from('hr_v2_employees').select('id,employee_no,full_name_ar,position,branch_id,daily_work_hours,work_schedule').in('id',ids):Promise.resolve({data:[]}),supabase.from('hr_v2_branches').select('id,name').eq('is_active',true).order('name')]);
-   setRows(pending);setEmployees(e||[]);setBranches(b||[]);setDrafts({});
+   const[{data:e},{data:b}]=await Promise.all([ids.length?supabase.from('hr_v2_employees').select('id,employee_no,full_name_ar,position,branch_id,daily_work_hours,work_schedule').eq('status','active').in('id',ids):Promise.resolve({data:[]}),supabase.from('hr_v2_branches').select('id,name').eq('is_active',true).order('name')]);
+   const activeIds=new Set((e||[]).map((emp:any)=>emp.id));
+   setRows(pending.filter((r:any)=>activeIds.has(r.employee_id)));setEmployees(e||[]);setBranches(b||[]);setDrafts({});
   }else{
    const[{data:a},{data:e},{data:b}]=await Promise.all([supabase.from('hr_v2_attendance').select('*').eq('work_date',date),supabase.from('hr_v2_employees').select('id,employee_no,full_name_ar,position,branch_id,daily_work_hours,work_schedule').eq('status','active').order('full_name_ar'),supabase.from('hr_v2_branches').select('id,name').eq('is_active',true).order('name')]);
    setRows(a||[]);setEmployees(e||[]);setBranches(b||[]);const next:Record<string,{in:string,out:string}>={};(a||[]).forEach(r=>next[r.employee_id]={in:timeValue(r.check_in),out:timeValue(r.check_out)});setDrafts(next);
