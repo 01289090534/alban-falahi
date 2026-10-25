@@ -53,7 +53,7 @@ function openCropper(img,onDone){
 async function uploadCropped(blob){
   const path='products/'+Date.now()+'-'+crypto.randomUUID()+'.webp';
   const s=getSession();
-  const r=await fetch(SUPA+'/storage/v1/object/'+BUCKET+'/'+path,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+s.access_token,'Content-Type':'image/webp','x-upsert':'false'},body:blob});
+  const r=await fetch(SUPA+'/storage/v1/object/'+BUCKET+'/'+path,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+s.access_token,'Content-Type':'image/webp','cache-control':'max-age=31536000, immutable','x-upsert':'false'},body:blob});
   const t=await r.text();
   if(!r.ok)throw Error((()=>{try{return JSON.parse(t)?.message||JSON.parse(t)?.error}catch{return t}})()||'فشل رفع الصورة');
   return SUPA+'/storage/v1/object/public/'+BUCKET+'/'+path;
