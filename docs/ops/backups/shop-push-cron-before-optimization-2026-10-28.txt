@@ -1,0 +1,21 @@
+# Backup: active shop-push cron job before optimization
+# Captured from Supabase project qxwvuxkbcghbkztjrzon on 2026-10-28.
+# This is the exact active job command before the change.
+
+jobid: 1
+schedule: "30 seconds"
+active: true
+
+command:
+select net.http_post(
+  url:='https://qxwvuxkbcghbkztjrzon.supabase.co/functions/v1/shop-push',
+  headers:=jsonb_build_object(
+    'Content-Type','application/json',
+    'Authorization','Bearer ' || (select decrypted_secret from vault.decrypted_secrets where name='shop_push_cron_secret')
+  ),
+  body:='{"action":"repeat_pending"}'::jsonb,
+  timeout_milliseconds:=10000
+) as request_id;
+
+# Rollback: restore this command for jobid 1 using cron.alter_job(1, command := <command above>).
+# Do not restore or enable jobid 2; it was inactive at capture time.
